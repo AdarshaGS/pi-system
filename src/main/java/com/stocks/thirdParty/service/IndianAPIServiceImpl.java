@@ -8,10 +8,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.externalServices.data.ExternalServicePropertiesEntity;
+import com.externalServices.service.ExternalService;
 import com.stocks.exception.SymbolNotFoundException;
 import com.stocks.thirdParty.ThirdPartyResponse;
 
@@ -21,20 +24,31 @@ import tools.jackson.databind.ObjectMapper;
 public class IndianAPIServiceImpl implements IndianAPIService {
 
     private final HttpClient httpClient;
-    private final String apiEndpoint = "https://stock.indianapi.in/stock";  // have to make these dynamic
-    private final String apiKey = "sk-live-ZzyW04WpYVKBJ8e1Q9HKiUWAth5AShHUOg3KWjOq"; // should not hardcode in real app
+    private final ExternalService externalService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String SERVICE_NAME = "INDIANAPI";
 
-    public IndianAPIServiceImpl() {
+    public IndianAPIServiceImpl(ExternalService externalService) {
         this.httpClient = HttpClient.newHttpClient();
+        this.externalService = externalService;
     }
 
     @Override
     public ThirdPartyResponse fetchStockData(String symbol) {
-        Map<String, String> headers = constructHeaders(apiKey);
+
+        final List<ExternalServicePropertiesEntity> properties = this.externalService
+                .getExternalServicePropertiesByServiceName(
+                        SERVICE_NAME);
+        Map<String, String> headers = constructHeaders(properties);
+
+        String apiEndpoint = properties.stream()
+                .filter(prop -> "endpoint".equalsIgnoreCase(prop.getName()))
+                .map(ExternalServicePropertiesEntity::getValue)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("API endpoint not found"));
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(this.apiEndpoint + "?name=" + encodeSymbol(symbol)))
+                .uri(URI.create(apiEndpoint + "?name=" + encodeSymbol(symbol)))
                 .GET();
 
         headers.forEach(builder::header);
@@ -55,7 +69,14 @@ public class IndianAPIServiceImpl implements IndianAPIService {
         return thirdPartyResponse;
     }
 
-    private Map<String, String> constructHeaders(final String apiKey) {
+    private Map<String, String> constructHeaders(final List<ExternalServicePropertiesEntity> properties) {
+
+        String apiKey = properties.stream()
+                .filter(prop -> "x-api-key".equalsIgnoreCase(prop.getName()))
+                .map(ExternalServicePropertiesEntity::getValue)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("API key not found"));
+
         Map<String, String> headers = new HashMap<>();
         headers.put("Accept", "application/json");
         headers.put("x-api-key",  apiKey);

@@ -13,7 +13,7 @@ public class ThirdPartyResponse {
     private String companyName;
     private String industry;
     private CompanyProfile companyProfile;
-    private Double currentPrice;
+    // private Double currentPrice;
 
 
     @Data
@@ -23,15 +23,19 @@ public class ThirdPartyResponse {
     public static class CompanyProfile {
         private String companyDescription;
         private String mgIndustry;
-        private PeerCompanyList[] peerCompanyList;
+        // private PeerCompanyList peerCompanyList;
     }
 
-    public class PeerCompanyList {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class PeerCompanyList {
         public String tickerId;
         public String companyName;
         public String marketCap;
         public String priceEarningRatio;
-        public String price;
+        // public String price;
     }
 }
 

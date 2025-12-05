@@ -32,7 +32,7 @@ public class StockReadPlatformServiceImpl implements StockReadPlatformService {
         }
         Stock stock = null;
         symbol = symbol.toUpperCase();
-        String sql = "SELECT id, symbol, name, price FROM stocks WHERE symbol = ?";
+        String sql = "SELECT id, symbol, company_name, description, price FROM stocks WHERE symbol = ?";
 
         try {
             stock = jdbcTemplate.queryForObject(
@@ -40,18 +40,19 @@ public class StockReadPlatformServiceImpl implements StockReadPlatformService {
                     new BeanPropertyRowMapper<>(Stock.class),
                     symbol);
         } catch (EmptyResultDataAccessException ex) {
-            // Not found in DB → call third-party
-            ThirdPartyResponse response = this.indianAPIService.fetchStockData(symbol);
-            if (response == null) {
-                throw new SymbolNotFoundException("Symbol not found in third-party API: ");
+                ThirdPartyResponse response = this.indianAPIService.fetchStockData(symbol);
+                if (response == null) {
+                    throw new SymbolNotFoundException("Symbol not found in third-party API: ");
+                }
+                stock = Stock.builder()
+                        .symbol(symbol)
+                        .companyName(response.getCompanyName())
+                        .description(response.getCompanyProfile().getCompanyDescription())
+                        .price(100.0) // Default price as 100.0 since currentPrice is not available
+                        .build();
+                stock = this.stockRepository.save(stock);
             }
-            stock = Stock.builder()
-                    .symbol(symbol)
-                    .companyName(response.getCompanyName())
-                    // .price(response.getPrice())
-                    .build();
-            stock = this.stockRepository.save(stock);
-        }
+         
         return stock;
     }
 }

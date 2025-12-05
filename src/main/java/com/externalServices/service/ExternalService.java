@@ -1,9 +1,11 @@
 package com.externalServices.service;
 
-import com.externalServices.data.ExternalServiceEntity;
+import java.util.List;
+
+import com.externalServices.data.ExternalServicePropertiesEntity;
 
 public interface ExternalService {
 
-    ExternalServiceEntity getExternalServiceByName(String serviceName);
-    
+    List<ExternalServicePropertiesEntity> getExternalServicePropertiesByServiceName(String serviceName);
+
 }

@@ -1,11 +1,13 @@
 package com.externalServices.api;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.externalServices.data.ExternalServiceEntity;
+import com.externalServices.data.ExternalServicePropertiesEntity;
 import com.externalServices.service.ExternalService;
 
 @RestController
@@ -20,7 +22,7 @@ public class ExternalServiceAPIResource {
     
 
     @GetMapping("/{serviceName}")
-    public ExternalServiceEntity getExternalService(@PathVariable String serviceName) {
-        return this.externalService.getExternalServiceByName(serviceName);
+    public List<ExternalServicePropertiesEntity> getExternalService(@PathVariable String serviceName) {
+        return this.externalService.getExternalServicePropertiesByServiceName(serviceName);
     }
 }

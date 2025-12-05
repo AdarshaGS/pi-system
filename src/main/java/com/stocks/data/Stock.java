@@ -28,10 +28,10 @@ public class Stock {
     @Column(name = "company_name", nullable = false)
     private String companyName;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price", nullable = true)
     private Double price;
 
-    @Column(name = "description", length = 2000)
+    @Column(name = "description")
     private String description;
 
     public Stock() {
