@@ -13,7 +13,7 @@ public class ThirdPartyResponse {
     private String companyName;
     private CompanyProfile companyProfile;
     private CurrentPrice currentPrice;
-
+    private StockDetailsReusableData stockDetailsReusableData;
 
     @Data
     @NoArgsConstructor
@@ -22,7 +22,6 @@ public class ThirdPartyResponse {
     public static class CompanyProfile {
         private String companyDescription;
         private String mgIndustry;
-        // private PeerCompanyList peerCompanyList;
     }
 
     @Data
@@ -34,7 +33,6 @@ public class ThirdPartyResponse {
         public String companyName;
         public String marketCap;
         public String priceEarningRatio;
-        // public String price;
     }
 
     @Data
@@ -46,6 +44,12 @@ public class ThirdPartyResponse {
         private Double NSE;
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class StockDetailsReusableData {
+        private Long marketCap;
+    }
+
 }
-
-

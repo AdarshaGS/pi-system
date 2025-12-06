@@ -1,5 +1,7 @@
 package com.stocks.data;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Table(name = "stocks")
 @Entity
@@ -38,5 +39,8 @@ public class Stock {
 
     @Column(name = "sector_id")
     private Long sectorId;
+
+    @Column(name = "market_cap")
+    private Long marketCap;
 
 }

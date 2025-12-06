@@ -27,6 +27,7 @@ public class PortfolioDTOResponse {
   // Smart Analysis Fields
   private int healthScore; // 0-100
   private List<AnalysisInsight> insights;
+  private MarketCapAllocation marketCapAllocation;
 
   public PortfolioDTOResponse() {
   }

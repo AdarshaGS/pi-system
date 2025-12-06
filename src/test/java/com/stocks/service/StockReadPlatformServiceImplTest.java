@@ -54,18 +54,18 @@ public class StockReadPlatformServiceImplTest {
         mockResponse.setCurrentPrice(price);
 
         when(indianAPIService.fetchStockData(symbol)).thenReturn(mockResponse);
-        when(sectorRepository.findIdByName("Computers - Software")).thenReturn(10L);
+        when(sectorRepository.findIdByName("Information Technology")).thenReturn(10L);
         when(stockRepository.save(any(Stock.class))).thenAnswer(i -> i.getArguments()[0]);
         when(sectorRepository.findById(10L))
-                .thenReturn(java.util.Optional.of(Sector.builder().id(10L).name("Computers - Software").build()));
+                .thenReturn(java.util.Optional.of(Sector.builder().id(10L).name("Information Technology").build()));
 
         // Execute
         StockResponse response = service.fetchFromThirdParty(symbol, null);
 
         // Verify
         assertNotNull(response);
-        assertEquals("Computers - Software", response.getSector());
-        verify(sectorRepository).findIdByName("Computers - Software");
+        assertEquals("Information Technology", response.getSector());
+        verify(sectorRepository).findIdByName("Information Technology");
     }
 
     @Test
@@ -82,15 +82,15 @@ public class StockReadPlatformServiceImplTest {
         mockResponse.setCurrentPrice(price);
 
         when(indianAPIService.fetchStockData(symbol)).thenReturn(mockResponse);
-        when(sectorRepository.findIdByName("Banks - Private Sector")).thenReturn(20L);
+        when(sectorRepository.findIdByName("Financials")).thenReturn(20L);
         when(stockRepository.save(any(Stock.class))).thenAnswer(i -> i.getArguments()[0]);
         when(sectorRepository.findById(20L))
-                .thenReturn(java.util.Optional.of(Sector.builder().id(20L).name("Banks - Private Sector").build()));
+                .thenReturn(java.util.Optional.of(Sector.builder().id(20L).name("Financials").build()));
 
         // Execute
         StockResponse response = service.fetchFromThirdParty(symbol, null);
 
         // Verify
-        assertEquals("Banks - Private Sector", response.getSector());
+        assertEquals("Financials", response.getSector());
     }
 }

@@ -49,7 +49,7 @@ public class StockReadPlatformServiceImpl implements StockReadPlatformService {
                     sql,
                     new BeanPropertyRowMapper<>(Stock.class),
                     symbol);
-            stockResponse = stockResponseBuilder(stock);
+            stockResponse = stockResponseBuilder(stock, null);
         } catch (EmptyResultDataAccessException ex) {
             stockResponse = fetchFromThirdParty(symbol, stock);
         }
@@ -64,9 +64,13 @@ public class StockReadPlatformServiceImpl implements StockReadPlatformService {
 
         String rawIndustry = response.getCompanyProfile().getMgIndustry();
         String normalizedSectorName = sectorNormalizer.normalize(rawIndustry);
-
+        Long sectorId = null;
         // Check if Normalized Sector Name exists in DB
-        Long sectorId = this.sectorRepository.findIdByName(normalizedSectorName);
+        if (normalizedSectorName != null && normalizedSectorName == "Others") {
+            sectorId = this.sectorRepository.findIdByName(rawIndustry);
+        } else {
+            sectorId = this.sectorRepository.findIdByName(normalizedSectorName);
+        }
 
         if (sectorId == null) {
             // If not found (e.g. first time seeing "Technology"), create it
@@ -81,18 +85,21 @@ public class StockReadPlatformServiceImpl implements StockReadPlatformService {
                 .description(response.getCompanyProfile().getCompanyDescription())
                 .price(response.getCurrentPrice().getNSE())
                 .sectorId(sectorId)
+                .marketCap(response.getStockDetailsReusableData().getMarketCap())
                 .build();
         stock = this.stockRepository.save(stock);
-        return stockResponseBuilder(stock);
+        return stockResponseBuilder(stock, response);
     }
 
-    public StockResponse stockResponseBuilder(Stock stock) {
+    public StockResponse stockResponseBuilder(Stock stock, ThirdPartyResponse response) {
         Sector sector = this.sectorRepository.findById(stock.getSectorId()).orElse(null);
         return StockResponse.builder()
                 .companyName(stock.getCompanyName())
                 .description(stock.getDescription())
-                .price(stock.getPrice())
+                .nsePrice(stock.getPrice())
+                .bsePrice(response != null ? response.getCurrentPrice().getBSE() : 0)
                 .sector(sector != null ? sector.getName() : null)
+                .marketCap(stock.getMarketCap())
                 .build();
     }
 
