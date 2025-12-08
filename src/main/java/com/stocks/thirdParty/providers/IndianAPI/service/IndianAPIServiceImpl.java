@@ -1,4 +1,4 @@
-package com.stocks.thirdParty.service;
+package com.stocks.thirdParty.providers.IndianAPI.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;

@@ -13,25 +13,29 @@ import com.stocks.diversification.sectors.service.SectorNormalizer;
 import com.stocks.exception.SymbolNotFoundException;
 import com.stocks.repo.StockRepository;
 import com.stocks.thirdParty.ThirdPartyResponse;
-import com.stocks.thirdParty.service.IndianAPIService;
+import com.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
+
+import com.stocks.thirdParty.factory.StockDataProviderFactory;
 
 @Service
 public class StockReadPlatformServiceImpl implements StockReadPlatformService {
 
     final JdbcTemplate jdbcTemplate;
-    final IndianAPIService indianAPIService;
+    final IndianAPIService indianAPIService; // Could be removed if unused, but keeping to minimize diff
     final StockRepository stockRepository;
     final SectorRepository sectorRepository;
     final SectorNormalizer sectorNormalizer;
+    final StockDataProviderFactory stockDataProviderFactory;
 
     public StockReadPlatformServiceImpl(final JdbcTemplate jdbcTemplate, final IndianAPIService indianAPIService,
             final StockRepository stockRepository, final SectorRepository sectorRepository,
-            final SectorNormalizer sectorNormalizer) {
+            final SectorNormalizer sectorNormalizer, final StockDataProviderFactory stockDataProviderFactory) {
         this.jdbcTemplate = jdbcTemplate;
         this.indianAPIService = indianAPIService;
         this.stockRepository = stockRepository;
         this.sectorRepository = sectorRepository;
         this.sectorNormalizer = sectorNormalizer;
+        this.stockDataProviderFactory = stockDataProviderFactory;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class StockReadPlatformServiceImpl implements StockReadPlatformService {
     }
 
     public StockResponse fetchFromThirdParty(String symbol, Stock stock) {
-        ThirdPartyResponse response = this.indianAPIService.fetchStockData(symbol);
+        ThirdPartyResponse response = this.stockDataProviderFactory.fetchStockDataWithRetry(symbol);
         if (response == null) {
             throw new SymbolNotFoundException("Symbol not found in third-party API: " + symbol);
         }
@@ -65,15 +69,14 @@ public class StockReadPlatformServiceImpl implements StockReadPlatformService {
         String rawIndustry = response.getCompanyProfile().getMgIndustry();
         String normalizedSectorName = sectorNormalizer.normalize(rawIndustry);
         Long sectorId = null;
-        // Check if Normalized Sector Name exists in DB
-        if (normalizedSectorName != null && normalizedSectorName == "Others") {
+
+        if (normalizedSectorName != null && "Others".equals(normalizedSectorName)) {
             sectorId = this.sectorRepository.findIdByName(rawIndustry);
         } else {
             sectorId = this.sectorRepository.findIdByName(normalizedSectorName);
         }
 
         if (sectorId == null) {
-            // If not found (e.g. first time seeing "Technology"), create it
             Sector sector = Sector.builder().name(normalizedSectorName).build();
             this.sectorRepository.save(sector);
             sectorId = sector.getId();
@@ -85,7 +88,9 @@ public class StockReadPlatformServiceImpl implements StockReadPlatformService {
                 .description(response.getCompanyProfile().getCompanyDescription())
                 .price(response.getCurrentPrice().getNSE())
                 .sectorId(sectorId)
-                .marketCap(response.getStockDetailsReusableData().getMarketCap())
+                .marketCap(response.getStockDetailsReusableData() != null
+                        ? response.getStockDetailsReusableData().getMarketCap()
+                        : response.getMarketCapitalization())
                 .build();
         stock = this.stockRepository.save(stock);
         return stockResponseBuilder(stock, response);

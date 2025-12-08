@@ -18,79 +18,97 @@ import com.stocks.diversification.sectors.repo.SectorRepository;
 import com.stocks.diversification.sectors.service.SectorNormalizer;
 import com.stocks.repo.StockRepository;
 import com.stocks.thirdParty.ThirdPartyResponse;
-import com.stocks.thirdParty.service.IndianAPIService;
+import com.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
+import com.stocks.thirdParty.factory.StockDataProviderFactory;
 
 public class StockReadPlatformServiceImplTest {
 
-    private JdbcTemplate jdbcTemplate;
-    private IndianAPIService indianAPIService;
-    private StockRepository stockRepository;
-    private SectorRepository sectorRepository;
-    private SectorNormalizer sectorNormalizer;
-    private StockReadPlatformServiceImpl service;
+        private JdbcTemplate jdbcTemplate;
+        private IndianAPIService indianAPIService;
+        private StockRepository stockRepository;
+        private SectorRepository sectorRepository;
+        private SectorNormalizer sectorNormalizer;
+        private StockReadPlatformServiceImpl service;
+        private StockDataProviderFactory stockDataProviderFactory;
 
-    @BeforeEach
-    void setUp() {
-        jdbcTemplate = mock(JdbcTemplate.class);
-        indianAPIService = mock(IndianAPIService.class);
-        stockRepository = mock(StockRepository.class);
-        sectorRepository = mock(SectorRepository.class);
-        sectorNormalizer = new SectorNormalizer(); // Use real normalizer to test logic
-        service = new StockReadPlatformServiceImpl(jdbcTemplate, indianAPIService, stockRepository, sectorRepository,
-                sectorNormalizer);
-    }
+        @BeforeEach
+        void setUp() {
+                jdbcTemplate = mock(JdbcTemplate.class);
+                indianAPIService = mock(IndianAPIService.class);
+                stockRepository = mock(StockRepository.class);
+                sectorRepository = mock(SectorRepository.class);
+                sectorNormalizer = new SectorNormalizer();
+                stockDataProviderFactory = mock(StockDataProviderFactory.class);
 
-    @Test
-    void testFetchFromThirdParty_NormalizesSector() {
-        // Setup
-        String symbol = "INFY";
-        ThirdPartyResponse mockResponse = new ThirdPartyResponse();
-        mockResponse.setCompanyName("Infosys");
-        ThirdPartyResponse.CompanyProfile profile = new ThirdPartyResponse.CompanyProfile();
-        profile.setMgIndustry("Computers - Software"); // Raw Industry
-        mockResponse.setCompanyProfile(profile);
-        ThirdPartyResponse.CurrentPrice price = new ThirdPartyResponse.CurrentPrice();
-        price.setNSE(1500.0);
-        mockResponse.setCurrentPrice(price);
+                service = new StockReadPlatformServiceImpl(jdbcTemplate, indianAPIService, stockRepository,
+                                sectorRepository,
+                                sectorNormalizer, stockDataProviderFactory);
+        }
 
-        when(indianAPIService.fetchStockData(symbol)).thenReturn(mockResponse);
-        when(sectorRepository.findIdByName("Information Technology")).thenReturn(10L);
-        when(stockRepository.save(any(Stock.class))).thenAnswer(i -> i.getArguments()[0]);
-        when(sectorRepository.findById(10L))
-                .thenReturn(java.util.Optional.of(Sector.builder().id(10L).name("Information Technology").build()));
+        @Test
+        void testFetchFromThirdParty_NormalizesSector() {
+                // Setup
+                String symbol = "INFY";
+                ThirdPartyResponse mockResponse = new ThirdPartyResponse();
+                mockResponse.setCompanyName("Infosys");
+                ThirdPartyResponse.CompanyProfile profile = new ThirdPartyResponse.CompanyProfile();
+                profile.setMgIndustry("Computers - Software");
+                mockResponse.setCompanyProfile(profile);
+                ThirdPartyResponse.CurrentPrice price = new ThirdPartyResponse.CurrentPrice();
+                price.setNSE(1500.0);
+                mockResponse.setCurrentPrice(price);
 
-        // Execute
-        StockResponse response = service.fetchFromThirdParty(symbol, null);
+                // Mock Market Cap Data
+                ThirdPartyResponse.StockDetailsReusableData stockDetails = ThirdPartyResponse.StockDetailsReusableData
+                                .builder()
+                                .marketCap(500000L).build();
+                mockResponse.setStockDetailsReusableData(stockDetails);
 
-        // Verify
-        assertNotNull(response);
-        assertEquals("Information Technology", response.getSector());
-        verify(sectorRepository).findIdByName("Information Technology");
-    }
+                when(stockDataProviderFactory.fetchStockDataWithRetry(symbol)).thenReturn(mockResponse);
+                when(sectorRepository.findIdByName("Information Technology")).thenReturn(10L);
+                when(stockRepository.save(any(Stock.class))).thenAnswer(i -> i.getArguments()[0]);
+                when(sectorRepository.findById(10L))
+                                .thenReturn(java.util.Optional
+                                                .of(Sector.builder().id(10L).name("Information Technology").build()));
 
-    @Test
-    void testFetchFromThirdParty_NormalizesBanking() {
-        // Setup
-        String symbol = "HDFCBANK";
-        ThirdPartyResponse mockResponse = new ThirdPartyResponse();
-        mockResponse.setCompanyName("HDFC Bank");
-        ThirdPartyResponse.CompanyProfile profile = new ThirdPartyResponse.CompanyProfile();
-        profile.setMgIndustry("Banks - Private Sector");
-        mockResponse.setCompanyProfile(profile);
-        ThirdPartyResponse.CurrentPrice price = new ThirdPartyResponse.CurrentPrice();
-        price.setNSE(1600.0);
-        mockResponse.setCurrentPrice(price);
+                // Execute
+                StockResponse response = service.fetchFromThirdParty(symbol, null);
 
-        when(indianAPIService.fetchStockData(symbol)).thenReturn(mockResponse);
-        when(sectorRepository.findIdByName("Financials")).thenReturn(20L);
-        when(stockRepository.save(any(Stock.class))).thenAnswer(i -> i.getArguments()[0]);
-        when(sectorRepository.findById(20L))
-                .thenReturn(java.util.Optional.of(Sector.builder().id(20L).name("Financials").build()));
+                // Verify
+                assertNotNull(response);
+                assertEquals("Information Technology", response.getSector());
+                verify(sectorRepository).findIdByName("Information Technology");
+        }
 
-        // Execute
-        StockResponse response = service.fetchFromThirdParty(symbol, null);
+        @Test
+        void testFetchFromThirdParty_NormalizesBanking() {
+                // Setup
+                String symbol = "HDFCBANK";
+                ThirdPartyResponse mockResponse = new ThirdPartyResponse();
+                mockResponse.setCompanyName("HDFC Bank");
+                ThirdPartyResponse.CompanyProfile profile = new ThirdPartyResponse.CompanyProfile();
+                profile.setMgIndustry("Banks - Private Sector");
+                mockResponse.setCompanyProfile(profile);
+                ThirdPartyResponse.CurrentPrice price = new ThirdPartyResponse.CurrentPrice();
+                price.setNSE(1600.0);
+                mockResponse.setCurrentPrice(price);
 
-        // Verify
-        assertEquals("Financials", response.getSector());
-    }
+                // Mock Market Cap Data
+                ThirdPartyResponse.StockDetailsReusableData stockDetails = ThirdPartyResponse.StockDetailsReusableData
+                                .builder()
+                                .marketCap(800000L).build();
+                mockResponse.setStockDetailsReusableData(stockDetails);
+
+                when(stockDataProviderFactory.fetchStockDataWithRetry(symbol)).thenReturn(mockResponse);
+                when(sectorRepository.findIdByName("Financials")).thenReturn(20L);
+                when(stockRepository.save(any(Stock.class))).thenAnswer(i -> i.getArguments()[0]);
+                when(sectorRepository.findById(20L))
+                                .thenReturn(java.util.Optional.of(Sector.builder().id(20L).name("Financials").build()));
+
+                // Execute
+                StockResponse response = service.fetchFromThirdParty(symbol, null);
+
+                // Verify
+                assertEquals("Financials", response.getSector());
+        }
 }

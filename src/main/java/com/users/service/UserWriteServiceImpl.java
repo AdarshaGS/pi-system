@@ -24,17 +24,5 @@ public class UserWriteServiceImpl implements UserWriteService {
 
         return this.usersRepository.save(newUser);
     }
-
-    @Override
-    public Users updateUser(Long userId, Users user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
-    }
-
-    @Override
-    public Users deleteUser(Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
-    }
     
 }

@@ -27,6 +27,13 @@ CREATE TABLE `portfolio_holdings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `recommendations` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `threshold_percentage` double DEFAULT NULL,
+  `recommendation_message` varchar(2000) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- Seed Sectors
 INSERT IGNORE INTO `sectors` (`id`, `name`, `code`) VALUES
 (1, 'Energy', 'ENE'),

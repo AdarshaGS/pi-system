@@ -14,6 +14,7 @@ public class ThirdPartyResponse {
     private CompanyProfile companyProfile;
     private CurrentPrice currentPrice;
     private StockDetailsReusableData stockDetailsReusableData;
+    private Long marketCapitalization;
 
     @Data
     @NoArgsConstructor

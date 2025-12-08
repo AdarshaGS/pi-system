@@ -1,15 +1,13 @@
 package com.stocks.scheduler;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.stocks.data.Stock;
 import com.stocks.repo.StockRepository;
 import com.stocks.thirdParty.ThirdPartyResponse;
-import com.stocks.thirdParty.service.IndianAPIService;
+import com.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
