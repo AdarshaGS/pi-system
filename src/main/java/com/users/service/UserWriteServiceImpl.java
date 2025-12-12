@@ -19,10 +19,11 @@ public class UserWriteServiceImpl implements UserWriteService {
         Users newUser = Users.builder()
                 .name(user.getName())
                 .email(user.getEmail())
+                .mobileNumber(user.getMobileNumber())
                 .password(user.getPassword())
                 .build();
 
         return this.usersRepository.save(newUser);
     }
-    
+
 }

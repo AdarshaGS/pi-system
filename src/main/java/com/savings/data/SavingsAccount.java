@@ -1,4 +1,6 @@
-package com.users.data;
+package com.savings.data;
+
+import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,28 +13,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Table(name = "users")
 @Entity
+@Table(name = "savings_account_details")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users {
+public class SavingsAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long Id;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "userId")
+    private Long userId;
 
-    @Column(name = "mobile_no", nullable = false)
-    private String mobileNumber;
+    @Column(name = "account_holder_name")
+    private String accountHolderName;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @Column(name = "bank_name")
+    private String bankName;
 
-    @Column(name = "password", nullable = false)
-    private String password;
+    @Column(name = "amount")
+    private BigDecimal amount;
 
 }

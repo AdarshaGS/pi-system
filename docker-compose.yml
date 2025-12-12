@@ -9,7 +9,7 @@ services:
       MYSQL_DATABASE: pi-system
       MYSQL_ROOT_PASSWORD: mysql
       MYSQL_USER: root
-      MYSQL_PASSWORD: mysql
+      MYSQL_PASSWORD: T"\U;yn@h3285mB3
     ports:
       - "3306:3306"
     volumes:

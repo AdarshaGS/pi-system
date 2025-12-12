@@ -16,13 +16,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.stocks.data.Stock;
-import com.stocks.diversification.portfolio.data.Portfolio;
-import com.stocks.diversification.portfolio.data.PortfolioDTOResponse;
-import com.stocks.diversification.portfolio.repo.PortfolioRepository;
-import com.stocks.diversification.sectors.data.Sector;
-import com.stocks.diversification.sectors.repo.SectorRepository;
-import com.stocks.repo.StockRepository;
+import com.investments.stocks.data.Stock;
+import com.investments.stocks.diversification.portfolio.data.Portfolio;
+import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
+import com.investments.stocks.diversification.portfolio.repo.PortfolioRepository;
+import com.investments.stocks.diversification.portfolio.service.PortfolioAnalyzerEngine;
+import com.investments.stocks.diversification.portfolio.service.PortfolioReadPlatformServiceImpl;
+import com.investments.stocks.diversification.sectors.data.Sector;
+import com.investments.stocks.diversification.sectors.repo.SectorRepository;
+import com.investments.stocks.repo.StockRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class PortfolioReadPlatformServiceImplTest {
@@ -155,9 +157,9 @@ public class PortfolioReadPlatformServiceImplTest {
 
                 when(portfolioAnalyzerEngine.analyze(anyList(), any(), any())).thenReturn(
                                 java.util.Collections.singletonList(
-                                                new com.stocks.diversification.portfolio.data.AnalysisInsight(
-                                                                com.stocks.diversification.portfolio.data.AnalysisInsight.InsightType.CRITICAL,
-                                                                com.stocks.diversification.portfolio.data.AnalysisInsight.InsightCategory.STOCK_PERFORMANCE,
+                                                new com.investments.stocks.diversification.portfolio.data.AnalysisInsight(
+                                                                com.investments.stocks.diversification.portfolio.data.AnalysisInsight.InsightType.CRITICAL,
+                                                                com.investments.stocks.diversification.portfolio.data.AnalysisInsight.InsightCategory.STOCK_PERFORMANCE,
                                                                 "Crash", "Sell")));
                 when(portfolioAnalyzerEngine.calculateHealthScore(anyList())).thenReturn(80);
 
