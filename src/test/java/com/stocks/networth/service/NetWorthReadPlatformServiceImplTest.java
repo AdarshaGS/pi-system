@@ -11,16 +11,16 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.stocks.diversification.portfolio.data.PortfolioDTOResponse;
-import com.stocks.diversification.portfolio.service.PortfolioReadPlatformService;
-import com.stocks.networth.data.NetWorthDTO;
-import com.stocks.networth.data.UserAsset;
-import com.stocks.networth.data.UserAsset.AssetType;
-import com.stocks.networth.data.UserLiability;
-import com.stocks.networth.data.UserLiability.LiabilityType;
-import com.stocks.networth.repo.UserAssetRepository;
-import com.stocks.networth.repo.UserLiabilityRepository;
-import com.stocks.networth.service.impl.NetWorthReadPlatformServiceImpl;
+import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
+import com.investments.stocks.diversification.portfolio.service.PortfolioReadPlatformService;
+import com.investments.stocks.networth.data.NetWorthDTO;
+import com.investments.stocks.networth.data.UserAsset;
+import com.investments.stocks.networth.data.UserLiability;
+import com.investments.stocks.networth.data.UserAsset.AssetType;
+import com.investments.stocks.networth.data.UserLiability.LiabilityType;
+import com.investments.stocks.networth.repo.UserAssetRepository;
+import com.investments.stocks.networth.repo.UserLiabilityRepository;
+import com.investments.stocks.networth.service.impl.NetWorthReadPlatformServiceImpl;
 
 public class NetWorthReadPlatformServiceImplTest {
 

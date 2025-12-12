@@ -1,4 +1,4 @@
-package com.users.data;
+package com.investments.stocks.diversification.sectors.data;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,28 +11,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Table(name = "users")
+@Table(name = "sectors")
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users {
+public class Sector {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "mobile_no", nullable = false)
-    private String mobileNumber;
-
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
+    @Column(name = "code")
+    private String code;
 }

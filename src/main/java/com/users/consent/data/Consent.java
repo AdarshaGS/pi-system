@@ -1,4 +1,4 @@
-package com.users.data;
+package com.users.consent.data;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,28 +11,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Table(name = "users")
 @Entity
-@Data
+@Table(name = "user_consent")
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users {
+public class Consent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @Column(name = "mobile_no", nullable = false)
-    private String mobileNumber;
+    @Column(name = "consent_id")
+    private Long consentId;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
+    @Column(name = "agreed")
+    private boolean agreed;
 }

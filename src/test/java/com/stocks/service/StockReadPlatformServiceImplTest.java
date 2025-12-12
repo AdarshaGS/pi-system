@@ -11,15 +11,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.stocks.data.Stock;
-import com.stocks.data.StockResponse;
-import com.stocks.diversification.sectors.data.Sector;
-import com.stocks.diversification.sectors.repo.SectorRepository;
-import com.stocks.diversification.sectors.service.SectorNormalizer;
-import com.stocks.repo.StockRepository;
-import com.stocks.thirdParty.ThirdPartyResponse;
-import com.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
-import com.stocks.thirdParty.factory.StockDataProviderFactory;
+import com.investments.stocks.data.Stock;
+import com.investments.stocks.data.StockResponse;
+import com.investments.stocks.diversification.sectors.data.Sector;
+import com.investments.stocks.diversification.sectors.repo.SectorRepository;
+import com.investments.stocks.diversification.sectors.service.SectorNormalizer;
+import com.investments.stocks.repo.StockRepository;
+import com.investments.stocks.service.StockReadPlatformServiceImpl;
+import com.investments.stocks.thirdParty.ThirdPartyResponse;
+import com.investments.stocks.thirdParty.factory.StockDataProviderFactory;
+import com.investments.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
 
 public class StockReadPlatformServiceImplTest {
 

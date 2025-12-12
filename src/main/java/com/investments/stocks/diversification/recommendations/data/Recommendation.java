@@ -1,4 +1,4 @@
-package com.users.data;
+package com.investments.stocks.diversification.recommendations.data;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,28 +11,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Table(name = "users")
+@Table(name = "recommendations")
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Users {
-
+public class Recommendation {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "threshold_percentage")
+    private Double thresholdPercentage;
 
-    @Column(name = "mobile_no", nullable = false)
-    private String mobileNumber;
-
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
+    @Column(name = "recommendation_message", length = 2000)
+    private String recommendationMessage;
 }
