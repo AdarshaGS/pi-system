@@ -48,6 +48,6 @@ public class UserLiability {
     private LocalDate dueDate;
 
     public enum LiabilityType {
-        HOME_LOAN, PERSONAL_LOAN, CAR_LOAN, EDUCATION_LOAN, CREDIT_CARD, OTHER
+        HOME_LOAN, PERSONAL_LOAN, CAR_LOAN, EDUCATION_LOAN, CREDIT_CARD, BNPL, OTHER
     }
 }

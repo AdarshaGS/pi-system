@@ -53,8 +53,8 @@ public class LoanApiResource {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "User login", description = "Authenticate user with email and password, returns JWT token")
-    @ApiResponse(responseCode = "200", description = "Successfully authenticated")
+    @Operation(summary = "Get Loan by ID", description = "Retrieve loan details by its ID")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
     public ResponseEntity<Loan> getLoanById(@PathVariable Long id) {
         Loan loan = loanService.getLoanById(id);
         if (loan != null) {
@@ -64,16 +64,16 @@ public class LoanApiResource {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "User login", description = "Authenticate user with email and password, returns JWT token")
-    @ApiResponse(responseCode = "200", description = "Successfully authenticated")
+    @Operation(summary = "Delete Loan", description = "Delete a loan by its ID")
+    @ApiResponse(responseCode = "204", description = "Successfully deleted")
     public ResponseEntity<Void> deleteLoan(@PathVariable Long id) {
         loanService.deleteLoan(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/{id}/simulate-prepayment")
-    @Operation(summary = "User login", description = "Authenticate user with email and password, returns JWT token")
-    @ApiResponse(responseCode = "200", description = "Successfully authenticated")
+    @Operation(summary = "Simulate Prepayment", description = "Calculate impact of prepayment on loan tenure and interest")
+    @ApiResponse(responseCode = "200", description = "Simulation result retrieved")
     public ResponseEntity<Map<String, Object>> simulatePrepayment(
             @PathVariable Long id,
             @RequestParam BigDecimal amount) {
