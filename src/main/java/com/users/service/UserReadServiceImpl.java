@@ -3,7 +3,6 @@ package com.users.service;
 import org.springframework.stereotype.Service;
 
 import com.users.data.Users;
-import com.users.exception.UserNotFoundException;
 import com.users.repo.UsersRepository;
 
 @Service
@@ -17,7 +16,7 @@ public class UserReadServiceImpl implements UserReadService {
 
     @Override
     public Users getUserById(Long userId) {
-        return this.usersRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return this.usersRepository.findById(userId).get();
     }
 
 }

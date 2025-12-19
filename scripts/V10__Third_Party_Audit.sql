@@ -13,14 +13,7 @@ CREATE TABLE third_party_request_audit (
     exception_message TEXT
 );
 
-CREATE TABLE `users` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-)
 
-CREATE INDEX idx_tp_audit_provider ON third_party_request_audit(provider_name);
-CREATE INDEX idx_tp_audit_timestamp ON third_party_request_audit(timestamp);
+
+CREATE INDEX idx_tp_audit_provider ON third_party_request_audit(`provider_name`);
+CREATE INDEX idx_tp_audit_timestamp ON third_party_request_audit(`timestamp`);

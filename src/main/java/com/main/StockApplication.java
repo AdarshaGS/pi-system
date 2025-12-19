@@ -7,39 +7,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-// @SpringBootApplication(scanBasePackages = {
-//                 "com.investments",
-//                 "com.externalServices",
-//                 "com.users",
-//                 "com.auth",
-//                 "com.savings",
-//                 "com.loan",
-//                 "com.protection"
-// })
-// @EnableJpaRepositories(basePackages = {
-//                 "com.investments.*.repo",
-//                 "com.investments.*.*.repo",
-//                 "com.investments.*.*.*.repo",
-//                 "com.externalServices.repo",
-//                 "com.users.repo",
-//                 "com.users.*.repo",
-//                 "com.savings.repo",
-//                 "com.loan.repo",
-//                 "com.protection.repo"
-// })
-// @EntityScan(basePackages = {
-//                 "com.investments.*.data",
-//                 "com.investments.*.*.data",
-//                 "com.investments.*.*.*.data",
-//                 "com.externalServices.data",
-//                 "com.users.data",
-//                 "com.users.*.data",
-//                 "com.savings.data",
-//                 "com.loan.data",
-//                 "com.protection.data"
-// })
-// @EnableScheduling
-
 @SpringBootApplication
 @ComponentScan(basePackages = "com")
 @EntityScan(basePackages = "com")

@@ -1,17 +1,16 @@
 package com.auth.data;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class LoginRequest {
-
+@AllArgsConstructor
+public class ForgotPasswordRequest {
     private String email;
     private String password;
     private String confirmPassword;
-    private String newPassword;
-    private String oldPassword;
 }
