@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.audit.service.ThirdPartyAuditService;
 import com.externalServices.data.ExternalServicePropertiesEntity;
 import com.externalServices.service.ExternalService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,10 +29,13 @@ public class IndianAPIServiceImpl implements IndianAPIService {
     private final ExternalService externalService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String SERVICE_NAME = "INDIANAPI";
+    private final ThirdPartyAuditService auditService;
 
-    public IndianAPIServiceImpl(ExternalService externalService) {
+    public IndianAPIServiceImpl(ExternalService externalService,
+            ThirdPartyAuditService auditService) {
         this.httpClient = HttpClient.newHttpClient();
         this.externalService = externalService;
+        this.auditService = auditService;
     }
 
     @Override
@@ -56,11 +60,37 @@ public class IndianAPIServiceImpl implements IndianAPIService {
 
         HttpRequest request = builder.build();
 
-        HttpResponse<String> httpResponse = this.httpClient
-                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .join();
+        long startTime = System.currentTimeMillis();
+        String response = null;
+        Integer statusCode = null;
+        String exceptionMessage = null;
 
-        String response = httpResponse.body();
+        try {
+            HttpResponse<String> httpResponse = this.httpClient
+                    .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .join();
+
+            statusCode = httpResponse.statusCode();
+            response = httpResponse.body();
+        } catch (Exception e) {
+            exceptionMessage = e.getMessage();
+            throw e;
+        } finally {
+            long duration = System.currentTimeMillis() - startTime;
+            com.audit.entity.ThirdPartyRequestAudit audit = com.audit.entity.ThirdPartyRequestAudit.builder()
+                    .providerName(SERVICE_NAME)
+                    .url(request.uri().toString())
+                    .method(request.method())
+                    // .requestHeaders(headers.toString()) // Headers map
+                    .responseStatus(statusCode)
+                    .responseBody(response)
+                    .timeTakenMs(duration)
+                    .timestamp(java.time.LocalDateTime.now())
+                    .exceptionMessage(exceptionMessage)
+                    .build();
+
+            auditService.logOnly(audit);
+        }
 
         ThirdPartyResponse thirdPartyResponse = null;
         try {

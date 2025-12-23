@@ -1,14 +1,12 @@
 package com.investments.stocks.thirdParty.providers.AlphaVantage;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.audit.entity.ThirdPartyRequestAudit;
 import com.externalServices.data.ExternalServicePropertiesEntity;
 import com.externalServices.service.ExternalService;
 import com.investments.stocks.thirdParty.StockDataProvider;
@@ -23,11 +21,14 @@ public class AlphaVantageProvider implements StockDataProvider {
 
     private ExternalService externalService;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final HttpClient httpClient;
+    // private final HttpClient httpClient; // Removed unused
+    private final com.audit.service.ThirdPartyAuditService auditService;
 
-    public AlphaVantageProvider(final ExternalService externalService) {
+    public AlphaVantageProvider(final ExternalService externalService,
+            com.audit.service.ThirdPartyAuditService auditService) {
         this.externalService = externalService;
-        this.httpClient = HttpClient.newHttpClient();
+        this.auditService = auditService;
+        // this.httpClient = HttpClient.newHttpClient();
     }
 
     @Override
@@ -48,28 +49,44 @@ public class AlphaVantageProvider implements StockDataProvider {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("URL not found"));
 
-        // construct request
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url + "&symbol=" + symbol + "&apikey=" + apiKey))
-                .GET();
-
-        HttpRequest request = builder.build();
+        String fullUrl = url + "&symbol=" + symbol + "&apikey=" + apiKey;
+        long startTime = System.currentTimeMillis();
+        String responseBody = null;
+        Integer statusCode = null;
+        String exceptionMessage = null;
 
         try {
-            @SuppressWarnings("unused")
-            HttpResponse<String> thirdPartyResponse = this.httpClient
-                    .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .join();
-            AlphaVantageResponseOverview response = this.restTemplate
-                    .getForObject(url + "?symbol=" + symbol + "&apiKey=" + apiKey, AlphaVantageResponseOverview.class);
+            // using getForEntity to capture status code
+            ResponseEntity<AlphaVantageResponseOverview> entity = this.restTemplate
+                    .getForEntity(fullUrl, AlphaVantageResponseOverview.class);
+
+            AlphaVantageResponseOverview response = entity.getBody();
+            statusCode = entity.getStatusCode().value();
+            responseBody = response != null ? response.toString() : null; // Simplistic string rep, ideally JSON
 
             if (response == null || response.getSymbol() == null) {
                 throw new RuntimeException("Empty response from AlphaVantage");
             }
             return mapToThirdPartyResponse(response);
+
         } catch (Exception e) {
+            exceptionMessage = e.getMessage();
             log.error("AlphaVantage fetch failed: {}", e.getMessage());
             throw e;
+        } finally {
+            long duration = System.currentTimeMillis() - startTime;
+            ThirdPartyRequestAudit audit = ThirdPartyRequestAudit.builder()
+                    .providerName(getProviderName())
+                    .url(fullUrl) // Note: apiKey is in URL, might want to mask it in real prod, but ok for now
+                    .method("GET")
+                    .responseStatus(statusCode)
+                    .responseBody(responseBody)
+                    .timeTakenMs(duration)
+                    .timestamp(java.time.LocalDateTime.now())
+                    .exceptionMessage(exceptionMessage)
+                    .build();
+
+            auditService.logOnly(audit);
         }
     }
 

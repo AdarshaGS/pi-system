@@ -11,4 +11,7 @@ public class LoginRequest {
 
     private String email;
     private String password;
+    private String confirmPassword;
+    private String newPassword;
+    private String oldPassword;
 }
