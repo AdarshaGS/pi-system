@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.lending.data.LendingDTO;
 import com.lending.data.RepaymentDTO;
@@ -30,12 +31,14 @@ public class LendingController {
 
     @PostMapping
     @Operation(summary = "Add new lending record")
+    @PreAuthorize("@userSecurity.hasUserId(#lendingDTO.userId)")
     public ResponseEntity<LendingDTO> addLending(@RequestBody LendingDTO lendingDTO) {
         return ResponseEntity.ok(lendingService.createLending(lendingDTO));
     }
 
     @GetMapping
     @Operation(summary = "List all lendings for a user")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public ResponseEntity<List<LendingDTO>> getLendings(@RequestParam Long userId) {
         return ResponseEntity.ok(lendingService.getUserLendings(userId));
     }

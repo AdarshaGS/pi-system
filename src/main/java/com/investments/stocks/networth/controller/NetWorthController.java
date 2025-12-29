@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/v1/net-worth")
 @Tag(name = "Net Worth Management", description = "APIs for calculating user net worth")
@@ -26,6 +28,7 @@ public class NetWorthController {
     @GetMapping("/{userId}")
     @Operation(summary = "Get net worth", description = "Calculates total assets, liabilities, and net worth.")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved net worth")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public NetWorthDTO getNetWorth(@PathVariable Long userId) {
         return netWorthReadPlatformService.getNetWorth(userId);
     }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.investments.stocks.diversification.portfolio.data.Portfolio;
 import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
@@ -33,20 +34,15 @@ public class PortfolioAPIResource {
     @PostMapping()
     @Operation(summary = "Add portfolio item", description = "Adds a stock to the user's portfolio.")
     @ApiResponse(responseCode = "200", description = "Successfully added portfolio item")
+    @PreAuthorize("@userSecurity.hasUserId(#portfolio.userId)")
     public Portfolio postPortfolioData(@RequestBody Portfolio portfolio) {
         return this.portfolioWritePlatformService.addPortfolio(portfolio);
     }
 
-    // @GetMapping("/diversification-score/{userId}")
-    // @Operation(summary = "Get diversification score", description = "Calculates and returns the portfolio diversification score.")
-    // @ApiResponse(responseCode = "200", description = "Successfully retrieved diversification score")
-    // public PortfolioDTOResponse getDiversificationScore(@PathVariable Long userId) {
-    //     return this.portfolioReadPlatformService.getPortfolioSummary(userId);
-    // }
-
     @GetMapping("/summary/{userId}")
     @Operation(summary = "Get portfolio summary", description = "Returns a comprehensive summary including investment, value, and analysis.")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved portfolio summary")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public PortfolioDTOResponse getPortfolioSummary(@PathVariable Long userId) {
         return this.portfolioReadPlatformService.getPortfolioSummary(userId);
     }

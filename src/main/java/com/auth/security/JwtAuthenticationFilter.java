@@ -45,6 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7);
 
+        if (jwt == null || jwt.isBlank() || jwt.split("\\.").length != 3) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             userEmail = jwtUtil.extractUsername(jwt);
 
@@ -54,14 +59,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (jwtUtil.validateToken(jwt, userDetails) && !refreshTokenService.isAccessTokenBlacklisted(jwt)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
-                    System.out.println(userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
-            System.out.println("JWT authentication failed: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

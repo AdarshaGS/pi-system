@@ -102,10 +102,16 @@ public class AuthController {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             Users savedUser = userWriteService.createUser(user);
 
+            // Generate tokens for the new user
+            String token = jwtUtil.generateToken(savedUser.getEmail());
+            String refreshToken = refreshTokenService.createRefreshToken(savedUser.getEmail());
+
             LoginResponse response = LoginResponse.builder()
                     .userId(savedUser.getId())
                     .email(savedUser.getEmail())
                     .name(savedUser.getName())
+                    .token(token)
+                    .refreshToken(refreshToken)
                     .message("User registered successfully")
                     .build();
 
@@ -172,11 +178,22 @@ public class AuthController {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
                 try {
-                   jwtUtil.extractUsername(token);
+                    String email = jwtUtil.extractUsername(token);
+                    // Fetch the user to get the correct ID
+                    Users existingUser = usersRepository.findByEmail(email)
+                            .orElseThrow(() -> new RuntimeException("User not found"));
+
+                    // Secure: Force the ID of the user to be updated to match the token's owner
+                    user.setId(existingUser.getId());
+                    // Optionally prevent email change or handle it carefully
+
                 } catch (Exception e) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                             .body(LoginResponse.builder().message("Invalid token").build());
                 }
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(LoginResponse.builder().message("Authorization header missing").build());
             }
             userWriteService.updateUser(user);
             return ResponseEntity.ok(LoginResponse.builder().message("User updated successfully").build());
