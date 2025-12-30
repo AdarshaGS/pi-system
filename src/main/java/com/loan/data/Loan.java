@@ -10,16 +10,22 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 @Entity
 @Table(name = "loans")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Loan {
+public class Loan implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "entity_type")
+    private EntityType entityType = EntityType.LOAN;
 
     @Column(nullable = false)
     private Long userId;

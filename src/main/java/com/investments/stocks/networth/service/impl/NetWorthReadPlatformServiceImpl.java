@@ -12,8 +12,7 @@ import com.investments.stocks.diversification.portfolio.service.PortfolioReadPla
 import com.investments.stocks.networth.data.NetWorthDTO;
 import com.investments.stocks.networth.data.UserAsset;
 import com.investments.stocks.networth.data.UserLiability;
-import com.investments.stocks.networth.data.UserAsset.AssetType;
-import com.investments.stocks.networth.data.UserLiability.LiabilityType;
+import com.common.data.EntityType;
 import com.investments.stocks.networth.repo.UserAssetRepository;
 import com.investments.stocks.networth.repo.UserLiabilityRepository;
 import com.investments.stocks.networth.service.NetWorthReadPlatformService;
@@ -99,15 +98,15 @@ public class NetWorthReadPlatformServiceImpl implements NetWorthReadPlatformServ
                 List<UserLiability> liabilities = userLiabilityRepository.findByUserId(userId);
 
                 // Calculate Asset Breakdown
-                Map<AssetType, BigDecimal> assetBreakdown = assets.stream()
+                Map<EntityType, BigDecimal> assetBreakdown = assets.stream()
                                 .collect(Collectors.groupingBy(
-                                                UserAsset::getAssetType,
+                                                UserAsset::getEntityType,
                                                 Collectors.reducing(BigDecimal.ZERO, UserAsset::getCurrentValue,
                                                                 BigDecimal::add)));
 
                 // Add Stocks & Savings to Asset Breakdown
-                assetBreakdown.merge(AssetType.STOCK, stockValue, BigDecimal::add);
-                assetBreakdown.merge(AssetType.CASH, savingsValue, BigDecimal::add);
+                assetBreakdown.merge(EntityType.STOCK, stockValue, BigDecimal::add);
+                assetBreakdown.merge(EntityType.CASH, savingsValue, BigDecimal::add);
 
                 // Add Lending outstanding as asset
                 BigDecimal lendingOutstanding = BigDecimal.ZERO;
@@ -120,12 +119,12 @@ public class NetWorthReadPlatformServiceImpl implements NetWorthReadPlatformServ
                         }
                 } catch (Exception ignored) {
                 }
-                assetBreakdown.merge(AssetType.LENDING, lendingOutstanding, BigDecimal::add);
+                assetBreakdown.merge(EntityType.LENDING, lendingOutstanding, BigDecimal::add);
 
                 // Calculate Liability Breakdown
-                Map<LiabilityType, BigDecimal> liabilityBreakdown = liabilities.stream()
+                Map<EntityType, BigDecimal> liabilityBreakdown = liabilities.stream()
                                 .collect(Collectors.groupingBy(
-                                                UserLiability::getLiabilityType,
+                                                UserLiability::getEntityType,
                                                 Collectors.reducing(BigDecimal.ZERO,
                                                                 UserLiability::getOutstandingAmount, BigDecimal::add)));
 
@@ -140,30 +139,30 @@ public class NetWorthReadPlatformServiceImpl implements NetWorthReadPlatformServ
                                                         : BigDecimal.ZERO;
                                         loansOutstanding = loansOutstanding.add(amount);
 
-                                        // Map LoanType to LiabilityType
-                                        LiabilityType type = LiabilityType.OTHER;
+                                        // Map LoanType to EntityType
+                                        EntityType type = EntityType.OTHER;
                                         if (loan.getLoanType() != null) {
                                                 switch (loan.getLoanType()) {
                                                         case HOME_LOAN:
-                                                                type = LiabilityType.HOME_LOAN;
+                                                                type = EntityType.HOME_LOAN;
                                                                 break;
                                                         case CAR_LOAN:
-                                                                type = LiabilityType.CAR_LOAN;
+                                                                type = EntityType.CAR_LOAN;
                                                                 break;
                                                         case PERSONAL_LOAN:
-                                                                type = LiabilityType.PERSONAL_LOAN;
+                                                                type = EntityType.PERSONAL_LOAN;
                                                                 break;
                                                         case EDUCATION_LOAN:
-                                                                type = LiabilityType.EDUCATION_LOAN;
+                                                                type = EntityType.EDUCATION_LOAN;
                                                                 break;
                                                         case CREDIT_CARD:
-                                                                type = LiabilityType.CREDIT_CARD;
+                                                                type = EntityType.CREDIT_CARD;
                                                                 break;
                                                         case BNPL:
-                                                                type = LiabilityType.BNPL;
+                                                                type = EntityType.BNPL;
                                                                 break;
                                                         default:
-                                                                type = LiabilityType.OTHER;
+                                                                type = EntityType.OTHER;
                                                                 break;
                                                 }
                                         }

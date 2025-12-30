@@ -11,17 +11,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 @Table(name = "stocks")
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Stock {
+public class Stock implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "entity_type")
+    @Builder.Default
+    private EntityType entityType = EntityType.STOCK;
 
     @Column(name = "symbol", unique = true)
     private String symbol;

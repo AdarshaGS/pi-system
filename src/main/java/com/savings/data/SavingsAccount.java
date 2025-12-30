@@ -13,17 +13,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 @Entity
 @Table(name = "savings_account_details")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SavingsAccount {
+public class SavingsAccount implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
+
+    @Column(name = "entity_type")
+    @Builder.Default
+    private EntityType entityType = EntityType.SAVINGS_ACCOUNT;
 
     @Column(name = "userId")
     private Long userId;

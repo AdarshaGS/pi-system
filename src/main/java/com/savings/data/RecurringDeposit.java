@@ -14,17 +14,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 @Entity
 @Table(name = "recurring_deposits")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RecurringDeposit {
+public class RecurringDeposit implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "entity_type")
+    @Builder.Default
+    private EntityType entityType = EntityType.RECURRING_DEPOSIT;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;

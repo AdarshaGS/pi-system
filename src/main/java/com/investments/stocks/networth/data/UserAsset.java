@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,13 +14,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 @Entity
 @Table(name = "user_assets")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAsset {
+public class UserAsset implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +32,8 @@ public class UserAsset {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "asset_type", nullable = false)
-    private AssetType assetType;
+    private EntityType entityType;
 
     @Column(name = "reference_symbol")
     private String referenceSymbol;
@@ -49,7 +49,8 @@ public class UserAsset {
     @Column(name = "last_updated_at")
     private LocalDateTime lastUpdatedAt;
 
-    public enum AssetType {
-        STOCK, MUTUAL_FUND, ETF, SAVINGS, PF, GOLD, CASH, LENDING, OTHER
+    @Override
+    public EntityType getEntityType() {
+        return entityType;
     }
 }

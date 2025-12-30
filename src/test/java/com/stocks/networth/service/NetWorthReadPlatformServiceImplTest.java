@@ -11,13 +11,12 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.common.data.EntityType;
 import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
 import com.investments.stocks.diversification.portfolio.service.PortfolioReadPlatformService;
 import com.investments.stocks.networth.data.NetWorthDTO;
 import com.investments.stocks.networth.data.UserAsset;
 import com.investments.stocks.networth.data.UserLiability;
-import com.investments.stocks.networth.data.UserAsset.AssetType;
-import com.investments.stocks.networth.data.UserLiability.LiabilityType;
 import com.investments.stocks.networth.repo.UserAssetRepository;
 import com.investments.stocks.networth.repo.UserLiabilityRepository;
 import com.investments.stocks.networth.service.impl.NetWorthReadPlatformServiceImpl;
@@ -51,13 +50,13 @@ public class NetWorthReadPlatformServiceImplTest {
 
         // 2. Mock Assets
         List<UserAsset> assets = List.of(
-                UserAsset.builder().assetType(AssetType.SAVINGS).currentValue(new BigDecimal("10000")).build(),
-                UserAsset.builder().assetType(AssetType.PF).currentValue(new BigDecimal("20000")).build());
+                UserAsset.builder().entityType(EntityType.SAVINGS).currentValue(new BigDecimal("10000")).build(),
+                UserAsset.builder().entityType(EntityType.PF).currentValue(new BigDecimal("20000")).build());
         when(userAssetRepository.findByUserId(userId)).thenReturn(assets);
 
         // 3. Mock Liabilities
         List<UserLiability> liabilities = List.of(
-                UserLiability.builder().liabilityType(LiabilityType.CREDIT_CARD)
+                UserLiability.builder().entityType(EntityType.CREDIT_CARD)
                         .outstandingAmount(new BigDecimal("5000")).build());
         when(userLiabilityRepository.findByUserId(userId)).thenReturn(liabilities);
 
@@ -75,8 +74,8 @@ public class NetWorthReadPlatformServiceImplTest {
         assertEquals(new BigDecimal("75000"), result.getNetWorth());
 
         // Breakdowns
-        assertEquals(new BigDecimal("50000"), result.getAssetBreakdown().get(AssetType.STOCK));
-        assertEquals(new BigDecimal("10000"), result.getAssetBreakdown().get(AssetType.SAVINGS));
+        assertEquals(new BigDecimal("50000"), result.getAssetBreakdown().get(EntityType.STOCK));
+        assertEquals(new BigDecimal("10000"), result.getAssetBreakdown().get(EntityType.SAVINGS));
     }
 
     @Test

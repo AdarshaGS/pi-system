@@ -55,14 +55,15 @@ public class StockReadPlatformServiceImplTest {
                 ThirdPartyResponse.CompanyProfile profile = new ThirdPartyResponse.CompanyProfile();
                 profile.setMgIndustry("Computers - Software");
                 mockResponse.setCompanyProfile(profile);
-                ThirdPartyResponse.CurrentPrice price = new ThirdPartyResponse.CurrentPrice();
+                ThirdPartyResponse.currentPrice price = new ThirdPartyResponse.currentPrice();
                 price.setNSE(1500.0);
                 mockResponse.setCurrentPrice(price);
 
                 // Mock Market Cap Data
-                // ThirdPartyResponse.StockDetailsReusableData stockDetails = ThirdPartyResponse.StockDetailsReusableData
-                //                 .builder()
-                //                 .marketCap(500000.0).build();
+                // ThirdPartyResponse.StockDetailsReusableData stockDetails =
+                // ThirdPartyResponse.StockDetailsReusableData
+                // .builder()
+                // .marketCap(500000.0).build();
                 // mockResponse.setStockDetailsReusableData(stockDetails);
 
                 when(stockDataProviderFactory.fetchStockDataWithRetry(symbol)).thenReturn(mockResponse);
@@ -90,14 +91,15 @@ public class StockReadPlatformServiceImplTest {
                 ThirdPartyResponse.CompanyProfile profile = new ThirdPartyResponse.CompanyProfile();
                 profile.setMgIndustry("Banks - Private Sector");
                 mockResponse.setCompanyProfile(profile);
-                ThirdPartyResponse.CurrentPrice price = new ThirdPartyResponse.CurrentPrice();
+                ThirdPartyResponse.currentPrice price = new ThirdPartyResponse.currentPrice();
                 price.setNSE(1600.0);
                 mockResponse.setCurrentPrice(price);
 
                 // Mock Market Cap Data
-                // ThirdPartyResponse.StockDetailsReusableData stockDetails = ThirdPartyResponse.StockDetailsReusableData
-                //                 .builder()
-                //                 .marketCap(800000.0).build();
+                // ThirdPartyResponse.StockDetailsReusableData stockDetails =
+                // ThirdPartyResponse.StockDetailsReusableData
+                // .builder()
+                // .marketCap(800000.0).build();
                 // mockResponse.setStockDetailsReusableData(stockDetails);
 
                 when(stockDataProviderFactory.fetchStockDataWithRetry(symbol)).thenReturn(mockResponse);

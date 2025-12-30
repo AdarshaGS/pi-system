@@ -5,8 +5,6 @@ import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,13 +14,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 @Entity
 @Table(name = "user_liabilities")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLiability {
+public class UserLiability implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +32,8 @@ public class UserLiability {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "liability_type", nullable = false)
-    private LiabilityType liabilityType;
+    private EntityType entityType;
 
     @Column(nullable = false)
     private String name;
@@ -47,7 +47,8 @@ public class UserLiability {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    public enum LiabilityType {
-        HOME_LOAN, PERSONAL_LOAN, CAR_LOAN, EDUCATION_LOAN, CREDIT_CARD, BNPL, OTHER
+    @Override
+    public EntityType getEntityType() {
+        return entityType;
     }
 }

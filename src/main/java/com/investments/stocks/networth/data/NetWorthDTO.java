@@ -4,8 +4,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import com.investments.stocks.networth.data.UserAsset.AssetType;
-import com.investments.stocks.networth.data.UserLiability.LiabilityType;
+import com.common.data.EntityType;
 
 @NoArgsConstructor
 @Data
@@ -21,6 +20,6 @@ public class NetWorthDTO {
     private BigDecimal outstandingTaxLiability;
     private BigDecimal outstandingLendings;
     private BigDecimal netWorthAfterTax;
-    private Map<AssetType, BigDecimal> assetBreakdown;
-    private Map<LiabilityType, BigDecimal> liabilityBreakdown;
+    private Map<EntityType, BigDecimal> assetBreakdown;
+    private Map<EntityType, BigDecimal> liabilityBreakdown;
 }

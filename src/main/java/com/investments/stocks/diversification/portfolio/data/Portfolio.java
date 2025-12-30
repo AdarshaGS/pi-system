@@ -2,6 +2,8 @@ package com.investments.stocks.diversification.portfolio.data;
 
 import java.math.BigDecimal;
 
+import com.common.data.EntityType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,13 +15,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.common.data.TypedEntity;
+
 @Table(name = "portfolio_holdings")
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Portfolio {
+public class Portfolio implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +31,12 @@ public class Portfolio {
 
     @Column(name = "user_id")
     private Long userId;
+
+    @Column(name = "entity_type")
+    private EntityType entityType;
+
+    @Column(name = "entity_name")
+    private String entityName;
 
     @Column(name = "stock_id")
     private Long stockId;

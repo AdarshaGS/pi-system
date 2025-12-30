@@ -112,7 +112,7 @@ public class AlphaVantageProvider implements StockDataProvider {
         // No, that's bad.
         // We will just set market cap.
 
-        ThirdPartyResponse.CurrentPrice price = new ThirdPartyResponse.CurrentPrice();
+        ThirdPartyResponse.currentPrice price = new ThirdPartyResponse.currentPrice();
         price.setNSE(0.0); // Not available in OVERVIEW
         price.setBSE(0.0);
         response.setCurrentPrice(price);

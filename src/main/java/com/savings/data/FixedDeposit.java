@@ -14,17 +14,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 @Entity
 @Table(name = "fixed_deposits")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FixedDeposit {
+public class FixedDeposit implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "entity_type")
+    @Builder.Default
+    private EntityType entityType = EntityType.FIXED_DEPOSIT;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;

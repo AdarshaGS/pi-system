@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.audit.entity.ThirdPartyRequestAudit;
 import com.audit.service.ThirdPartyAuditService;
 import com.externalServices.data.ExternalServicePropertiesEntity;
 import com.externalServices.service.ExternalService;
@@ -77,11 +78,10 @@ public class IndianAPIServiceImpl implements IndianAPIService {
             throw e;
         } finally {
             long duration = System.currentTimeMillis() - startTime;
-            com.audit.entity.ThirdPartyRequestAudit audit = com.audit.entity.ThirdPartyRequestAudit.builder()
+            ThirdPartyRequestAudit audit = ThirdPartyRequestAudit.builder()
                     .providerName(SERVICE_NAME)
                     .url(request.uri().toString())
                     .method(request.method())
-                    // .requestHeaders(headers.toString()) // Headers map
                     .responseStatus(statusCode)
                     .responseBody(response)
                     .timeTakenMs(duration)

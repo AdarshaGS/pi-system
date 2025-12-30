@@ -8,16 +8,22 @@ import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 @Entity
 @Table(name = "insurance_policies")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Insurance {
+public class Insurance implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "entity_type")
+    private EntityType entityType = EntityType.INSURANCE;
 
     @Column(nullable = false)
     private Long userId;

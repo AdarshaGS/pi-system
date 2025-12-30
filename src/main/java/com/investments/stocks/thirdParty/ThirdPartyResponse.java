@@ -5,14 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ThirdPartyResponse {
     private String companyName;
+    private String industry;
     private CompanyProfile companyProfile;
-    private CurrentPrice currentPrice;
+    private currentPrice currentPrice;
     // private StockDetailsReusableData stockDetailsReusableData;
     // private Double marketCap;
 
@@ -20,6 +24,7 @@ public class ThirdPartyResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class CompanyProfile {
         private String companyDescription;
         private String mgIndustry;
@@ -40,7 +45,8 @@ public class ThirdPartyResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class CurrentPrice {
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class currentPrice {
         private Double BSE;
         private Double NSE;
     }

@@ -9,6 +9,9 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.common.data.EntityType;
+import com.common.data.TypedEntity;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,11 +33,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LendingRecord {
+public class LendingRecord implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "entity_type")
+    @Builder.Default
+    private EntityType entityType = EntityType.LENDING;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
