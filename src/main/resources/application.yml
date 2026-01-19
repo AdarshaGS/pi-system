@@ -41,3 +41,7 @@ aa:
 
 server:
   port: ${PORT:8082}
+
+springdoc:
+  swagger-ui:
+    default-models-expand-depth: -1
