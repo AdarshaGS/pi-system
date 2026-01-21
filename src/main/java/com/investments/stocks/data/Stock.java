@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import com.common.data.EntityType;
 import com.common.data.TypedEntity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Table(name = "stocks")
 @Entity
 @Data
@@ -24,6 +26,7 @@ public class Stock implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @Column(name = "entity_type")

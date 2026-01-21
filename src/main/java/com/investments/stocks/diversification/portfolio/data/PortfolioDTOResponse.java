@@ -2,7 +2,6 @@ package com.investments.stocks.diversification.portfolio.data;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +21,7 @@ public class PortfolioDTOResponse {
   private BigDecimal totalProfitLoss;
   private BigDecimal totalProfitLossPercentage;
 
-  private Map<String, BigDecimal> sectorAllocation;
+  private SectorAllocation sectorAllocation;
 
   // Smart Analysis Fields
   // private int healthScore; // Removed internally

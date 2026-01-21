@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 import com.common.data.EntityType;
 import com.common.data.TypedEntity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Entity
 @Table(name = "savings_account_details")
 @Data
@@ -26,6 +28,7 @@ public class SavingsAccount implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long Id;
 
     @Column(name = "entity_type")

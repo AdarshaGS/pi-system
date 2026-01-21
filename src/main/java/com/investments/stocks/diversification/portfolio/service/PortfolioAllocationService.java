@@ -12,6 +12,7 @@ import com.investments.stocks.data.Stock;
 import com.investments.stocks.diversification.portfolio.data.MarketCapAllocation;
 import com.investments.stocks.diversification.portfolio.data.Portfolio;
 import com.investments.stocks.diversification.portfolio.data.PortfolioAllocationResult;
+import com.investments.stocks.diversification.portfolio.data.SectorAllocation;
 
 @Service
 public class PortfolioAllocationService {
@@ -77,7 +78,7 @@ public class PortfolioAllocationService {
         }
 
         return PortfolioAllocationResult.builder()
-                .sectorAllocation(sectorAllocationPct)
+                .sectorAllocation(SectorAllocation.builder().sectorAllocation(sectorAllocationPct).build())
                 .marketCapAllocation(mcAllocation)
                 .build();
     }

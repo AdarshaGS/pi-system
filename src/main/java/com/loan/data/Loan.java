@@ -10,6 +10,8 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import com.common.data.EntityType;
 import com.common.data.TypedEntity;
 
@@ -22,6 +24,7 @@ public class Loan implements TypedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @Column(name = "entity_type")
