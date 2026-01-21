@@ -108,7 +108,7 @@ public class NetWorthReadPlatformServiceImpl implements NetWorthReadPlatformServ
 
                 // Add Stocks & Savings to Asset Breakdown
                 assetBreakdown.merge(EntityType.STOCK, stockValue, BigDecimal::add);
-                assetBreakdown.merge(EntityType.CASH, savingsValue, BigDecimal::add);
+                assetBreakdown.merge(EntityType.SAVINGS, savingsValue, BigDecimal::add);
 
                 // Add Lending outstanding as asset
                 BigDecimal lendingOutstanding = BigDecimal.ZERO;
@@ -209,28 +209,34 @@ public class NetWorthReadPlatformServiceImpl implements NetWorthReadPlatformServ
         @Override
         public AssetLiabilityTemplateDTO getEntityTemplates() {
                 List<EntityTemplateDTO> assets = List.of(
-                                new EntityTemplateDTO(EntityType.CASH, "Cash", "Physical cash and bank balance", "Liquid"),
-                                new EntityTemplateDTO(EntityType.SAVINGS_ACCOUNT, "Savings Account", "Bank savings account", "Liquid"),
-                                new EntityTemplateDTO(EntityType.FIXED_DEPOSIT, "Fixed Deposit", "Bank fixed deposit", "Investment"),
-                                new EntityTemplateDTO(EntityType.RECURRING_DEPOSIT, "Recurring Deposit", "Bank recurring deposit", "Investment"),
+                                new EntityTemplateDTO(EntityType.SAVINGS_ACCOUNT, "Savings Account",
+                                                "Bank savings account", "Liquid"),
+                                new EntityTemplateDTO(EntityType.FIXED_DEPOSIT, "Fixed Deposit", "Bank fixed deposit",
+                                                "Investment"),
+                                new EntityTemplateDTO(EntityType.RECURRING_DEPOSIT, "Recurring Deposit",
+                                                "Bank recurring deposit", "Investment"),
                                 new EntityTemplateDTO(EntityType.STOCK, "Stocks", "Equity shares", "Investment"),
-                                new EntityTemplateDTO(EntityType.MUTUAL_FUND, "Mutual Funds", "Mutual fund units", "Investment"),
+                                new EntityTemplateDTO(EntityType.MUTUAL_FUND, "Mutual Funds", "Mutual fund units",
+                                                "Investment"),
                                 new EntityTemplateDTO(EntityType.ETF, "ETFs", "Exchange Traded Funds", "Investment"),
-                                new EntityTemplateDTO(EntityType.GOLD, "Gold", "Physical gold or digital gold", "Asset"),
-                                new EntityTemplateDTO(EntityType.REAL_ESTATE, "Real Estate", "Property and land", "Asset"),
+                                new EntityTemplateDTO(EntityType.GOLD, "Gold", "Physical gold or digital gold",
+                                                "Asset"),
+                                new EntityTemplateDTO(EntityType.REAL_ESTATE, "Real Estate", "Property and land",
+                                                "Asset"),
                                 new EntityTemplateDTO(EntityType.PF, "Provident Fund", "EPF, PPF, etc.", "Retirement"),
-                                new EntityTemplateDTO(EntityType.LENDING, "Lendings", "Money lent to others", "Asset")
-                );
+                                new EntityTemplateDTO(EntityType.LENDING, "Lendings", "Money lent to others", "Asset"));
 
                 List<EntityTemplateDTO> liabilities = List.of(
                                 new EntityTemplateDTO(EntityType.HOME_LOAN, "Home Loan", "Mortgage for house", "Debt"),
                                 new EntityTemplateDTO(EntityType.CAR_LOAN, "Car Loan", "Loan for vehicle", "Debt"),
-                                new EntityTemplateDTO(EntityType.PERSONAL_LOAN, "Personal Loan", "Unsecured personal loan", "Debt"),
-                                new EntityTemplateDTO(EntityType.EDUCATION_LOAN, "Education Loan", "Loan for studies", "Debt"),
-                                new EntityTemplateDTO(EntityType.CREDIT_CARD, "Credit Card", "Outstanding credit card balance", "Debt"),
+                                new EntityTemplateDTO(EntityType.PERSONAL_LOAN, "Personal Loan",
+                                                "Unsecured personal loan", "Debt"),
+                                new EntityTemplateDTO(EntityType.EDUCATION_LOAN, "Education Loan", "Loan for studies",
+                                                "Debt"),
+                                new EntityTemplateDTO(EntityType.CREDIT_CARD, "Credit Card",
+                                                "Outstanding credit card balance", "Debt"),
                                 new EntityTemplateDTO(EntityType.BNPL, "BNPL", "Buy Now Pay Later balance", "Debt"),
-                                new EntityTemplateDTO(EntityType.LOAN, "Other Loan", "Any other type of loan", "Debt")
-                );
+                                new EntityTemplateDTO(EntityType.LOAN, "Other Loan", "Any other type of loan", "Debt"));
 
                 return AssetLiabilityTemplateDTO.builder()
                                 .assets(assets)

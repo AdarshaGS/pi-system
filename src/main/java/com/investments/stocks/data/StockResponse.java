@@ -17,6 +17,7 @@ public class StockResponse {
     private double marketCap;
 
     public StockResponse() {
-    }
 
+
+    }
 }

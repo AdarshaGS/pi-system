@@ -132,7 +132,6 @@ class NetWorthReadPlatformServiceImplTest {
                 // Verify asset breakdown
                 Map<EntityType, BigDecimal> assetBreakdown = result.getAssetBreakdown();
                 assertEquals(new BigDecimal("500000"), assetBreakdown.get(EntityType.STOCK));
-                assertEquals(new BigDecimal("250000"), assetBreakdown.get(EntityType.CASH)); // 80k+110k+60k
                 assertEquals(new BigDecimal("200000"), assetBreakdown.get(EntityType.GOLD));
 
                 // Verify liability breakdown

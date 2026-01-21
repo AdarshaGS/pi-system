@@ -12,6 +12,8 @@ public class BudgetReportDTO {
     private String monthYear;
     private BigDecimal totalBudget;
     private BigDecimal totalSpent;
+    private BigDecimal totalIncome;
+    private BigDecimal balance;
     private Map<ExpenseCategory, CategorySummary> categoryBreakdown;
 
     @Data

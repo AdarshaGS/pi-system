@@ -3,6 +3,7 @@ package com.budget.service;
 import com.budget.data.*;
 import com.budget.repo.BudgetRepository;
 import com.budget.repo.ExpenseRepository;
+import com.budget.repo.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class BudgetService {
 
     private final ExpenseRepository expenseRepository;
     private final BudgetRepository budgetRepository;
+    private final IncomeRepository incomeRepository; // Inject IncomeRepository
 
     public Expense addExpense(Expense expense) {
         if (expense.getExpenseDate() == null) {
@@ -55,6 +57,7 @@ public class BudgetService {
 
         List<Expense> expenses = expenseRepository.findByUserIdAndExpenseDateBetween(userId, start, end);
         List<Budget> budgets = budgetRepository.findByUserIdAndMonthYear(userId, monthYear);
+        List<Income> incomes = incomeRepository.findByUserIdAndDateBetween(userId, start, end);
 
         Map<ExpenseCategory, BigDecimal> spentPerCategory = expenses.stream()
                 .collect(Collectors.groupingBy(
@@ -102,11 +105,19 @@ public class BudgetService {
                         .map(Budget::getMonthlyLimit)
                         .reduce(BigDecimal.ZERO, BigDecimal::add));
 
+        BigDecimal totalIncome = incomes.stream()
+                .map(Income::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal balance = totalIncome.subtract(totalSpent);
+
         return BudgetReportDTO.builder()
                 .monthYear(monthYear)
                 .totalBudget(totalBudget)
                 .totalSpent(totalSpent)
                 .categoryBreakdown(breakdown)
+                .totalIncome(totalIncome) // Add totalIncome
+                .balance(balance) // Add balance
                 .build();
     }
 
@@ -120,5 +131,16 @@ public class BudgetService {
 
     public List<Expense> getRecentExpenses(Long userId) {
         return expenseRepository.findByUserId(userId);
+    }
+
+    public Income addIncome(Income income) {
+        if (income.getDate() == null) {
+            income.setDate(LocalDate.now());
+        }
+        return incomeRepository.save(income);
+    }
+
+    public List<Income> getIncomes(Long userId) {
+        return incomeRepository.findByUserId(userId);
     }
 }
