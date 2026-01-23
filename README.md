@@ -64,3 +64,43 @@ NetWorthService --> UserLiabilities[(Liabilities DB)]
 UserAssets --> ComputeNW[Compute Net Worth]
 UserLiabilities --> ComputeNW
 ComputeNW --> ReturnNW[Return Net Worth Summary]
+
+---
+
+## 🖥️ Frontend (React + Vite)
+
+Located in the `/frontend` directory, the UI is built for speed and minimalism.
+
+### Tech Stack
+- **Core**: React 18 + Vite
+- **Routing**: React Router Dom
+- **Styling**: Vanilla CSS (Custom Design System)
+- **Icons**: Lucide React
+- **Charts**: Recharts (Portfolio Allocation)
+
+### Key Features
+- **Dashboard**: One-glance financial awareness with Net Worth Hero Card.
+- **Auth Flow**: Under 20-second entry with minimal distractions.
+- **Portfolio**: Detailed XIRR and asset allocation visualization.
+- **Insights**: Computed observations on portfolio concentration and risk.
+
+### How to Run
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Default URL: `http://localhost:5173` or `http://localhost:5175`
+
+---
+
+## 🛠️ Getting Started (Backend)
+
+1. **Prerequisites**: Java 17, MySQL 8, Redis.
+2. **Configure**: Update `src/main/resources/application.yml` with your DB and Redis credentials.
+3. **Run**:
+   ```bash
+   ./gradlew bootRun
+   ```
+4. **API Port**: `8082`
+5. **Swagger UI**: `http://localhost:8082/swagger-ui.html`

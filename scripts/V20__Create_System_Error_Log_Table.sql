@@ -1,4 +1,4 @@
-CREATE TABLE system_error_logs (
+CREATE TABLE critical_logs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     request_id VARCHAR(255),
@@ -10,5 +10,5 @@ CREATE TABLE system_error_logs (
     method VARCHAR(20)
 );
 
-CREATE INDEX idx_error_logs_request_id ON system_error_logs(request_id);
-CREATE INDEX idx_error_logs_timestamp ON system_error_logs(timestamp);
+CREATE INDEX idx_error_logs_request_id ON critical_logs(request_id);
+CREATE INDEX idx_error_logs_timestamp ON critical_logs(timestamp);
