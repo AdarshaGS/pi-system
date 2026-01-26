@@ -13,7 +13,7 @@ RUN gradle dependencies --no-daemon || true
 
 # Copy source code and migration scripts
 COPY src ./src
-COPY scripts ./scripts
+COPY db/migration ./db/migration
 
 # Build the application (skip tests for faster builds)
 RUN gradle bootJar --no-daemon -x test
@@ -32,7 +32,7 @@ USER spring:spring
 COPY --from=build /app/build/libs/*.jar app.jar
 
 # Copy migration scripts (needed for Flyway)
-COPY --chown=spring:spring scripts ./scripts
+COPY --chown=spring:spring db/migration ./db/migration
 
 # Expose the application port
 EXPOSE 8080
