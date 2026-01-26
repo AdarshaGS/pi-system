@@ -1,28 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+
+    <!-- Spring Boot defaults -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-    <property name="LOG_FILE" value="logs/critical.log"/>
+    <!-- 
+        LOG_PATH:
+        - Railway / containers: /tmp/logs (always writable)
+        - Local: ./logs
+    -->
+    <property name="LOG_PATH" value="${LOG_PATH:-/tmp/logs}"/>
+    <property name="CRITICAL_LOG_FILE" value="${LOG_PATH}/critical.log"/>
 
-    <appender name="CRITICAL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_FILE}</file>
+    <!-- CRITICAL FILE APPENDER -->
+    <appender name="CRITICAL_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${CRITICAL_LOG_FILE}</file>
+
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{requestId}] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%X{requestId}] %-5level %logger{36} - %msg%n
+            </pattern>
         </encoder>
+
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/critical.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/critical.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
     </appender>
 
-    <!-- Specific Logger for Critical Errors -->
+    <!-- CRITICAL LOGGER -->
     <logger name="CRITICAL_LOGGER" level="ERROR" additivity="false">
         <appender-ref ref="CRITICAL_FILE"/>
-        <appender-ref ref="CONSOLE"/> <!-- Also print to console -->
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
+    <!-- ROOT LOGGER -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
+
 </configuration>
