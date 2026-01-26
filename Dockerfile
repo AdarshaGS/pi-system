@@ -1,48 +1,43 @@
-# Multi-stage build for optimized image size
+# ================================
 # Stage 1: Build the application
+# ================================
 FROM gradle:8.5-jdk17 AS build
 
 WORKDIR /app
 
-# Copy gradle files first for better caching
+# Copy build configuration first (better cache)
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle ./gradle
 
-# Download dependencies (cached if build.gradle hasn't changed)
-RUN gradle dependencies --no-daemon || true
+# Download dependencies
+RUN ./gradlew dependencies --no-daemon || true
 
-# Copy source code and migration scripts
+# Copy source code
 COPY src ./src
-COPY db/migration ./db/migration
 
-# Build the application (skip tests for faster builds)
-RUN gradle bootJar --no-daemon -x test
+# Build fat jar
+RUN ./gradlew bootJar --no-daemon -x test
 
-# Stage 2: Create the runtime image
-# Stage 2: Create the runtime image
+
+# ================================
+# Stage 2: Runtime image
+# ================================
 FROM bellsoft/liberica-openjdk-alpine:17
 
 WORKDIR /app
 
-# Create a non-root user for security
+# Create non-root user
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
-# Copy the built JAR from the build stage
+# Copy application jar
 COPY --from=build /app/build/libs/*.jar app.jar
 
-# Copy migration scripts (needed for Flyway)
-COPY --chown=spring:spring db/migration ./db/migration
-
-# Expose the application port
+# Expose app port (Railway uses PORT env)
 EXPOSE 8080
 
-# Set JVM options for containerized environment
+# JVM options for containers
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Run the application
+# Run the app
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
