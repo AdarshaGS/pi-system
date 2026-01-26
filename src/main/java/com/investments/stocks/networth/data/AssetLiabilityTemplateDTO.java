@@ -9,4 +9,5 @@ import lombok.Data;
 public class AssetLiabilityTemplateDTO {
     private List<EntityTemplateDTO> assets;
     private List<EntityTemplateDTO> liabilities;
+    private List<EntityTemplateDTO> onBoardingTypes;
 }

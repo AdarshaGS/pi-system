@@ -24,6 +24,9 @@ public class AAConsentEntity {
     @Column(name = "consent_template_id", unique = true)
     private String consentTemplateId;
 
+    @Column(name = "entity_type")
+    private int entityType;
+
     @Column(name = "user_id")
     private String userId;
 

@@ -1,0 +1,1 @@
+ALTER TABLE `aa_consents` ADD COLUMN `entity_type` INT NOT NULL DEFAULT 0;

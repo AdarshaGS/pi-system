@@ -12,10 +12,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EntityScan(basePackages = "com")
 @EnableJpaRepositories(basePackages = "com")
 @EnableScheduling
-public class StockApplication {
+public class Application {
 
         public static void main(String[] args) {
-                SpringApplication.run(StockApplication.class, args);
+                SpringApplication.run(Application.class, args);
         }
 
 }

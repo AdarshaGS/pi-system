@@ -19,4 +19,5 @@ public class ConsentResponse {
     private String validFrom;
     private String validTill;
     private String redirectUrl;
+    private int entityType;
 }

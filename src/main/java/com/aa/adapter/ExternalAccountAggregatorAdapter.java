@@ -1,16 +1,21 @@
 package com.aa.adapter;
 
-import com.aa.data.*;
-import com.externalServices.service.ExternalService;
-import com.externalServices.data.ExternalServicePropertiesEntity;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import com.aa.data.ConsentRequest;
+import com.aa.data.ConsentResponse;
+import com.aa.data.ConsentStatusResponse;
+import com.aa.data.EncryptedFIPayload;
+import com.aa.data.FIRequest;
+import com.externalServices.data.ExternalServicePropertiesEntity;
+import com.externalServices.service.ExternalService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component("externalAA")

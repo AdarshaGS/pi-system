@@ -1,10 +1,10 @@
 package com.stocks;
 
-import com.main.StockApplication;
+import com.main.Application;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = StockApplication.class)
+@SpringBootTest(classes = Application.class)
 class StockApplicationTests {
 
 	@Test

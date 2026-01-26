@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EntityTemplateDTO {
-    private EntityType type;
+    private String type;
     private String displayName;
     private String description;
     private String category; // e.g. "Cash", "Investment", "Loan"

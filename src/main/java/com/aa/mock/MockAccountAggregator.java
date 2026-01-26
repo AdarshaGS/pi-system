@@ -62,6 +62,6 @@ public class MockAccountAggregator implements AccountAggregatorAdapter {
 
     @Override
     public List<Map<String, String>> getConsentTemplates() {
-        throw new UnsupportedOperationException("Unimplemented method 'getConsentTemplates'");
+        return consentService.getConsentTemplates();
     }
 }

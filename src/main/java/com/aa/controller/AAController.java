@@ -1,24 +1,36 @@
 package com.aa.controller;
 
-import com.aa.adapter.AccountAggregatorAdapter;
-import com.aa.data.*;
-import com.aa.mock.MockEncryptionService;
-import com.aa.repo.AAFIRequestRepository;
-import com.aa.service.AAService;
-import com.portfolio.engine.PortfolioEngine;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.aa.data.AAFIRequestEntity;
+import com.aa.data.ConsentRequest;
+import com.aa.data.ConsentResponse;
+import com.aa.data.ConsentStatusResponse;
+import com.aa.data.EncryptedFIPayload;
+import com.aa.data.FIPayload;
+import com.aa.data.FIRequest;
+import com.aa.mock.MockEncryptionService;
+import com.aa.repo.AAFIRequestRepository;
+import com.aa.service.AAService;
+import com.portfolio.engine.PortfolioEngine;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/aa")
@@ -44,7 +56,7 @@ public class AAController {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    @GetMapping("/templates")
+    @GetMapping("/consent/templates")
     @Operation(summary = "Get Consent Templates")
     public ResponseEntity<List<Map<String, String>>> getTemplates() {
         return ResponseEntity.ok(aaService.getConsentTemplates());

@@ -13,6 +13,7 @@ import com.investments.stocks.networth.data.NetWorthDTO;
 import com.investments.stocks.networth.data.UserAsset;
 import com.investments.stocks.networth.data.UserLiability;
 import com.common.data.EntityType;
+import com.common.data.OnBoardingType;
 import com.investments.stocks.networth.repo.UserAssetRepository;
 import com.investments.stocks.networth.repo.UserLiabilityRepository;
 import com.investments.stocks.networth.service.NetWorthReadPlatformService;
@@ -208,39 +209,59 @@ public class NetWorthReadPlatformServiceImpl implements NetWorthReadPlatformServ
 
         @Override
         public AssetLiabilityTemplateDTO getEntityTemplates() {
+                List<EntityTemplateDTO> onBoardingTypes = List.of(
+                                new EntityTemplateDTO(OnBoardingType.MANUAL_ENTRY.getName(), "MANUAL ENTRY",
+                                                "Manual Entry", "Liquid"),
+                                new EntityTemplateDTO(OnBoardingType.CONNECT_ACCOUNTS.getName(), "CONNECT ACCOUNTS",
+                                                "Connect Accounts using Account Aggregators", "Liquid"));
+
                 List<EntityTemplateDTO> assets = List.of(
-                                new EntityTemplateDTO(EntityType.SAVINGS_ACCOUNT, "Savings Account",
+                                new EntityTemplateDTO(EntityType.SAVINGS_ACCOUNT.getName(), "Savings Account",
                                                 "Bank savings account", "Liquid"),
-                                new EntityTemplateDTO(EntityType.FIXED_DEPOSIT, "Fixed Deposit", "Bank fixed deposit",
+                                new EntityTemplateDTO(EntityType.FIXED_DEPOSIT.getName(), "Fixed Deposit",
+                                                "Bank fixed deposit",
                                                 "Investment"),
-                                new EntityTemplateDTO(EntityType.RECURRING_DEPOSIT, "Recurring Deposit",
+                                new EntityTemplateDTO(EntityType.RECURRING_DEPOSIT.getName(), "Recurring Deposit",
                                                 "Bank recurring deposit", "Investment"),
-                                new EntityTemplateDTO(EntityType.STOCK, "Stocks", "Equity shares", "Investment"),
-                                new EntityTemplateDTO(EntityType.MUTUAL_FUND, "Mutual Funds", "Mutual fund units",
+                                new EntityTemplateDTO(EntityType.STOCK.getName(), "Stocks", "Equity shares",
                                                 "Investment"),
-                                new EntityTemplateDTO(EntityType.ETF, "ETFs", "Exchange Traded Funds", "Investment"),
-                                new EntityTemplateDTO(EntityType.GOLD, "Gold", "Physical gold or digital gold",
+                                new EntityTemplateDTO(EntityType.MUTUAL_FUND.getName(), "Mutual Funds",
+                                                "Mutual fund units",
+                                                "Investment"),
+                                new EntityTemplateDTO(EntityType.ETF.getName(), "ETFs", "Exchange Traded Funds",
+                                                "Investment"),
+                                new EntityTemplateDTO(EntityType.GOLD.getName(), "Gold",
+                                                "Physical gold or digital gold",
                                                 "Asset"),
-                                new EntityTemplateDTO(EntityType.REAL_ESTATE, "Real Estate", "Property and land",
+                                new EntityTemplateDTO(EntityType.REAL_ESTATE.getName(), "Real Estate",
+                                                "Property and land",
                                                 "Asset"),
-                                new EntityTemplateDTO(EntityType.PF, "Provident Fund", "EPF, PPF, etc.", "Retirement"),
-                                new EntityTemplateDTO(EntityType.LENDING, "Lendings", "Money lent to others", "Asset"));
+                                new EntityTemplateDTO(EntityType.PF.getName(), "Provident Fund", "EPF, PPF, etc.",
+                                                "Retirement"),
+                                new EntityTemplateDTO(EntityType.LENDING.getName(), "Lendings", "Money lent to others",
+                                                "Asset"));
 
                 List<EntityTemplateDTO> liabilities = List.of(
-                                new EntityTemplateDTO(EntityType.HOME_LOAN, "Home Loan", "Mortgage for house", "Debt"),
-                                new EntityTemplateDTO(EntityType.CAR_LOAN, "Car Loan", "Loan for vehicle", "Debt"),
-                                new EntityTemplateDTO(EntityType.PERSONAL_LOAN, "Personal Loan",
-                                                "Unsecured personal loan", "Debt"),
-                                new EntityTemplateDTO(EntityType.EDUCATION_LOAN, "Education Loan", "Loan for studies",
+                                new EntityTemplateDTO(EntityType.HOME_LOAN.getName(), "Home Loan", "Mortgage for house",
                                                 "Debt"),
-                                new EntityTemplateDTO(EntityType.CREDIT_CARD, "Credit Card",
+                                new EntityTemplateDTO(EntityType.CAR_LOAN.getName(), "Car Loan", "Loan for vehicle",
+                                                "Debt"),
+                                new EntityTemplateDTO(EntityType.PERSONAL_LOAN.getName(), "Personal Loan",
+                                                "Unsecured personal loan", "Debt"),
+                                new EntityTemplateDTO(EntityType.EDUCATION_LOAN.getName(), "Education Loan",
+                                                "Loan for studies",
+                                                "Debt"),
+                                new EntityTemplateDTO(EntityType.CREDIT_CARD.getName(), "Credit Card",
                                                 "Outstanding credit card balance", "Debt"),
-                                new EntityTemplateDTO(EntityType.BNPL, "BNPL", "Buy Now Pay Later balance", "Debt"),
-                                new EntityTemplateDTO(EntityType.LOAN, "Other Loan", "Any other type of loan", "Debt"));
+                                new EntityTemplateDTO(EntityType.BNPL.getName(), "BNPL", "Buy Now Pay Later balance",
+                                                "Debt"),
+                                new EntityTemplateDTO(EntityType.LOAN.getName(), "Other Loan", "Any other type of loan",
+                                                "Debt"));
 
                 return AssetLiabilityTemplateDTO.builder()
                                 .assets(assets)
                                 .liabilities(liabilities)
+                                .onBoardingTypes(onBoardingTypes)
                                 .build();
         }
 }

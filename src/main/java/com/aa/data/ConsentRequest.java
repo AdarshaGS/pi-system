@@ -36,4 +36,7 @@ public class ConsentRequest {
 
     @JsonProperty("expiry")
     private String expiry;
+
+    @JsonProperty("entityType")
+    private int entityType;
 }

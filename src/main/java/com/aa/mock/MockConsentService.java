@@ -2,6 +2,9 @@ package com.aa.mock;
 
 import com.aa.data.*;
 import com.aa.repo.AAConsentRepository;
+import com.aa.repo.ConsentTemplateRepository;
+import com.common.data.EntityType;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class MockConsentService {
 
     private final AAConsentRepository consentRepository;
+    private final ConsentTemplateRepository templateRepository;
 
     public ConsentResponse createConsent(ConsentRequest request) {
         String consentId = "mock-consent-" + UUID.randomUUID().toString().substring(0, 8);
@@ -41,6 +45,7 @@ public class MockConsentService {
                 .fiTypes(fiTypesStr)
                 .validFrom(validFrom)
                 .validTill(validTill)
+                .entityType(request.getEntityType())
                 .build();
 
         consentRepository.save(entity);
@@ -53,6 +58,7 @@ public class MockConsentService {
                 .validFrom(validFrom)
                 .validTill(validTill)
                 .redirectUrl("http://localhost:8082/mock-aa/redirect?consentId=" + consentId)
+                .entityType(entity.getEntityType())
                 .build();
     }
 
@@ -114,11 +120,30 @@ public class MockConsentService {
     }
 
     public List<Map<String, String>> getConsentTemplates() {
-        return List.of(
-                Map.of("templateId", "DEFAULT_READ", "description", "Default read-only access for portfolio tracking"),
-                Map.of("templateId", "FULL_ANALYTICS", "description",
-                        "Full access for deep financial insights and optimization"),
-                Map.of("templateId", "LOAN_TRACKING", "description",
-                        "Specific access for tracking liabilities and EMI planning"));
+        List<ConsentTemplateEntity> templates = templateRepository.findAll();
+        String entityType = null;
+        if (templates.isEmpty()) {
+            return List.of(
+                    Map.of("templateId", "ONE_TIME_KYC", "description",
+                            "One-time access for account verification and identity validation", "entityType", "7"),
+                    Map.of("templateId", "CREDIT_ASSESSMENT", "description",
+                            "Comprehensive data access for credit scoring and loan underwriting", "entityType", "10"),
+                    Map.of("templateId", "PFM_RECURRING", "description",
+                            "Periodic access for personal finance management and expense analysis", "entityType", "6"),
+                    Map.of("templateId", "WEALTH_ADVISORY", "description",
+                            "Ongoing access for wealth management, portfolio tracking, and investment advice",
+                            "entityType", "2"),
+                    Map.of("templateId", "TAX_COMPLIANCE", "description",
+                            "Specific access for automated tax filing and financial audits", "entityType", "24"));
+        }
+        List<Map<String, String>> consentTemplateMaps = templates.stream()
+                .map(t -> Map.of(
+                        "templateId", String.valueOf(t.getId()),
+                        "description", t.getMessage(),
+                        "entityType", EntityType.fromId(t.getEntityType()).getName()))
+                .collect(Collectors.toList());
+
+        return consentTemplateMaps;
     }
+
 }

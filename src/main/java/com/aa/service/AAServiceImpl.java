@@ -18,7 +18,7 @@ public class AAServiceImpl implements AAService {
 
     private final AccountAggregatorAdapter accountAggregatorAdapter;
 
-    public AAServiceImpl(@Qualifier("externalAA") AccountAggregatorAdapter accountAggregatorAdapter) {
+    public AAServiceImpl(@Qualifier("mockAA") AccountAggregatorAdapter accountAggregatorAdapter) {
         this.accountAggregatorAdapter = accountAggregatorAdapter;
     }
 
