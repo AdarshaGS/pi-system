@@ -51,3 +51,10 @@ tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs << '-parameters'
 }
 
+tasks.named('jar') {
+    enabled = false
+}
+
+tasks.named('bootJar') {
+    mainClass = 'com.main.Application'
+}
