@@ -1,6 +1,5 @@
 package com.investments.stocks.networth.data;
 
-import com.common.data.EntityType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

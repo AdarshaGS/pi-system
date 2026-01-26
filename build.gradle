@@ -5,7 +5,7 @@ plugins {
 }
 
 springBoot {
-	mainClass = 'com.main.StockApplication'
+	mainClass = 'com.main.Application'
 }
 
 group = 'com.stocks'
