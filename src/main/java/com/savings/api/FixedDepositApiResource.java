@@ -34,6 +34,7 @@ public class FixedDepositApiResource {
     @PostMapping
     @Operation(summary = "Create Fixed Deposit", description = "Creates a new Fixed Deposit with automatic maturity calculation using compound interest")
     @ApiResponse(responseCode = "200", description = "Successfully created Fixed Deposit")
+    @PreAuthorize("@userSecurity.hasUserId(#fixedDeposit.userId)")
     public FixedDepositDTO createFixedDeposit(@RequestBody FixedDeposit fixedDeposit) {
         return fixedDepositService.createFixedDeposit(fixedDeposit);
     }
@@ -41,13 +42,15 @@ public class FixedDepositApiResource {
     @GetMapping("/{id}")
     @Operation(summary = "Get Fixed Deposit", description = "Retrieves a specific Fixed Deposit by ID")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved Fixed Deposit")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public FixedDepositDTO getFixedDeposit(@PathVariable("id") Long id, @RequestParam("userId") Long userId) {
         return fixedDepositService.getFixedDeposit(id, userId);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     @Operation(summary = "Get all Fixed Deposits for user", description = "Retrieves all Fixed Deposits for a specific user")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved Fixed Deposits")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public List<FixedDepositDTO> getAllFixedDeposits(@PathVariable("userId") Long userId) {
         return fixedDepositService.getAllFixedDeposits(userId);
     }
@@ -55,6 +58,7 @@ public class FixedDepositApiResource {
     @PutMapping("/{id}")
     @Operation(summary = "Update Fixed Deposit", description = "Updates an existing Fixed Deposit and recalculates maturity")
     @ApiResponse(responseCode = "200", description = "Successfully updated Fixed Deposit")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public FixedDepositDTO updateFixedDeposit(
             @PathVariable("id") Long id,
             @RequestParam("userId") Long userId,
@@ -65,6 +69,7 @@ public class FixedDepositApiResource {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Fixed Deposit", description = "Deletes a Fixed Deposit")
     @ApiResponse(responseCode = "200", description = "Successfully deleted Fixed Deposit")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public void deleteFixedDeposit(@PathVariable("id") Long id, @RequestParam("userId") Long userId) {
         fixedDepositService.deleteFixedDeposit(id, userId);
     }

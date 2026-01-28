@@ -34,6 +34,7 @@ public class RecurringDepositApiResource {
     @PostMapping
     @Operation(summary = "Create Recurring Deposit", description = "Creates a new Recurring Deposit with automatic maturity calculation")
     @ApiResponse(responseCode = "200", description = "Successfully created Recurring Deposit")
+    @PreAuthorize("@userSecurity.hasUserId(#recurringDeposit.userId)")
     public RecurringDepositDTO createRecurringDeposit(@RequestBody RecurringDeposit recurringDeposit) {
         return recurringDepositService.createRecurringDeposit(recurringDeposit);
     }
@@ -41,13 +42,15 @@ public class RecurringDepositApiResource {
     @GetMapping("/{id}")
     @Operation(summary = "Get Recurring Deposit", description = "Retrieves a specific Recurring Deposit by ID")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved Recurring Deposit")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public RecurringDepositDTO getRecurringDeposit(@PathVariable("id") Long id, @RequestParam("userId") Long userId) {
         return recurringDepositService.getRecurringDeposit(id, userId);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     @Operation(summary = "Get all Recurring Deposits for user", description = "Retrieves all Recurring Deposits for a specific user")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved Recurring Deposits")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public List<RecurringDepositDTO> getAllRecurringDeposits(@PathVariable("userId") Long userId) {
         return recurringDepositService.getAllRecurringDeposits(userId);
     }
@@ -55,6 +58,7 @@ public class RecurringDepositApiResource {
     @PutMapping("/{id}")
     @Operation(summary = "Update Recurring Deposit", description = "Updates an existing Recurring Deposit and recalculates maturity")
     @ApiResponse(responseCode = "200", description = "Successfully updated Recurring Deposit")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public RecurringDepositDTO updateRecurringDeposit(
             @PathVariable("id") Long id,
             @RequestParam("userId") Long userId,
@@ -65,6 +69,7 @@ public class RecurringDepositApiResource {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Recurring Deposit", description = "Deletes a Recurring Deposit")
     @ApiResponse(responseCode = "200", description = "Successfully deleted Recurring Deposit")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public void deleteRecurringDeposit(@PathVariable("id") Long id, @RequestParam("userId") Long userId) {
         recurringDepositService.deleteRecurringDeposit(id, userId);
     }

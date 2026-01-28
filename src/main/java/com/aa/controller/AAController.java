@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aa.data.AAFIRequestEntity;
 import com.aa.data.ConsentRequest;
-import com.aa.data.ConsentResponse;
-import com.aa.data.ConsentStatusResponse;
 import com.aa.data.EncryptedFIPayload;
 import com.aa.data.FIPayload;
 import com.aa.data.FIRequest;
 import com.aa.mock.MockEncryptionService;
+import com.aa.repo.AAConsentRepository;
 import com.aa.repo.AAFIRequestRepository;
 import com.aa.service.AAService;
+import com.auth.security.UserSecurity;
 import com.portfolio.engine.PortfolioEngine;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,15 +43,21 @@ public class AAController {
     private final MockEncryptionService encryptionService;
     private final PortfolioEngine portfolioEngine;
     private final AAFIRequestRepository fiRequestRepository;
+    private final AAConsentRepository consentRepository;
+    private final UserSecurity userSecurity;
 
     public AAController(AAService aaService,
             MockEncryptionService encryptionService,
             PortfolioEngine portfolioEngine,
-            AAFIRequestRepository fiRequestRepository) {
+            AAFIRequestRepository fiRequestRepository,
+            AAConsentRepository consentRepository,
+            UserSecurity userSecurity) {
         this.aaService = aaService;
         this.encryptionService = encryptionService;
         this.portfolioEngine = portfolioEngine;
         this.fiRequestRepository = fiRequestRepository;
+        this.consentRepository = consentRepository;
+        this.userSecurity = userSecurity;
     }
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -64,19 +70,28 @@ public class AAController {
 
     @PostMapping("/consent")
     @Operation(summary = "Create Consent")
-    public ConsentResponse createConsent(@RequestBody ConsentRequest request) {
-        return aaService.createConsent(request);
+    public ResponseEntity<?> createConsent(@RequestBody ConsentRequest request) {
+        if (!userSecurity.hasUserId(Long.parseLong(request.getUserId()))) {
+            return ResponseEntity.status(403).body(Map.of("message", "Cannot create consent for another user"));
+        }
+        return ResponseEntity.ok(aaService.createConsent(request));
     }
 
     @GetMapping("/consent/{consentId}/status")
     @Operation(summary = "Get Consent Status")
-    public ConsentStatusResponse getConsentStatus(@PathVariable("consentId") String consentId) {
-        return aaService.getConsentStatus(consentId);
+    public ResponseEntity<?> getConsentStatus(@PathVariable("consentId") String consentId) {
+        if (!isConsentOwner(consentId)) {
+            return ResponseEntity.status(403).body(Map.of("message", "Access denied to this consent"));
+        }
+        return ResponseEntity.ok(aaService.getConsentStatus(consentId));
     }
 
     @PostMapping("/fetch")
     @Operation(summary = "Request Financial Information (Async Simulator)")
-    public ResponseEntity<Map<String, String>> initiateFetch(@RequestBody FIRequest request) {
+    public ResponseEntity<?> initiateFetch(@RequestBody FIRequest request) {
+        if (!isConsentOwner(request.getConsentId())) {
+            return ResponseEntity.status(403).body(Map.of("message", "Access denied to this consent"));
+        }
         String requestId = "req-" + java.util.UUID.randomUUID().toString().substring(0, 8);
 
         AAFIRequestEntity entity = AAFIRequestEntity.builder()
@@ -114,11 +129,15 @@ public class AAController {
 
     @GetMapping("/fetch/{requestId}/status")
     @Operation(summary = "Poll FI Fetch Status")
-    public ResponseEntity<Map<String, String>> getFetchStatus(@PathVariable("requestId") String requestId) {
-        String status = fiRequestRepository.findByRequestId(requestId)
-                .map(AAFIRequestEntity::getStatus)
-                .orElse("NOT_FOUND");
-        return ResponseEntity.ok(Map.of("requestId", requestId, "status", status));
+    public ResponseEntity<?> getFetchStatus(@PathVariable("requestId") String requestId) {
+        AAFIRequestEntity entity = fiRequestRepository.findByRequestId(requestId).orElse(null);
+        if (entity == null) {
+            return ResponseEntity.status(404).body(Map.of("status", "NOT_FOUND"));
+        }
+        if (!isConsentOwner(entity.getConsentId())) {
+            return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
+        }
+        return ResponseEntity.ok(Map.of("requestId", requestId, "status", entity.getStatus()));
     }
 
     @GetMapping("/fetch/{requestId}/data")
@@ -127,7 +146,15 @@ public class AAController {
         AAFIRequestEntity entity = fiRequestRepository.findByRequestId(requestId)
                 .orElse(null);
 
-        if (entity == null || !"READY".equals(entity.getStatus())) {
+        if (entity == null) {
+            return ResponseEntity.status(404).body(Map.of("message", "Request not found"));
+        }
+
+        if (!isConsentOwner(entity.getConsentId())) {
+            return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
+        }
+
+        if (!"READY".equals(entity.getStatus())) {
             return ResponseEntity.badRequest().body(Map.of("error", "Data not ready or request failed"));
         }
 
@@ -147,7 +174,17 @@ public class AAController {
 
     @DeleteMapping("/consent/{consentId}")
     @Operation(summary = "Revoke Consent")
-    public void revokeConsent(@PathVariable("consentId") String consentId) {
+    public ResponseEntity<?> revokeConsent(@PathVariable("consentId") String consentId) {
+        if (!isConsentOwner(consentId)) {
+            return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
+        }
         aaService.revokeConsent(consentId);
+        return ResponseEntity.ok().build();
+    }
+
+    private boolean isConsentOwner(String consentId) {
+        return consentRepository.findByConsentId(consentId)
+                .map(consent -> userSecurity.hasUserId(Long.parseLong(consent.getUserId())))
+                .orElse(false);
     }
 }

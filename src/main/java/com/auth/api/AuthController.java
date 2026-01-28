@@ -43,29 +43,32 @@ public class AuthController {
     private final UserWriteService userWriteService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
+    private final com.auth.security.CustomUserDetailsService customUserDetailsService;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
             UsersRepository usersRepository, UserWriteService userWriteService, PasswordEncoder passwordEncoder,
-            RefreshTokenService refreshTokenService) {
+            RefreshTokenService refreshTokenService,
+            com.auth.security.CustomUserDetailsService customUserDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.usersRepository = usersRepository;
         this.userWriteService = userWriteService;
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenService = refreshTokenService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @PostMapping("/login")
     @Operation(summary = "User login", description = "Authenticate user with email and password, returns JWT token")
     @ApiResponse(responseCode = "200", description = "Successfully authenticated")
-    @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    @ApiResponse(responseCode = "401", description = "Invalid credentials", content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.common.exception.ApiErrorResponse.class)))
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String token = jwtUtil.generateToken(userDetails.getUsername());
+            String token = jwtUtil.generateToken(userDetails);
             String refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
 
             Users user = usersRepository.findByEmail(loginRequest.getEmail())
@@ -101,8 +104,9 @@ public class AuthController {
 
             Users savedUser = userWriteService.createUser(user);
 
-            // Generate tokens for the new user
-            String token = jwtUtil.generateToken(savedUser.getEmail());
+            // Fetch UserDetails to include roles in JWT
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(savedUser.getEmail());
+            String token = jwtUtil.generateToken(userDetails);
             String refreshToken = refreshTokenService.createRefreshToken(savedUser.getEmail());
 
             LoginResponse response = LoginResponse.builder()

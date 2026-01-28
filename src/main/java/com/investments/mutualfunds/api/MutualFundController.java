@@ -29,18 +29,21 @@ public class MutualFundController {
 
     @Operation(summary = "Get Mutual Fund Portfolio Summary")
     @GetMapping("/summary")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public ResponseEntity<MutualFundSummary> getSummary(@RequestParam Long userId) {
         return ResponseEntity.ok(mutualFundService.getSummary(userId));
     }
 
     @Operation(summary = "Get Mutual Fund Holdings")
     @GetMapping("/holdings")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public ResponseEntity<List<MutualFundHolding>> getHoldings(@RequestParam Long userId) {
         return ResponseEntity.ok(mutualFundService.getHoldings(userId));
     }
 
     @Operation(summary = "Get Mutual Fund Insights")
     @GetMapping("/insights")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public ResponseEntity<MutualFundInsights> getInsights(@RequestParam Long userId) {
         return ResponseEntity.ok(mutualFundService.getInsights(userId));
     }

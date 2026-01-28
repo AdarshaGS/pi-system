@@ -62,8 +62,13 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                                 .requestMatchers("/api/auth/**", "/login/**", "/oauth2/**").permitAll()
                                                 .requestMatchers("/api/health/**").permitAll()
-                                                .requestMatchers("/api/v1/**").permitAll()
-                                                .anyRequest().permitAll())
+                                                .requestMatchers("/api/v1/dev/**").permitAll() // Keep dev tools open
+                                                                                               // for now or secure them
+                                                .requestMatchers("/api/v1/user/**").hasRole("USER_READ_ONLY")
+                                                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/api/v1/super-admin/**").hasRole("SUPER_ADMIN")
+                                                .requestMatchers("/api/v1/**").authenticated()
+                                                .anyRequest().authenticated())
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authenticationProvider(authenticationProvider())

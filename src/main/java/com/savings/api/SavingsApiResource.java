@@ -36,6 +36,7 @@ public class SavingsApiResource {
     @PostMapping
     @Operation(summary = "Create Savings Account Details", description = "Creates Savings Account Details for a user.")
     @ApiResponse(responseCode = "200", description = "Successfully Created Savings Account")
+    @PreAuthorize("@userSecurity.hasUserId(#savingsAccount.userId)")
     public SavingsAccountDTO postSavingsAccountDetails(@RequestBody SavingsAccount savingsAccount) {
         return this.savingsAccountService.createSavingsAccountDetails(savingsAccount);
     }
@@ -43,6 +44,7 @@ public class SavingsApiResource {
     @GetMapping()
     @Operation(summary = "Retrieve Savings Account Details", description = "Retrieves Savings Account Details for a user id.")
     @ApiResponse(responseCode = "200", description = "Fetched Details Successfully")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public SavingsAccountDTO retrieveSavingsAccountDetails(@RequestParam("userId") final Long userId) {
         return this.savingsAccountService.retrieveSavingsAccountDetails(userId);
     }
@@ -50,6 +52,7 @@ public class SavingsApiResource {
     @GetMapping("/{userId}")
     @Operation(summary = "Get all Savings Accounts", description = "Retrieves all Savings Accounts for a specific user")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved all savings accounts")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public List<SavingsAccountDTO> getAllSavingsAccounts(@PathVariable("userId") Long userId) {
         return this.savingsAccountService.getAllSavingsAccounts(userId);
     }
@@ -57,6 +60,7 @@ public class SavingsApiResource {
     @PutMapping("/{id}")
     @Operation(summary = "Update Savings Account", description = "Updates an existing Savings Account")
     @ApiResponse(responseCode = "200", description = "Successfully updated Savings Account")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public SavingsAccountDTO updateSavingsAccount(
             @PathVariable("id") Long id,
             @RequestParam("userId") Long userId,
@@ -67,6 +71,7 @@ public class SavingsApiResource {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Savings Account", description = "Deletes a Savings Account")
     @ApiResponse(responseCode = "200", description = "Successfully deleted Savings Account")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public void deleteSavingsAccount(@PathVariable("id") Long id, @RequestParam("userId") Long userId) {
         this.savingsAccountService.deleteSavingsAccount(id, userId);
     }

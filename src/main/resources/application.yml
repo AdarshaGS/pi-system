@@ -1,6 +1,6 @@
 spring:
   application:
-    name: stock
+    name: pi-system
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
@@ -44,4 +44,11 @@ server:
 
 springdoc:
   swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+    tagsSorter: alpha
+    display-request-duration: true
+    doc-expansion: none
     default-models-expand-depth: -1
+  api-docs:
+    path: /v3/api-docs
