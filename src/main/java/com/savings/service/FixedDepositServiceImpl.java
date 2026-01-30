@@ -6,11 +6,15 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.savings.data.FixedDeposit;
 import com.savings.data.FixedDepositDTO;
 import com.savings.repo.FixedDepositRepository;
+import com.savings.exception.DuplicateSavingsEntityException;
+import com.savings.exception.SavingsEntityNotFoundException;
 
 @Service
 public class FixedDepositServiceImpl implements FixedDepositService {
@@ -22,6 +26,7 @@ public class FixedDepositServiceImpl implements FixedDepositService {
     }
 
     @Override
+    @Transactional
     public FixedDepositDTO createFixedDeposit(FixedDeposit fixedDeposit) {
         // Calculate maturity date
         LocalDate maturityDate = fixedDeposit.getStartDate().plusMonths(fixedDeposit.getTenureMonths());
@@ -44,18 +49,24 @@ public class FixedDepositServiceImpl implements FixedDepositService {
         fixedDeposit.setMaturityAmount(maturityAmount);
         fixedDeposit.setStatus("ACTIVE");
 
-        FixedDeposit saved = repository.save(fixedDeposit);
-        return convertToDTO(saved);
+        try {
+            FixedDeposit saved = repository.save(fixedDeposit);
+            return convertToDTO(saved);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateSavingsEntityException("Fixed Deposit", fixedDeposit.getBankName());
+        }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public FixedDepositDTO getFixedDeposit(Long id, Long userId) {
         FixedDeposit fd = repository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Fixed Deposit not found for ID: " + id));
+                .orElseThrow(() -> new SavingsEntityNotFoundException("Fixed Deposit", id));
         return convertToDTO(fd);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<FixedDepositDTO> getAllFixedDeposits(Long userId) {
         return repository.findAllByUserId(userId).stream()
                 .map(this::convertToDTO)
@@ -63,9 +74,10 @@ public class FixedDepositServiceImpl implements FixedDepositService {
     }   
 
     @Override
+    @Transactional
     public FixedDepositDTO updateFixedDeposit(Long id, Long userId, FixedDeposit fixedDeposit) {
         FixedDeposit existing = repository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Fixed Deposit not found for ID: " + id));
+                .orElseThrow(() -> new SavingsEntityNotFoundException("Fixed Deposit", id));
 
         // Update fields
         existing.setBankName(fixedDeposit.getBankName());
@@ -92,14 +104,19 @@ public class FixedDepositServiceImpl implements FixedDepositService {
         existing.setMaturityAmount(BigDecimal.valueOf(maturityAmountValue)
                 .setScale(2, RoundingMode.HALF_UP));
 
-        FixedDeposit updated = repository.save(existing);
-        return convertToDTO(updated);
+        try {
+            FixedDeposit updated = repository.save(existing);
+            return convertToDTO(updated);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateSavingsEntityException("Fixed Deposit", fixedDeposit.getBankName());
+        }
     }
 
     @Override
+    @Transactional
     public void deleteFixedDeposit(Long id, Long userId) {
         FixedDeposit fd = repository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Fixed Deposit not found for ID: " + id));
+                .orElseThrow(() -> new SavingsEntityNotFoundException("Fixed Deposit", id));
         repository.delete(fd);
     }
 

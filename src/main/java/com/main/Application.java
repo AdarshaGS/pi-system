@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EntityScan(basePackages = "com")
 @EnableJpaRepositories(basePackages = "com")
 @EnableScheduling
+@org.springframework.boot.context.properties.ConfigurationPropertiesScan("com")
 public class Application {
 
         public static void main(String[] args) {

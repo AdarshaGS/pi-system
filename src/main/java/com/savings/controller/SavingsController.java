@@ -1,0 +1,78 @@
+package com.savings.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import com.savings.data.SavingsAccount;
+import com.savings.data.SavingsAccountDTO;
+import com.savings.service.SavingsAccountService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
+
+@RestController
+@RequestMapping("api/v1/savings-account")
+@Tag(name = "Savings Account Management", description = "APIs for managing user savings accounts, FD/RD, and bank balances")
+@AllArgsConstructor
+@PreAuthorize("isAuthenticated()")
+public class SavingsController {
+
+    @Autowired
+    private final SavingsAccountService savingsAccountService;
+
+    @PostMapping
+    @Operation(summary = "Create Savings Account Details", description = "Creates Savings Account Details for a user.")
+    @ApiResponse(responseCode = "200", description = "Successfully Created Savings Account")
+    @PreAuthorize("@userSecurity.hasUserId(#savingsAccount.userId)")
+    public SavingsAccountDTO postSavingsAccountDetails(@RequestBody SavingsAccount savingsAccount) {
+        return this.savingsAccountService.createSavingsAccountDetails(savingsAccount);
+    }
+
+    @GetMapping()
+    @Operation(summary = "Retrieve Savings Account Details", description = "Retrieves Savings Account Details for a user id.")
+    @ApiResponse(responseCode = "200", description = "Fetched Details Successfully")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
+    public SavingsAccountDTO retrieveSavingsAccountDetails(@RequestParam("userId") final Long userId) {
+        return this.savingsAccountService.retrieveSavingsAccountDetails(userId);
+    }
+
+    @GetMapping("/{userId}")
+    @Operation(summary = "Get all Savings Accounts", description = "Retrieves all Savings Accounts for a specific user")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved all savings accounts")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
+    public List<SavingsAccountDTO> getAllSavingsAccounts(@PathVariable("userId") Long userId) {
+        return this.savingsAccountService.getAllSavingsAccounts(userId);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update Savings Account", description = "Updates an existing Savings Account")
+    @ApiResponse(responseCode = "200", description = "Successfully updated Savings Account")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
+    public SavingsAccountDTO updateSavingsAccount(
+            @PathVariable("id") Long id,
+            @RequestParam("userId") Long userId,
+            @RequestBody SavingsAccount savingsAccount) {
+        return this.savingsAccountService.updateSavingsAccount(id, userId, savingsAccount);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete Savings Account", description = "Deletes a Savings Account")
+    @ApiResponse(responseCode = "200", description = "Successfully deleted Savings Account")
+    @PreAuthorize("@userSecurity.hasUserId(#userId)")
+    public void deleteSavingsAccount(@PathVariable("id") Long id, @RequestParam("userId") Long userId) {
+        this.savingsAccountService.deleteSavingsAccount(id, userId);
+    }
+}

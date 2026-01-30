@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# API Test Runner Script
+# This script runs API integration tests for the PI System
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${YELLOW}========================================${NC}"
+echo -e "${YELLOW}PI System - API Integration Tests${NC}"
+echo -e "${YELLOW}========================================${NC}"
+
+# Check if Redis is running (required for tests)
+if ! redis-cli ping > /dev/null 2>&1; then
+    echo -e "${RED}ERROR: Redis is not running!${NC}"
+    echo -e "${YELLOW}Please start Redis: brew services start redis${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Redis is running${NC}"
+
+# Run tests based on argument
+case "$1" in
+    "auth")
+        echo -e "${YELLOW}Running Authentication Tests...${NC}"
+        ./gradlew test --tests "com.api.auth.*" --info
+        ;;
+    "savings")
+        echo -e "${YELLOW}Running Savings Account Tests...${NC}"
+        ./gradlew test --tests "com.api.savings.*" --info
+        ;;
+    "portfolio")
+        echo -e "${YELLOW}Running Portfolio Tests...${NC}"
+        ./gradlew test --tests "com.api.portfolio.*" --info
+        ;;
+    "all")
+        echo -e "${YELLOW}Running All API Integration Tests...${NC}"
+        ./gradlew test --tests "com.api.*" --info
+        ;;
+    "coverage")
+        echo -e "${YELLOW}Running Tests with Coverage...${NC}"
+        ./gradlew test jacocoTestReport --tests "com.api.*"
+        echo -e "${GREEN}Coverage report: build/reports/jacoco/test/html/index.html${NC}"
+        ;;
+    *)
+        echo -e "${YELLOW}Usage: $0 {auth|savings|portfolio|all|coverage}${NC}"
+        echo -e ""
+        echo -e "Examples:"
+        echo -e "  $0 auth       - Run authentication tests"
+        echo -e "  $0 savings    - Run savings account tests"
+        echo -e "  $0 portfolio  - Run portfolio tests"
+        echo -e "  $0 all        - Run all API tests"
+        echo -e "  $0 coverage   - Run tests with coverage report"
+        exit 1
+        ;;
+esac
+
+# Check test results
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}========================================${NC}"
+    echo -e "${GREEN}✓ All tests passed!${NC}"
+    echo -e "${GREEN}========================================${NC}"
+    echo -e "${YELLOW}Test report: build/reports/tests/test/index.html${NC}"
+else
+    echo -e "${RED}========================================${NC}"
+    echo -e "${RED}✗ Some tests failed!${NC}"
+    echo -e "${RED}========================================${NC}"
+    echo -e "${YELLOW}Check: build/reports/tests/test/index.html${NC}"
+    exit 1
+fi

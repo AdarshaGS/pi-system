@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -19,11 +18,11 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final JwtProperties jwtProperties;
 
-    @Value("${jwt.expiration}")
-    private Long expiration;
+    public JwtUtil(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -72,13 +71,13 @@ public class JwtUtil {
                 .claims(claims)
                 .subject(subject)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
                 .signWith(getSignKey())
                 .compact();
     }
 
     private SecretKey getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

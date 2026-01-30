@@ -6,10 +6,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.savings.data.SavingsAccount;
 import com.savings.data.SavingsAccountDTO;
 import com.savings.repo.SavingsAccountRepository;
+import com.savings.exception.DuplicateSavingsEntityException;
+import com.savings.exception.SavingsEntityNotFoundException;
 
 @Service
 public class SavingsAccountServiceImpl implements SavingsAccountService {
@@ -22,27 +25,30 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     }
 
     @Override
+    @Transactional
     public SavingsAccountDTO createSavingsAccountDetails(SavingsAccount savingsAccount) {
         try {
             this.repository.save(savingsAccount);
             return SavingsAccountDTO.builder().Id(savingsAccount.getId()).build();
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Savings account already exists for this user and bank combination");
+            throw new DuplicateSavingsEntityException("Savings Account", savingsAccount.getBankName());
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SavingsAccountDTO retrieveSavingsAccountDetails(Long userId) {
         SavingsAccount savingsAccount = this.repository.findOneByUserId(userId);
 
         if (savingsAccount == null) {
-            throw new RuntimeException("Savings account not found for user ID: " + userId);
+            throw new SavingsEntityNotFoundException("Savings Account", userId, "userId");
         }
 
         return convertToDTO(savingsAccount);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SavingsAccountDTO> getAllSavingsAccounts(Long userId) {
         return repository.findAllByUserId(userId).stream()
                 .map(this::convertToDTO)
@@ -50,9 +56,10 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     }
 
     @Override
+    @Transactional
     public SavingsAccountDTO updateSavingsAccount(Long id, Long userId, SavingsAccount savingsAccount) {
         SavingsAccount existing = repository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Savings account not found for ID: " + id));
+                .orElseThrow(() -> new SavingsEntityNotFoundException("Savings Account", id));
 
         // Update fields
         existing.setAccountHolderName(savingsAccount.getAccountHolderName());
@@ -63,15 +70,15 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
             SavingsAccount updated = repository.save(existing);
             return convertToDTO(updated);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException(
-                    "Cannot update: Savings account already exists for this user and bank combination");
+            throw new DuplicateSavingsEntityException("Savings Account", savingsAccount.getBankName());
         }
     }
 
     @Override
+    @Transactional
     public void deleteSavingsAccount(Long id, Long userId) {
         SavingsAccount account = repository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Savings account not found for ID: " + id));
+                .orElseThrow(() -> new SavingsEntityNotFoundException("Savings Account", id));
         repository.delete(account);
     }
 

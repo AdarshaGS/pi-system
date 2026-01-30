@@ -1,9 +1,9 @@
-package com.healthStatus.service;
+package com.healthstatus.service;
 
 import org.springframework.stereotype.Service;
 
-import com.healthStatus.data.ComponentHealth;
-import com.healthStatus.data.HealthStatus;
+import com.healthstatus.data.ComponentHealth;
+import com.healthstatus.data.HealthStatus;
 
 import javax.sql.DataSource;
 import java.lang.management.ManagementFactory;

@@ -1,0 +1,35 @@
+package com.investments.stocks.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import com.investments.stocks.data.StockResponse;
+import com.investments.stocks.service.StockReadService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@RequestMapping("/api/v1/stocks")
+@Tag(name = "Stock Management", description = "APIs for fetching stock details")
+@PreAuthorize("isAuthenticated()")
+public class StockController {
+
+    private final StockReadService stockReadService;
+
+    public StockController(final StockReadService stockReadService) {
+        this.stockReadService = stockReadService;
+    }
+
+    @GetMapping("/{symbol}")
+    @Operation(summary = "Get stock by symbol", description = "Fetches stock details including price and sector.")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved stock details")
+    @ApiResponse(responseCode = "404", description = "Stock symbol not found")
+    public StockResponse getStockBySymbol(@PathVariable("symbol") String symbol) {
+        return this.stockReadService.getStockBySymbol(symbol);
+    }
+}

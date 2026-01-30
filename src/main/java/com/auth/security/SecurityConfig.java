@@ -1,5 +1,6 @@
 package com.auth.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -31,6 +33,9 @@ public class SecurityConfig {
         private final RequestAuditFilter requestAuditFilter;
         private final JwtAuthenticationEntryPoint authEntryPoint;
         private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
+        @Autowired(required = false)
+        private ClientRegistrationRepository clientRegistrationRepository;
 
         public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, CustomUserDetailsService userDetailsService,
                         RequestAuditFilter requestAuditFilter, JwtAuthenticationEntryPoint authEntryPoint,
@@ -73,10 +78,15 @@ public class SecurityConfig {
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authenticationProvider(authenticationProvider())
                                 .exceptionHandling(exception -> exception
-                                                .authenticationEntryPoint(authEntryPoint))
-                                .oauth2Login(oauth2 -> oauth2
-                                                .successHandler(oAuth2SuccessHandler))
-                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                                .authenticationEntryPoint(authEntryPoint));
+                
+                // Only configure OAuth2 if ClientRegistrationRepository is available
+                if (clientRegistrationRepository != null) {
+                        http.oauth2Login(oauth2 -> oauth2
+                                        .successHandler(oAuth2SuccessHandler));
+                }
+                
+                http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                                 .addFilterAfter(requestAuditFilter, JwtAuthenticationFilter.class);
 
                 return http.build();

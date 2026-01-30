@@ -1,4 +1,4 @@
-package com.healthStatus.data;
+package com.healthstatus.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

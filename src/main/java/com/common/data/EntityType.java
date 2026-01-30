@@ -8,7 +8,6 @@ public enum EntityType {
     MUTUAL_FUND(2, "Mutual Fund"),
     ETF(3, "ETF"),
     LENDING(5, "Lending"),
-    SAVINGS(6, "Savings"),
     SAVINGS_ACCOUNT(7, "Savings Account"),
     FIXED_DEPOSIT(8, "Fixed Deposit"),
     RECURRING_DEPOSIT(9, "Recurring Deposit"),

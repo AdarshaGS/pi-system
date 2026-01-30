@@ -7,9 +7,10 @@ import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import com.auth.security.JwtProperties;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,17 +20,14 @@ public class RefreshTokenService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    @Value("${jwt.refresh-token.expiration:2592000000}") // Default 30 days in ms
-    private Long refreshTokenDurationMs;
-
-    @Value("${jwt.expiration}")
-    private Long accessTokenDurationMs;
+    private final JwtProperties jwtProperties;
 
     private static final String REFRESH_PREFIX = "refresh:";
     private static final String BLACKLIST_PREFIX = "blacklist:";
 
-    public RefreshTokenService(RedisTemplate<String, String> redisTemplate) {
+    public RefreshTokenService(RedisTemplate<String, String> redisTemplate, JwtProperties jwtProperties) {
         this.redisTemplate = redisTemplate;
+        this.jwtProperties = jwtProperties;
     }
 
     /**
@@ -40,7 +38,8 @@ public class RefreshTokenService {
         String hashedToken = hashToken(token);
 
         String key = REFRESH_PREFIX + hashedToken;
-        redisTemplate.opsForValue().set(key, userEmail, refreshTokenDurationMs, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(key, userEmail, jwtProperties.getRefreshToken().getExpiration(),
+                TimeUnit.MILLISECONDS);
 
         return token;
     }
@@ -53,7 +52,7 @@ public class RefreshTokenService {
         String key = BLACKLIST_PREFIX + hashedToken;
         // Store with TTL equal to the max life of a JWT to ensure it's removed
         // eventually
-        redisTemplate.opsForValue().set(key, "blacklisted", accessTokenDurationMs, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(key, "blacklisted", jwtProperties.getExpiration(), TimeUnit.MILLISECONDS);
     }
 
     /**
