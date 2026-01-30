@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.loan.data.Loan;
 import com.loan.repo.LoanRepository;
@@ -22,6 +23,7 @@ public class LoanServiceImpl implements LoanService {
     private static final MathContext MC = new MathContext(10, RoundingMode.HALF_UP);
 
     @Override
+    @Transactional
     public Loan createLoan(Loan loan) {
         if (loan.getEmiAmount() == null && loan.getPrincipalAmount() != null
                 && loan.getInterestRate() != null && loan.getTenureMonths() != null) {
@@ -41,21 +43,25 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Loan> getAllLoans() {
         return loanRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Loan> getLoansByUserId(Long userId) {
         return loanRepository.findByUserId(userId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Loan getLoanById(Long id) {
         return loanRepository.findById(id).orElse(null);
     }
 
     @Override
+    @Transactional
     public void deleteLoan(Long id) {
         loanRepository.deleteById(id);
     }
@@ -85,6 +91,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> simulatePrepayment(Long loanId, BigDecimal prepaymentAmount) {
         Loan loan = getLoanById(loanId);
         if (loan == null) {

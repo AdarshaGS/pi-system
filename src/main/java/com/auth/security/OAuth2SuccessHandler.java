@@ -9,7 +9,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.auth.service.RefreshTokenService;
+import com.auth.service.IRefreshTokenService;
 import com.users.data.Users;
 import com.users.repo.UsersRepository;
 
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
-    private final RefreshTokenService refreshTokenService;
+    private final IRefreshTokenService refreshTokenService;
     private final UsersRepository usersRepository;
 
     @Override

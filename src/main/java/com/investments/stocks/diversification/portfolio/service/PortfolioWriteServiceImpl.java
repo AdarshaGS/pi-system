@@ -3,6 +3,7 @@ package com.investments.stocks.diversification.portfolio.service;
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.investments.stocks.diversification.portfolio.data.Portfolio;
 import com.investments.stocks.diversification.portfolio.repo.PortfolioRepository;
@@ -26,6 +27,7 @@ public class PortfolioWriteServiceImpl implements PortfolioWriteService {
     }
 
     @Override
+    @Transactional
     public Portfolio addPortfolio(Portfolio portfolio) {
 
         Long stockId = this.stockReadService.getStockBySymbol(portfolio.getEntityName()).getId();

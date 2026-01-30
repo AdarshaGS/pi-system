@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "audit.enabled", havingValue = "true", matchIfMissing = true)
 public class RequestAuditFilter extends OncePerRequestFilter {
 
     private final RequestAuditService requestAuditService;

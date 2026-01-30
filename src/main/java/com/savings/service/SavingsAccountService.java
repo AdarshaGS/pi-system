@@ -13,6 +13,8 @@ public interface SavingsAccountService {
 
     List<SavingsAccountDTO> getAllSavingsAccounts(Long userId);
 
+    SavingsAccountDTO getSavingsAccountById(Long id, Long userId);
+
     SavingsAccountDTO updateSavingsAccount(Long id, Long userId, SavingsAccount savingsAccount);
 
     void deleteSavingsAccount(Long id, Long userId);

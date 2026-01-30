@@ -30,19 +30,20 @@ public class SecurityConfig {
 
         private final JwtAuthenticationFilter jwtAuthFilter;
         private final CustomUserDetailsService userDetailsService;
-        private final RequestAuditFilter requestAuditFilter;
         private final JwtAuthenticationEntryPoint authEntryPoint;
         private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
         @Autowired(required = false)
         private ClientRegistrationRepository clientRegistrationRepository;
 
+        @Autowired(required = false)
+        private RequestAuditFilter requestAuditFilter;
+
         public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, CustomUserDetailsService userDetailsService,
-                        RequestAuditFilter requestAuditFilter, JwtAuthenticationEntryPoint authEntryPoint,
+                        JwtAuthenticationEntryPoint authEntryPoint,
                         OAuth2SuccessHandler oAuth2SuccessHandler) {
                 this.jwtAuthFilter = jwtAuthFilter;
                 this.userDetailsService = userDetailsService;
-                this.requestAuditFilter = requestAuditFilter;
                 this.authEntryPoint = authEntryPoint;
                 this.oAuth2SuccessHandler = oAuth2SuccessHandler;
         }
@@ -61,7 +62,12 @@ public class SecurityConfig {
                                                                 "/webjars/**",
                                                                 "/configuration/ui",
                                                                 "/configuration/security",
-                                                                "/actuator/**")
+                                                                "/actuator/**",
+                                                                "/",
+                                                                "/index.html",
+                                                                "/static/**",
+                                                                "/api/v1/test-runner/**",
+                                                                "/reports/**")
 
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -77,17 +83,21 @@ public class SecurityConfig {
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authenticationProvider(authenticationProvider())
+                                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                                 .exceptionHandling(exception -> exception
                                                 .authenticationEntryPoint(authEntryPoint));
-                
+
                 // Only configure OAuth2 if ClientRegistrationRepository is available
                 if (clientRegistrationRepository != null) {
                         http.oauth2Login(oauth2 -> oauth2
                                         .successHandler(oAuth2SuccessHandler));
                 }
-                
-                http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                                .addFilterAfter(requestAuditFilter, JwtAuthenticationFilter.class);
+
+                http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+                if (requestAuditFilter != null) {
+                        http.addFilterAfter(requestAuditFilter, JwtAuthenticationFilter.class);
+                }
 
                 return http.build();
         }

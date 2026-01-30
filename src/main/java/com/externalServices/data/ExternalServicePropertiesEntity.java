@@ -28,7 +28,7 @@ public class ExternalServicePropertiesEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "value", nullable = false)
+    @Column(name = "`value`", nullable = false)
     private String value;
 
     @ManyToOne

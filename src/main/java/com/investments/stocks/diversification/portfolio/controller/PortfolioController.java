@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
 
 import com.investments.stocks.diversification.portfolio.data.Portfolio;
 import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
@@ -36,7 +37,7 @@ public class PortfolioController {
     @Operation(summary = "Add portfolio item", description = "Adds a stock to the user's portfolio.")
     @ApiResponse(responseCode = "200", description = "Successfully added portfolio item")
     @PreAuthorize("@userSecurity.hasUserId(#portfolio.userId)")
-    public Portfolio postPortfolioData(@RequestBody Portfolio portfolio) {
+    public Portfolio postPortfolioData(@Valid @RequestBody Portfolio portfolio) {
         return this.portfolioWriteService.addPortfolio(portfolio);
     }
 

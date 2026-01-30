@@ -13,13 +13,13 @@ public class DuplicateSavingsEntityException extends BusinessException {
     public DuplicateSavingsEntityException(String entityType, String bankName) {
         super(
             HttpStatus.CONFLICT,
-            "DUPLICATE_SAVINGS_ENTITY",
             String.format("%s already exists for this user and bank '%s'. Please use a different bank or update the existing record.", 
-                entityType, bankName)
+                entityType, bankName),
+            "DUPLICATE_SAVINGS_ENTITY"
         );
     }
 
     public DuplicateSavingsEntityException(String message) {
-        super(HttpStatus.CONFLICT, "DUPLICATE_SAVINGS_ENTITY", message);
+        super(HttpStatus.CONFLICT, message, "DUPLICATE_SAVINGS_ENTITY");
     }
 }

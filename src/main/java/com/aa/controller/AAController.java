@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import com.aa.data.AAFIRequestEntity;
 import com.aa.data.ConsentRequest;
@@ -70,7 +71,7 @@ public class AAController {
 
     @PostMapping("/consent")
     @Operation(summary = "Create Consent")
-    public ResponseEntity<?> createConsent(@RequestBody ConsentRequest request) {
+    public ResponseEntity<?> createConsent(@Valid @RequestBody ConsentRequest request) {
         if (!userSecurity.hasUserId(Long.parseLong(request.getUserId()))) {
             return ResponseEntity.status(403).body(Map.of("message", "Cannot create consent for another user"));
         }
@@ -88,7 +89,7 @@ public class AAController {
 
     @PostMapping("/fetch")
     @Operation(summary = "Request Financial Information (Async Simulator)")
-    public ResponseEntity<?> initiateFetch(@RequestBody FIRequest request) {
+    public ResponseEntity<?> initiateFetch(@Valid @RequestBody FIRequest request) {
         if (!isConsentOwner(request.getConsentId())) {
             return ResponseEntity.status(403).body(Map.of("message", "Access denied to this consent"));
         }

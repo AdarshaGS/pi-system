@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
 
 import com.savings.data.FixedDeposit;
 import com.savings.data.FixedDepositDTO;
@@ -35,7 +36,7 @@ public class FixedDepositController {
     @Operation(summary = "Create Fixed Deposit", description = "Creates a new Fixed Deposit with automatic maturity calculation using compound interest")
     @ApiResponse(responseCode = "200", description = "Successfully created Fixed Deposit")
     @PreAuthorize("@userSecurity.hasUserId(#fixedDeposit.userId)")
-    public FixedDepositDTO createFixedDeposit(@RequestBody FixedDeposit fixedDeposit) {
+    public FixedDepositDTO createFixedDeposit(@Valid @RequestBody FixedDeposit fixedDeposit) {
         return fixedDepositService.createFixedDeposit(fixedDeposit);
     }
 
@@ -62,7 +63,7 @@ public class FixedDepositController {
     public FixedDepositDTO updateFixedDeposit(
             @PathVariable("id") Long id,
             @RequestParam("userId") Long userId,
-            @RequestBody FixedDeposit fixedDeposit) {
+            @Valid @RequestBody FixedDeposit fixedDeposit) {
         return fixedDepositService.updateFixedDeposit(id, userId, fixedDeposit);
     }
 

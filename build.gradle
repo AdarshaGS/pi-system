@@ -5,6 +5,9 @@ plugins {
 	id 'jacoco'
 }
 
+// Apply custom test report configuration
+apply from: 'test-report-config.gradle'
+
 springBoot {
 	mainClass = 'com.main.Application'
 }
@@ -78,6 +81,20 @@ jacoco {
 
 test {
 	finalizedBy jacocoTestReport
+	useJUnitPlatform()
+	
+	// Configure test reports
+	reports {
+		html.required = true
+		junitXml.required = true
+	}
+	
+	// Customize HTML report display names
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+		showStandardStreams = true
+	}
 }
 
 jacocoTestReport {

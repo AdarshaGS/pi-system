@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAu
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 /**
  * Base class for API integration tests
@@ -24,6 +25,9 @@ import org.springframework.test.context.ActiveProfiles;
 )
 @ActiveProfiles("test")
 @EnableAutoConfiguration(exclude = {OAuth2ClientAutoConfiguration.class})
+@TestPropertySource(properties = {
+    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
+})
 public abstract class BaseApiTest {
 
     @LocalServerPort

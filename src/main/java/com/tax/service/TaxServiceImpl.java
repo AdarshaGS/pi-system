@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tax.data.Tax;
 import com.tax.data.TaxDTO;
@@ -20,6 +21,7 @@ public class TaxServiceImpl implements TaxService {
     }
 
     @Override
+    @Transactional
     public TaxDTO createTaxDetails(Tax tax) {
         
         // Calculate net tax liability
@@ -33,6 +35,7 @@ public class TaxServiceImpl implements TaxService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TaxDTO getTaxDetailsByUserId(Long userId, String financialYear) {
         List<Tax> taxes = this.repository.findAll((root, query, cb) -> cb.and(
                 cb.equal(root.get("userId"), userId),
@@ -42,6 +45,7 @@ public class TaxServiceImpl implements TaxService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal calculateTotalTaxLiability(Long userId) {
         List<Tax> taxes = this.repository.findAll((root, query, cb) -> cb.equal(root.get("userId"), userId));
 
@@ -51,6 +55,7 @@ public class TaxServiceImpl implements TaxService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getOutstandingTaxLiability(Long userId) {
         List<Tax> taxes = this.repository.findAll((root, query, cb) -> cb.equal(root.get("userId"), userId));
 

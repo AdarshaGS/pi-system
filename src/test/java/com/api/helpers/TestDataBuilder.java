@@ -22,8 +22,8 @@ public class TestDataBuilder {
         Map<String, Object> user = new HashMap<>();
         user.put("email", generateUniqueEmail());
         user.put("password", "Test@1234");
-        user.put("firstName", "Test");
-        user.put("lastName", "User");
+        user.put("name", "Test User");
+        user.put("mobileNumber", "9876543210");
         return user;
     }
 

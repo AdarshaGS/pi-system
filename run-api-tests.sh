@@ -66,6 +66,7 @@ if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ All tests passed!${NC}"
     echo -e "${GREEN}========================================${NC}"
     echo -e "${YELLOW}Test report: build/reports/tests/test/index.html${NC}"
+    echo -e "${YELLOW}(Package names simplified: 'portfolio' instead of 'com.portfolio')${NC}"
 else
     echo -e "${RED}========================================${NC}"
     echo -e "${RED}✗ Some tests failed!${NC}"

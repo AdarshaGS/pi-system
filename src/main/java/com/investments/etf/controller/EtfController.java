@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class EtfController {
     }
 
     @PostMapping
-    public Etf addEtf(@RequestBody Etf etf) {
+    public Etf addEtf(@Valid @RequestBody Etf etf) {
         return etfService.addEtf(etf);
     }
 

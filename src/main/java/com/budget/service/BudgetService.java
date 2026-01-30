@@ -6,6 +6,7 @@ import com.budget.repo.ExpenseRepository;
 import com.budget.repo.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,6 +25,7 @@ public class BudgetService {
     private final BudgetRepository budgetRepository;
     private final IncomeRepository incomeRepository; // Inject IncomeRepository
 
+    @Transactional
     public Expense addExpense(Expense expense) {
         if (expense.getExpenseDate() == null) {
             expense.setExpenseDate(LocalDate.now());
@@ -31,6 +33,7 @@ public class BudgetService {
         return expenseRepository.save(expense);
     }
 
+    @Transactional
     public Budget setBudget(Budget budget) {
         if (budget.getMonthYear() == null) {
             budget.setMonthYear(YearMonth.now().toString());
@@ -47,6 +50,7 @@ public class BudgetService {
                 .orElseGet(() -> budgetRepository.save(budget));
     }
 
+    @Transactional(readOnly = true)
     public BudgetReportDTO getMonthlyReport(Long userId, String monthYear) {
         if (monthYear == null) {
             monthYear = YearMonth.now().toString();

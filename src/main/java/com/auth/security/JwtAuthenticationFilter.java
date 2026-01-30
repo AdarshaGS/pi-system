@@ -2,7 +2,7 @@ package com.auth.security;
 
 import java.io.IOException;
 
-import com.auth.service.RefreshTokenService;
+import com.auth.service.IRefreshTokenService;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,10 +21,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
-    private final RefreshTokenService refreshTokenService;
+    private final IRefreshTokenService refreshTokenService;
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService,
-            RefreshTokenService refreshTokenService) {
+            IRefreshTokenService refreshTokenService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.refreshTokenService = refreshTokenService;

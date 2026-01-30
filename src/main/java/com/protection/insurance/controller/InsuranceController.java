@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
 
 import com.protection.insurance.data.Insurance;
 import com.protection.insurance.service.InsuranceService;
@@ -33,7 +34,7 @@ public class InsuranceController {
     @PostMapping
     @Operation(summary = "Create Insurance Policy", description = "Create Insurance Policy Details for a user")
     @ApiResponse(responseCode = "201", description = "Successfully created")
-    public ResponseEntity<Insurance> createInsuranceDetails(@RequestBody Insurance insurance) {
+    public ResponseEntity<Insurance> createInsuranceDetails(@Valid @RequestBody Insurance insurance) {
         Insurance createdInsurance = insuranceService.createInsurancePolicy(insurance);
         return new ResponseEntity<>(createdInsurance, HttpStatus.CREATED);
     }

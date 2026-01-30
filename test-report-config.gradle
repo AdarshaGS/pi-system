@@ -1,0 +1,98 @@
+import org.gradle.api.tasks.testing.TestDescriptor
+import org.gradle.api.tasks.testing.TestResult
+
+// Custom test listener to simplify package names in reports
+test.afterTest { TestDescriptor descriptor, TestResult result ->
+    if (descriptor.className) {
+        def simplifiedName = descriptor.className
+            .replaceAll(/^com\./, '')
+            .replaceAll(/^org\./, '')
+        logger.lifecycle("Test: ${simplifiedName}.${descriptor.name} - ${result.resultType}")
+    }
+}
+
+// Configure HTML report generation with simplified names
+tasks.test {
+    doLast {
+        def reportFile = file("${buildDir}/reports/tests/test/index.html")
+        if (reportFile.exists()) {
+            def content = reportFile.text
+            
+            // Replace package names in HTML report
+            content = content
+                .replaceAll('com\\.investments\\.stocks\\.diversification\\.portfolio', 'portfolio')
+                .replaceAll('com\\.investments\\.stocks\\.networth', 'networth')
+                .replaceAll('com\\.investments\\.stocks', 'stocks')
+                .replaceAll('com\\.investments\\.mutualfunds', 'mutualfunds')
+                .replaceAll('com\\.investments\\.etf', 'etf')
+                .replaceAll('com\\.investments', 'investments')
+                .replaceAll('com\\.protection\\.insurance', 'insurance')
+                .replaceAll('com\\.protection', 'protection')
+                .replaceAll('com\\.savings', 'savings')
+                .replaceAll('com\\.lending', 'lending')
+                .replaceAll('com\\.budget', 'budget')
+                .replaceAll('com\\.loan', 'loan')
+                .replaceAll('com\\.tax', 'tax')
+                .replaceAll('com\\.auth', 'auth')
+                .replaceAll('com\\.aa', 'aa')
+                .replaceAll('com\\.healthstatus', 'health')
+                .replaceAll('com\\.api\\.', '')
+            
+            reportFile.text = content
+            
+            // Also process package pages
+            fileTree("${buildDir}/reports/tests/test/packages").each { file ->
+                if (file.name.endsWith('.html')) {
+                    def packageContent = file.text
+                    packageContent = packageContent
+                        .replaceAll('com\\.investments\\.stocks\\.diversification\\.portfolio', 'portfolio')
+                        .replaceAll('com\\.investments\\.stocks\\.networth', 'networth')
+                        .replaceAll('com\\.investments\\.stocks', 'stocks')
+                        .replaceAll('com\\.investments\\.mutualfunds', 'mutualfunds')
+                        .replaceAll('com\\.investments\\.etf', 'etf')
+                        .replaceAll('com\\.investments', 'investments')
+                        .replaceAll('com\\.protection\\.insurance', 'insurance')
+                        .replaceAll('com\\.protection', 'protection')
+                        .replaceAll('com\\.savings', 'savings')
+                        .replaceAll('com\\.lending', 'lending')
+                        .replaceAll('com\\.budget', 'budget')
+                        .replaceAll('com\\.loan', 'loan')
+                        .replaceAll('com\\.tax', 'tax')
+                        .replaceAll('com\\.auth', 'auth')
+                        .replaceAll('com\\.aa', 'aa')
+                        .replaceAll('com\\.healthstatus', 'health')
+                        .replaceAll('com\\.api\\.', '')
+                    file.text = packageContent
+                }
+            }
+            
+            // Process class pages
+            fileTree("${buildDir}/reports/tests/test/classes").each { file ->
+                if (file.name.endsWith('.html')) {
+                    def classContent = file.text
+                    classContent = classContent
+                        .replaceAll('com\\.investments\\.stocks\\.diversification\\.portfolio', 'portfolio')
+                        .replaceAll('com\\.investments\\.stocks\\.networth', 'networth')
+                        .replaceAll('com\\.investments\\.stocks', 'stocks')
+                        .replaceAll('com\\.investments\\.mutualfunds', 'mutualfunds')
+                        .replaceAll('com\\.investments\\.etf', 'etf')
+                        .replaceAll('com\\.investments', 'investments')
+                        .replaceAll('com\\.protection\\.insurance', 'insurance')
+                        .replaceAll('com\\.protection', 'protection')
+                        .replaceAll('com\\.savings', 'savings')
+                        .replaceAll('com\\.lending', 'lending')
+                        .replaceAll('com\\.budget', 'budget')
+                        .replaceAll('com\\.loan', 'loan')
+                        .replaceAll('com\\.tax', 'tax')
+                        .replaceAll('com\\.auth', 'auth')
+                        .replaceAll('com\\.aa', 'aa')
+                        .replaceAll('com\\.healthstatus', 'health')
+                        .replaceAll('com\\.api\\.', '')
+                    file.text = classContent
+                }
+            }
+            
+            logger.lifecycle("✓ Test report package names simplified")
+        }
+    }
+}

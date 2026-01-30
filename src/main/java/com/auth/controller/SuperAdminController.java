@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.Collections;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class SuperAdminController {
     @PostMapping("/update-role/{userId}")
     @Operation(summary = "Change a user's role", description = "Only SUPER_ADMIN can execute this")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> updateRole(@PathVariable Long userId, @RequestBody Map<String, String> request) {
+    public ResponseEntity<?> updateRole(@PathVariable Long userId, @Valid @RequestBody Map<String, String> request) {
         String roleName = request.get("role");
         if (roleName == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Role name is required"));

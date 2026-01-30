@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
 
 import com.savings.data.RecurringDeposit;
 import com.savings.data.RecurringDepositDTO;
@@ -35,7 +36,7 @@ public class RecurringDepositController {
     @Operation(summary = "Create Recurring Deposit", description = "Creates a new Recurring Deposit with automatic maturity calculation")
     @ApiResponse(responseCode = "200", description = "Successfully created Recurring Deposit")
     @PreAuthorize("@userSecurity.hasUserId(#recurringDeposit.userId)")
-    public RecurringDepositDTO createRecurringDeposit(@RequestBody RecurringDeposit recurringDeposit) {
+    public RecurringDepositDTO createRecurringDeposit(@Valid @RequestBody RecurringDeposit recurringDeposit) {
         return recurringDepositService.createRecurringDeposit(recurringDeposit);
     }
 
@@ -62,7 +63,7 @@ public class RecurringDepositController {
     public RecurringDepositDTO updateRecurringDeposit(
             @PathVariable("id") Long id,
             @RequestParam("userId") Long userId,
-            @RequestBody RecurringDeposit recurringDeposit) {
+            @Valid @RequestBody RecurringDeposit recurringDeposit) {
         return recurringDepositService.updateRecurringDeposit(id, userId, recurringDeposit);
     }
 

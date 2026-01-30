@@ -29,6 +29,7 @@ public class FixedDepositServiceImpl implements FixedDepositService {
     @Transactional
     public FixedDepositDTO createFixedDeposit(FixedDeposit fixedDeposit) {
         // Calculate maturity date
+        validateFixedDepositAccountDetails(fixedDeposit);
         LocalDate maturityDate = fixedDeposit.getStartDate().plusMonths(fixedDeposit.getTenureMonths());
         fixedDeposit.setMaturityDate(maturityDate);
 
@@ -57,6 +58,25 @@ public class FixedDepositServiceImpl implements FixedDepositService {
         }
     }
 
+    private void validateFixedDepositAccountDetails(FixedDeposit fixedDeposit) {
+        // validate minimum tenure details and if less throw exception
+        if (fixedDeposit.getTenureMonths() <= 0) {
+            throw new IllegalArgumentException("Minimum tenure for Fixed Deposit is 1 month");
+        }
+        // validate minimum principal amount and if less throw exception
+        if (fixedDeposit.getPrincipalAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Minimum principal amount for Fixed Deposit is 1");
+        }
+        // validate minimum interest rate and if less throw exception
+        if (fixedDeposit.getInterestRate().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Minimum interest rate for Fixed Deposit is 1");
+        }
+        // validate maturity date is greater than start date
+        if (fixedDeposit.getMaturityDate().isBefore(fixedDeposit.getStartDate())) {
+            throw new IllegalArgumentException("Maturity date must be greater than start date");
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public FixedDepositDTO getFixedDeposit(Long id, Long userId) {
@@ -71,7 +91,7 @@ public class FixedDepositServiceImpl implements FixedDepositService {
         return repository.findAllByUserId(userId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-    }   
+    }
 
     @Override
     @Transactional

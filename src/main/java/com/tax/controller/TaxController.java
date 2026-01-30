@@ -8,6 +8,7 @@ import com.tax.service.TaxService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 
 @RestController
@@ -20,7 +21,7 @@ public class TaxController {
 
     @PostMapping
     @Operation(summary = "Create tax details")
-    public TaxDTO createTaxDetails(@RequestBody Tax tax) {
+    public TaxDTO createTaxDetails(@Valid @RequestBody Tax tax) {
         return this.taxService.createTaxDetails(tax);
     }
 

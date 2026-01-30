@@ -19,17 +19,38 @@ public class AuthHelper {
     }
 
     /**
-     * Register a new user
+     * Register a new user with roles
      */
-    public Response register(String email, String password, String firstName, String lastName) {
+    public Response register(String email, String password, String name, String mobileNumber, String roles) {
         String requestBody = String.format("""
                 {
                     "email": "%s",
                     "password": "%s",
-                    "firstName": "%s",
-                    "lastName": "%s"
+                    "name": "%s",
+                    "mobileNumber": "%s",
+                    "roles": %s
                 }
-                """, email, password, firstName, lastName);
+                """, email, password, name, mobileNumber, roles);
+
+        return given()
+                .spec(requestSpec)
+                .body(requestBody)
+                .when()
+                .post("/api/auth/register");
+    }
+
+    /**
+     * Register a new user without roles (default role will be assigned)
+     */
+    public Response register(String email, String password, String name, String mobileNumber) {
+        String requestBody = String.format("""
+                {
+                    "email": "%s",
+                    "password": "%s",
+                    "name": "%s",
+                    "mobileNumber": "%s"
+                }
+                """, email, password, name, mobileNumber);
 
         return given()
                 .spec(requestSpec)

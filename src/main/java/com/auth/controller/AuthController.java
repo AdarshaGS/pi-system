@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import com.auth.data.ForgotPasswordRequest;
 import com.auth.data.LoginRequest;
@@ -22,7 +23,7 @@ import com.auth.data.LoginResponse;
 import com.auth.data.RefreshTokenRequest;
 import com.auth.data.RefreshTokenResponse;
 import com.auth.security.JwtUtil;
-import com.auth.service.RefreshTokenService;
+import com.auth.service.IRefreshTokenService;
 import com.users.data.Users;
 import com.users.exception.UserNotFoundException;
 import com.users.repo.UsersRepository;
@@ -42,12 +43,12 @@ public class AuthController {
     private final UsersRepository usersRepository;
     private final UserWriteService userWriteService;
     private final PasswordEncoder passwordEncoder;
-    private final RefreshTokenService refreshTokenService;
+    private final IRefreshTokenService refreshTokenService;
     private final com.auth.security.CustomUserDetailsService customUserDetailsService;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
             UsersRepository usersRepository, UserWriteService userWriteService, PasswordEncoder passwordEncoder,
-            RefreshTokenService refreshTokenService,
+            IRefreshTokenService refreshTokenService,
             com.auth.security.CustomUserDetailsService customUserDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -62,7 +63,7 @@ public class AuthController {
     @Operation(summary = "User login", description = "Authenticate user with email and password, returns JWT token")
     @ApiResponse(responseCode = "200", description = "Successfully authenticated")
     @ApiResponse(responseCode = "401", description = "Invalid credentials", content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.common.exception.ApiErrorResponse.class)))
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -95,7 +96,7 @@ public class AuthController {
     @Operation(summary = "Register new user", description = "Create a new user account with hashed password")
     @ApiResponse(responseCode = "201", description = "Successfully registered")
     @ApiResponse(responseCode = "400", description = "User already exists")
-    public ResponseEntity<?> register(@RequestBody Users user) {
+    public ResponseEntity<?> register(@Valid @RequestBody Users user) {
         try {
             if (usersRepository.findByEmail(user.getEmail()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -120,6 +121,9 @@ public class AuthController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(LoginResponse.builder().message(e.getMessage()).build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(LoginResponse.builder().message("Registration failed: " + e.getMessage()).build());
@@ -130,7 +134,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     @Operation(summary = "Forgot password", description = "Send password reset email")
     @ApiResponse(responseCode = "200", description = "Successfully sent password reset email")
-    public LoginResponse forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+    public LoginResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         // Call upon checking if the user exists
         userWriteService.updateUserPassword(forgotPasswordRequest);
         return LoginResponse.builder().email(forgotPasswordRequest.getEmail()).message("Password updated successfully")
@@ -176,7 +180,7 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Successfully updated user")
     @ApiResponse(responseCode = "404", description = "User not found")
     public ResponseEntity<?> updateUser(@RequestHeader(value = "Authorization", required = false) String authHeader,
-            @RequestBody Users user) {
+            @Valid @RequestBody Users user) {
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
@@ -213,7 +217,7 @@ public class AuthController {
     @Operation(summary = "Refresh access token", description = "Generate a new access token using a valid refresh token")
     @ApiResponse(responseCode = "200", description = "Successfully refreshed token")
     @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
-    public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<?> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         try {
             String email = refreshTokenService.validateAndGetUserEmail(request.getRefreshToken());
 

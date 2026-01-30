@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
 import com.auth.security.UserSecurity;
 import com.loan.data.Loan;
 import com.loan.service.LoanService;
@@ -32,7 +33,7 @@ public class LoanController {
     @Operation(summary = "Create Loan", description = "Create Loan Details of a user")
     @ApiResponse(responseCode = "200", description = "Successfully created")
     @PreAuthorize("@userSecurity.hasUserId(#loan.userId)")
-    public Loan createLoan(@RequestBody Loan loan) {
+    public Loan createLoan(@Valid @RequestBody Loan loan) {
         return loanService.createLoan(loan);
     }
 

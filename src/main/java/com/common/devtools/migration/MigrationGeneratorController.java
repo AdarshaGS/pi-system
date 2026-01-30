@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import java.io.IOException;
 
@@ -21,7 +22,7 @@ public class MigrationGeneratorController {
 
     @PostMapping("/generate")
     @Operation(summary = "Generate a new Flyway migration script with proper formatting")
-    public ResponseEntity<MigrationResponse> generateMigration(@RequestBody MigrationRequest request) {
+    public ResponseEntity<MigrationResponse> generateMigration(@Valid @RequestBody MigrationRequest request) {
         try {
             MigrationResponse response = migrationGeneratorService.generateMigration(request);
             return ResponseEntity.ok(response);

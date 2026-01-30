@@ -28,8 +28,16 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
     @Transactional
     public SavingsAccountDTO createSavingsAccountDetails(SavingsAccount savingsAccount) {
         try {
+            if (repository
+                    .findByIdAndUserId(savingsAccount.getId() != null ? savingsAccount.getId() : -1L,
+                            savingsAccount.getUserId())
+                    .isPresent() ||
+                    repository.findAllByUserId(savingsAccount.getUserId()).stream()
+                            .anyMatch(a -> a.getBankName().equalsIgnoreCase(savingsAccount.getBankName()))) {
+                throw new DuplicateSavingsEntityException("Savings Account", savingsAccount.getBankName());
+            }
             this.repository.save(savingsAccount);
-            return SavingsAccountDTO.builder().Id(savingsAccount.getId()).build();
+            return convertToDTO(savingsAccount);
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateSavingsEntityException("Savings Account", savingsAccount.getBankName());
         }
@@ -53,6 +61,14 @@ public class SavingsAccountServiceImpl implements SavingsAccountService {
         return repository.findAllByUserId(userId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SavingsAccountDTO getSavingsAccountById(Long id, Long userId) {
+        return repository.findByIdAndUserId(id, userId)
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new SavingsEntityNotFoundException("Savings Account", id));
     }
 
     @Override

@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.audit.entity.ThirdPartyRequestAudit;
 import com.audit.service.ThirdPartyAuditService;
@@ -25,6 +27,8 @@ import com.investments.stocks.thirdParty.ThirdPartyResponse;
 
 @Service
 public class IndianAPIServiceImpl implements IndianAPIService {
+
+    private static final Logger log = LoggerFactory.getLogger(IndianAPIServiceImpl.class);
 
     private final HttpClient httpClient;
     private final ExternalService externalService;
@@ -96,9 +100,11 @@ public class IndianAPIServiceImpl implements IndianAPIService {
         try {
             thirdPartyResponse = objectMapper.readValue(response, ThirdPartyResponse.class);
         } catch (JsonMappingException e) {
-            e.printStackTrace();
+            log.error("Failed to map JSON response for symbol: {}. Error: {}", symbol, e.getMessage(), e);
+            throw new SymbolNotFoundException("Invalid response format from third-party API for symbol: " + symbol);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Failed to process JSON response for symbol: {}. Error: {}", symbol, e.getMessage(), e);
+            throw new SymbolNotFoundException("Failed to parse response from third-party API for symbol: " + symbol);
         }
         if (thirdPartyResponse == null) {
             throw new SymbolNotFoundException("Symbol not found in third-party API: " + symbol);

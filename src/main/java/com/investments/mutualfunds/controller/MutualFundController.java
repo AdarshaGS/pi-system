@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/portfolio/mutual-funds")
+@RequestMapping("/api/v1/mutual-funds")
 @RequiredArgsConstructor
 @Tag(name = "Mutual Fund Portfolio", description = "Read-only APIs for Mutual Fund Portfolio Analytics")
 @PreAuthorize("isAuthenticated()")

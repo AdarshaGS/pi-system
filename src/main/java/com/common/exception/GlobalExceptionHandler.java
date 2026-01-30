@@ -15,6 +15,9 @@ import com.common.exception.repo.CriticalLogRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -24,6 +27,45 @@ public class GlobalExceptionHandler {
 
     public GlobalExceptionHandler(CriticalLogRepository criticalLogRepository) {
         this.criticalLogRepository = criticalLogRepository;
+    }
+
+    /**
+     * Safely extracts stack trace as string without using printStackTrace()
+     */
+    private String getStackTraceAsString(Throwable throwable) {
+        if (throwable == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(throwable.getClass().getName());
+        if (throwable.getMessage() != null) {
+            sb.append(": ").append(throwable.getMessage());
+        }
+        sb.append("\n");
+        
+        for (StackTraceElement element : throwable.getStackTrace()) {
+            sb.append("\tat ").append(element.toString()).append("\n");
+        }
+        
+        if (throwable.getCause() != null) {
+            sb.append("Caused by: ").append(getStackTraceAsString(throwable.getCause()));
+        }
+        
+        return sb.toString();
+    }
+
+    @ExceptionHandler({ AccessDeniedException.class, AuthorizationDeniedException.class })
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(Exception ex, HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .requestId(MDC.get("requestId"))
+                .status(HttpStatus.FORBIDDEN.value())
+                .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .message("Access denied: You do not have permission to access this resource.")
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(BusinessException.class)
@@ -53,9 +95,7 @@ public class GlobalExceptionHandler {
 
         // 2. Persist to Database (Searchable history)
         try {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            ex.printStackTrace(pw);
+            String stackTrace = getStackTraceAsString(ex);
 
             CriticalLog errorLog = CriticalLog.builder()
                     .timestamp(LocalDateTime.now())
@@ -65,7 +105,7 @@ public class GlobalExceptionHandler {
                     .message(ex.getMessage())
                     .path(request.getRequestURI())
                     .method(request.getMethod())
-                    .stackTrace(sw.toString())
+                    .stackTrace(stackTrace)
                     .build();
 
             criticalLogRepository.save(errorLog);

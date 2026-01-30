@@ -7,6 +7,7 @@ import com.budget.service.BudgetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class BudgetController {
 
     @PostMapping("/expense")
     @PreAuthorize("@userSecurity.hasUserId(#expense.userId)")
-    public Expense addExpense(@RequestBody Expense expense) {
+    public Expense addExpense(@Valid @RequestBody Expense expense) {
         return budgetService.addExpense(expense);
     }
 
@@ -32,7 +33,7 @@ public class BudgetController {
 
     @PostMapping("/limit")
     @PreAuthorize("@userSecurity.hasUserId(#budget.userId)")
-    public Budget setBudget(@RequestBody Budget budget) {
+    public Budget setBudget(@Valid @RequestBody Budget budget) {
         return budgetService.setBudget(budget);
     }
 

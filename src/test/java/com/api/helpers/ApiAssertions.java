@@ -48,8 +48,18 @@ public class ApiAssertions {
      * Assert field has specific value
      */
     public static void assertFieldValue(Response response, String fieldPath, Object expectedValue) {
-        assertEquals(expectedValue, response.jsonPath().get(fieldPath),
-                "Field '" + fieldPath + "' has unexpected value");
+        Object actualValue = response.jsonPath().get(fieldPath);
+        
+        // Handle numeric comparisons (JSON often returns numbers as Double)
+        if (expectedValue instanceof Number && actualValue instanceof Number) {
+            double expected = ((Number) expectedValue).doubleValue();
+            double actual = ((Number) actualValue).doubleValue();
+            assertEquals(expected, actual, 0.001,
+                    "Field '" + fieldPath + "' has unexpected value");
+        } else {
+            assertEquals(expectedValue, actualValue,
+                    "Field '" + fieldPath + "' has unexpected value");
+        }
     }
 
     /**

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PI System - API Automation Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020617;
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.3);
+            --secondary: #818cf8;
+            --accent: #f472b6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.08) 0%, transparent 40%);
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            max-width: 100%;
+            height: 100%;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .status-dot.active {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 18px;
+            color: white;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 0 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 46px;
+            white-space: nowrap;
+        }
+
+        .btn-run {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-run:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-report {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .btn-report.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .btn-report:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .terminal-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .terminal-header {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .terminal-output {
+            flex: 1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #d1d5db;
+            padding: 15px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            scroll-behavior: smooth;
+        }
+
+        .terminal-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal-output::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+
+        .tag-list {
+            display: flex;
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+        }
+
+        .tag:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .overlay.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .overlay-header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .overlay-content {
+            flex: 1;
+            background: white;
+            margin: 20px 40px 40px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="mainContainer">
+        <header>
+            <div class="logo">PI-System.</div>
+            <div class="status-badge">
+                <div id="statusDot" class="status-dot"></div>
+                <span id="statusText">System Ready</span>
+            </div>
+        </header>
+
+        <div class="main-card">
+            <div class="controls">
+                <div class="input-group">
+                    <label>Module / Integration Test</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="testInput" placeholder="e.g., com.api.auth.AuthControllerIntegrationTest"
+                            value="com.api.auth.AuthControllerIntegrationTest">
+                        <button id="runBtn" class="btn btn-run">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            RUN AUTOMATION
+                        </button>
+                    </div>
+                    <div class="tag-list">
+                        <span class="tag" onclick="setTest('com.api.auth.AuthControllerIntegrationTest')">Auth</span>
+                        <span class="tag"
+                            onclick="setTest('com.api.savings.SavingsAccountControllerIntegrationTest')">Savings</span>
+                        <span class="tag"
+                            onclick="setTest('com.api.portfolio.PortfolioControllerIntegrationTest')">Portfolio</span>
+                        <span class="tag" onclick="setTest('com.api.*')">Run All</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="terminal-container">
+                <div class="terminal-header">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                        <span
+                            style="font-size: 0.7rem; color: #64748b; margin-left: 8px; font-family: monospace; letter-spacing: 0.5px;">LIVE
+                            LOGS (gradle)</span>
+                    </div>
+                    <button id="viewReportBtn" class="btn btn-report"
+                        style="height: 30px; padding: 0 15px; font-size: 0.75rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                            <polyline points="10 9 9 9 8 9" />
+                        </svg>
+                        DETAILED REPORT
+                    </button>
+                </div>
+                <div id="terminal" class="terminal-output">System initialized. Waiting for task...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Screen Report Overlay -->
+    <div id="reportOverlay" class="overlay">
+        <div class="overlay-header">
+            <h2 style="font-weight: 800; font-size: 1.5rem; letter-spacing: -1px;">Test Execution Report</h2>
+            <button onclick="closeReport()" class="btn"
+                style="height: 40px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+                CLOSE REPORT
+            </button>
+        </div>
+        <div class="overlay-content">
+            <iframe id="reportFrame" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const runBtn = document.getElementById('runBtn');
+        const viewReportBtn = document.getElementById('viewReportBtn');
+        const testInput = document.getElementById('testInput');
+        const terminal = document.getElementById('terminal');
+        const statusText = document.getElementById('statusText');
+        const statusDot = document.getElementById('statusDot');
+        const reportOverlay = document.getElementById('reportOverlay');
+        const reportFrame = document.getElementById('reportFrame');
+
+        let isPolling = false;
+
+        function setTest(value) { testInput.value = value; }
+
+        async function runTests() {
+            const testName = testInput.value.trim();
+            if (!testName) return;
+
+            runBtn.disabled = true;
+            viewReportBtn.classList.remove('visible');
+            terminal.innerHTML = '<span style="color: #64748b">> Initializing Gradle Daemon...\n> Executing: ./gradlew test --tests ' + testName + '</span>\n';
+
+            try {
+                const response = await fetch('/api/v1/test-runner/run?testName=' + encodeURIComponent(testName), { method: 'POST' });
+                const msg = await response.text();
+                terminal.innerHTML += '<span style="color: #38bdf8">> ' + msg + '</span>\n';
+                if (!isPolling) startPolling();
+            } catch (err) {
+                terminal.innerHTML += '<span style="color: #ef4444">> Connection Error: ' + err.message + '</span>\n';
+                runBtn.disabled = false;
+            }
+        }
+
+        function startPolling() {
+            isPolling = true;
+            const pollInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/v1/test-runner/status');
+                    const data = await response.json();
+
+                    terminal.innerHTML = formatOutput(data.output);
+                    terminal.scrollTop = terminal.scrollHeight;
+
+                    if (data.running) {
+                        statusText.innerText = 'Tests Running...';
+                        statusDot.className = 'status-dot active';
+                    } else {
+                        statusText.innerText = data.status === 'SUCCESS' ? 'Success' : 'Ready / ' + data.status;
+                        statusDot.className = 'status-dot';
+                        statusDot.style.background = data.status === 'SUCCESS' ? '#22c55e' : '#ef4444';
+
+                        runBtn.disabled = false;
+                        viewReportBtn.classList.add('visible');
+                        clearInterval(pollInterval);
+                        isPolling = false;
+                    }
+                } catch (err) { console.error('Polling error:', err); }
+            }, 1000);
+        }
+
+        function formatOutput(text) {
+            if (!text) return '';
+            return text
+                .replace(/SUCCESS/g, '<span style="color: #22c55e; font-weight: bold;">SUCCESS</span>')
+                .replace(/FAILED/g, '<span style="color: #ef4444; font-weight: bold;">FAILED</span>')
+                .replace(/> Task/g, '<span style="color: #38bdf8; font-weight: bold;">> Task</span>')
+                .replace(/BUILD/g, '<span style="color: #818cf8; font-weight: bold;">BUILD</span>')
+                .replace(/PASSED/g, '<span style="color: #22c55e;">PASSED</span>');
+        }
+
+        function closeReport() {
+            reportOverlay.classList.remove('visible');
+            reportFrame.src = 'about:blank';
+        }
+
+        runBtn.addEventListener('click', runTests);
+        viewReportBtn.addEventListener('click', () => {
+            reportFrame.src = '/reports/index.html?t=' + Date.now();
+            reportOverlay.classList.add('visible');
+        });
+
+        window.addEventListener('load', () => {
+            fetch('/api/v1/test-runner/status')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.running) startPolling();
+                    else if (data.output && data.output !== 'No tests run yet.') {
+                        terminal.innerHTML = formatOutput(data.output);
+                        statusText.innerText = 'Last Run: ' + data.status;
+                        viewReportBtn.classList.add('visible');
+                    }
+                });
+        });
+    </script>
+</body>
+
+</html>

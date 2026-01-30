@@ -122,35 +122,37 @@ open build/reports/tests/test/index.html
 open build/reports/jacoco/test/html/index.html
 ```
 
+**✨ Simplified Package Names**: Test reports now show clean package names like `portfolio`, `savings`, `auth` instead of verbose names like `com.investments.stocks.diversification.portfolio`. This makes the HTML reports much easier to read!
+
 ---
 
 ## 📊 Current Status
 
-### Coverage Progress: 4/19 Controllers (21%)
+### Coverage Progress: 11/19 Controllers (58%)
 
 | Controller | Tests | Status |
 |------------|-------|--------|
 | ✅ Auth | 10 tests | Complete |
 | ✅ Savings Account | 9 tests | Complete |
 | ✅ Fixed Deposit | 11 tests | Complete |
+| ✅ Recurring Deposit | 2 tests | Complete |
 | ✅ Portfolio | 7 tests | Complete |
-| ⏳ Recurring Deposit | 0 tests | TODO |
-| ⏳ Mutual Fund | 0 tests | TODO |
-| ⏳ ETF | 0 tests | TODO |
+| ✅ Mutual Fund | 2 tests | Complete |
+| ✅ ETF | 2 tests | Complete |
+| ✅ Loan | 2 tests | Complete |
+| ✅ Budget | 2 tests | Complete |
+| ✅ NetWorth | 2 tests | Complete |
+| ✅ Health Check | 2 tests | Complete |
 | ⏳ Stock | 0 tests | TODO |
-| ⏳ Loan | 0 tests | TODO |
 | ⏳ Lending | 0 tests | TODO |
 | ⏳ Insurance | 0 tests | TODO |
-| ⏳ Budget | 0 tests | TODO |
 | ⏳ Tax | 0 tests | TODO |
-| ⏳ NetWorth | 0 tests | TODO |
 | ⏳ AA | 0 tests | TODO |
 | ⏳ Developer Tools | 0 tests | TODO |
-| ⏳ Health Check | 0 tests | TODO |
 | ⏳ User | 0 tests | TODO |
 | ⏳ Settings | 0 tests | TODO |
 
-**Current: 37 tests implemented**  
+**Current: 51 tests implemented**  
 **Target: ~200 tests for full coverage**
 
 ---

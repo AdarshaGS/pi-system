@@ -7,6 +7,7 @@ import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class RefreshTokenService {
+@ConditionalOnBean(RedisTemplate.class)
+public class RefreshTokenService implements IRefreshTokenService {
 
     private final RedisTemplate<String, String> redisTemplate;
 

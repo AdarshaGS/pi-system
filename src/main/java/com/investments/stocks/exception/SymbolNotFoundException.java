@@ -10,4 +10,8 @@ public class SymbolNotFoundException extends BusinessException {
         super(HttpStatus.NOT_FOUND, message, "SYMBOL_NOT_FOUND");
     }
 
+    public SymbolNotFoundException(String message, Throwable cause) {
+        super(HttpStatus.NOT_FOUND, message, "SYMBOL_NOT_FOUND", cause);
+    }
+
 }
