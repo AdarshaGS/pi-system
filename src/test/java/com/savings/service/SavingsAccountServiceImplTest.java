@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import com.common.security.AuthenticationHelper;
 import com.savings.data.SavingsAccount;
 import com.savings.data.SavingsAccountDTO;
 import com.savings.repo.SavingsAccountRepository;
@@ -26,6 +27,9 @@ class SavingsAccountServiceImplTest {
 
     @Mock
     private SavingsAccountRepository repository;
+
+    @Mock
+    private AuthenticationHelper authenticationHelper;
 
     @InjectMocks
     private SavingsAccountServiceImpl service;

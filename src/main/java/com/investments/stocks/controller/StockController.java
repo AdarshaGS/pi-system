@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/v1/stocks")
 @Tag(name = "Stock Management", description = "APIs for fetching stock details")
-@PreAuthorize("isAuthenticated()")
 public class StockController {
 
     private final StockReadService stockReadService;

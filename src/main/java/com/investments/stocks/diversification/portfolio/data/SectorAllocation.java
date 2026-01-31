@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SectorAllocation {
-    private Map<String, BigDecimal> sectorAllocation;
+    private Map<String, BigDecimal> sectors;
 }

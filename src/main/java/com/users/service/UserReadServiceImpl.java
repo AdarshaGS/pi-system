@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.users.data.Users;
 import com.users.repo.UsersRepository;
+import java.util.List;
 
 @Service
 public class UserReadServiceImpl implements UserReadService {
@@ -17,6 +18,11 @@ public class UserReadServiceImpl implements UserReadService {
     @Override
     public Users getUserById(Long userId) {
         return this.usersRepository.findById(userId).get();
+    }
+
+    @Override
+    public List<Users> getAllUsers() {
+        return this.usersRepository.findAll();
     }
 
 }

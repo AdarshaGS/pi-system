@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.common.security.AuthenticationHelper;
 import com.tax.data.Tax;
 import com.tax.data.TaxDTO;
 import com.tax.repo.TaxRepository;
@@ -15,15 +16,18 @@ import com.tax.repo.TaxRepository;
 public class TaxServiceImpl implements TaxService {
 
     private final TaxRepository repository;
+    private final AuthenticationHelper authenticationHelper;
 
-    public TaxServiceImpl(final TaxRepository repository) {
+    public TaxServiceImpl(final TaxRepository repository,
+            final AuthenticationHelper authenticationHelper) {
         this.repository = repository;
+        this.authenticationHelper = authenticationHelper;
     }
 
     @Override
     @Transactional
     public TaxDTO createTaxDetails(Tax tax) {
-        
+        authenticationHelper.validateUserAccess(tax.getUserId());
         // Calculate net tax liability
         BigDecimal totalTax = calculateTotalTax(tax);
         tax.setTaxPayable(totalTax);
@@ -37,6 +41,7 @@ public class TaxServiceImpl implements TaxService {
     @Override
     @Transactional(readOnly = true)
     public TaxDTO getTaxDetailsByUserId(Long userId, String financialYear) {
+        authenticationHelper.validateUserAccess(userId);
         List<Tax> taxes = this.repository.findAll((root, query, cb) -> cb.and(
                 cb.equal(root.get("userId"), userId),
                 cb.equal(root.get("financialYear"), financialYear)));
@@ -57,6 +62,7 @@ public class TaxServiceImpl implements TaxService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal getOutstandingTaxLiability(Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         List<Tax> taxes = this.repository.findAll((root, query, cb) -> cb.equal(root.get("userId"), userId));
 
         return taxes.stream()

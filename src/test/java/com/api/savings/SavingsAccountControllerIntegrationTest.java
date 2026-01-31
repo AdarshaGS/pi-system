@@ -233,7 +233,7 @@ class SavingsAccountControllerIntegrationTest extends BaseApiTest {
                                 .post("/api/v1/savings-accounts");
 
                 // Then
-                ApiAssertions.assertStatusCode(response, 403);
+                ApiAssertions.assertStatusCode(response, 409);
         }
 
         @Test

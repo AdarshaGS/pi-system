@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import jakarta.validation.Valid;
 
 import com.savings.data.FixedDeposit;
@@ -27,7 +27,6 @@ import lombok.AllArgsConstructor;
 @RequestMapping("api/v1/fixed-deposit")
 @Tag(name = "Fixed Deposit Management", description = "APIs for managing Fixed Deposits with automatic maturity calculation")
 @AllArgsConstructor
-@PreAuthorize("isAuthenticated()")
 public class FixedDepositController {
 
     private final FixedDepositService fixedDepositService;
@@ -35,7 +34,6 @@ public class FixedDepositController {
     @PostMapping
     @Operation(summary = "Create Fixed Deposit", description = "Creates a new Fixed Deposit with automatic maturity calculation using compound interest")
     @ApiResponse(responseCode = "200", description = "Successfully created Fixed Deposit")
-    @PreAuthorize("@userSecurity.hasUserId(#fixedDeposit.userId)")
     public FixedDepositDTO createFixedDeposit(@Valid @RequestBody FixedDeposit fixedDeposit) {
         return fixedDepositService.createFixedDeposit(fixedDeposit);
     }
@@ -43,7 +41,6 @@ public class FixedDepositController {
     @GetMapping("/{id}")
     @Operation(summary = "Get Fixed Deposit", description = "Retrieves a specific Fixed Deposit by ID")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved Fixed Deposit")
-    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public FixedDepositDTO getFixedDeposit(@PathVariable("id") Long id, @RequestParam("userId") Long userId) {
         return fixedDepositService.getFixedDeposit(id, userId);
     }
@@ -51,7 +48,6 @@ public class FixedDepositController {
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get all Fixed Deposits for user", description = "Retrieves all Fixed Deposits for a specific user")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved Fixed Deposits")
-    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public List<FixedDepositDTO> getAllFixedDeposits(@PathVariable("userId") Long userId) {
         return fixedDepositService.getAllFixedDeposits(userId);
     }
@@ -59,7 +55,6 @@ public class FixedDepositController {
     @PutMapping("/{id}")
     @Operation(summary = "Update Fixed Deposit", description = "Updates an existing Fixed Deposit and recalculates maturity")
     @ApiResponse(responseCode = "200", description = "Successfully updated Fixed Deposit")
-    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public FixedDepositDTO updateFixedDeposit(
             @PathVariable("id") Long id,
             @RequestParam("userId") Long userId,
@@ -70,7 +65,6 @@ public class FixedDepositController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Fixed Deposit", description = "Deletes a Fixed Deposit")
     @ApiResponse(responseCode = "200", description = "Successfully deleted Fixed Deposit")
-    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public void deleteFixedDeposit(@PathVariable("id") Long id, @RequestParam("userId") Long userId) {
         fixedDepositService.deleteFixedDeposit(id, userId);
     }

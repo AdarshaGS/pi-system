@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +26,8 @@ import com.aa.mock.MockEncryptionService;
 import com.aa.repo.AAConsentRepository;
 import com.aa.repo.AAFIRequestRepository;
 import com.aa.service.AAService;
-import com.auth.security.UserSecurity;
+
+import com.common.security.AuthenticationHelper;
 import com.portfolio.engine.PortfolioEngine;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/v1/aa")
 @Tag(name = "Account Aggregator", description = "Endpoints for Mock AA data flow")
-@PreAuthorize("isAuthenticated()")
 @Slf4j
 public class AAController {
 
@@ -45,20 +45,20 @@ public class AAController {
     private final PortfolioEngine portfolioEngine;
     private final AAFIRequestRepository fiRequestRepository;
     private final AAConsentRepository consentRepository;
-    private final UserSecurity userSecurity;
+    private final AuthenticationHelper authenticationHelper;
 
     public AAController(AAService aaService,
             MockEncryptionService encryptionService,
             PortfolioEngine portfolioEngine,
             AAFIRequestRepository fiRequestRepository,
             AAConsentRepository consentRepository,
-            UserSecurity userSecurity) {
+            AuthenticationHelper authenticationHelper) {
         this.aaService = aaService;
         this.encryptionService = encryptionService;
         this.portfolioEngine = portfolioEngine;
         this.fiRequestRepository = fiRequestRepository;
         this.consentRepository = consentRepository;
-        this.userSecurity = userSecurity;
+        this.authenticationHelper = authenticationHelper;
     }
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -72,27 +72,21 @@ public class AAController {
     @PostMapping("/consent")
     @Operation(summary = "Create Consent")
     public ResponseEntity<?> createConsent(@Valid @RequestBody ConsentRequest request) {
-        if (!userSecurity.hasUserId(Long.parseLong(request.getUserId()))) {
-            return ResponseEntity.status(403).body(Map.of("message", "Cannot create consent for another user"));
-        }
+        authenticationHelper.validateUserAccess(Long.parseLong(request.getUserId()));
         return ResponseEntity.ok(aaService.createConsent(request));
     }
 
     @GetMapping("/consent/{consentId}/status")
     @Operation(summary = "Get Consent Status")
     public ResponseEntity<?> getConsentStatus(@PathVariable("consentId") String consentId) {
-        if (!isConsentOwner(consentId)) {
-            return ResponseEntity.status(403).body(Map.of("message", "Access denied to this consent"));
-        }
+        validateConsentOwnership(consentId);
         return ResponseEntity.ok(aaService.getConsentStatus(consentId));
     }
 
     @PostMapping("/fetch")
     @Operation(summary = "Request Financial Information (Async Simulator)")
     public ResponseEntity<?> initiateFetch(@Valid @RequestBody FIRequest request) {
-        if (!isConsentOwner(request.getConsentId())) {
-            return ResponseEntity.status(403).body(Map.of("message", "Access denied to this consent"));
-        }
+        validateConsentOwnership(request.getConsentId());
         String requestId = "req-" + java.util.UUID.randomUUID().toString().substring(0, 8);
 
         AAFIRequestEntity entity = AAFIRequestEntity.builder()
@@ -135,9 +129,7 @@ public class AAController {
         if (entity == null) {
             return ResponseEntity.status(404).body(Map.of("status", "NOT_FOUND"));
         }
-        if (!isConsentOwner(entity.getConsentId())) {
-            return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
-        }
+        validateConsentOwnership(entity.getConsentId());
         return ResponseEntity.ok(Map.of("requestId", requestId, "status", entity.getStatus()));
     }
 
@@ -151,9 +143,7 @@ public class AAController {
             return ResponseEntity.status(404).body(Map.of("message", "Request not found"));
         }
 
-        if (!isConsentOwner(entity.getConsentId())) {
-            return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
-        }
+        validateConsentOwnership(entity.getConsentId());
 
         if (!"READY".equals(entity.getStatus())) {
             return ResponseEntity.badRequest().body(Map.of("error", "Data not ready or request failed"));
@@ -176,16 +166,13 @@ public class AAController {
     @DeleteMapping("/consent/{consentId}")
     @Operation(summary = "Revoke Consent")
     public ResponseEntity<?> revokeConsent(@PathVariable("consentId") String consentId) {
-        if (!isConsentOwner(consentId)) {
-            return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
-        }
+        validateConsentOwnership(consentId);
         aaService.revokeConsent(consentId);
         return ResponseEntity.ok().build();
     }
 
-    private boolean isConsentOwner(String consentId) {
-        return consentRepository.findByConsentId(consentId)
-                .map(consent -> userSecurity.hasUserId(Long.parseLong(consent.getUserId())))
-                .orElse(false);
+    private void validateConsentOwnership(String consentId) {
+        consentRepository.findByConsentId(consentId)
+                .ifPresent(consent -> authenticationHelper.validateUserAccess(Long.parseLong(consent.getUserId())));
     }
 }

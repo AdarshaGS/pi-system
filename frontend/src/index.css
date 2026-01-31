@@ -203,6 +203,8 @@ input {
   flex: 1;
   padding: 32px;
   background-color: var(--bg-color);
+  min-height: 100vh;
+  width: calc(100vw - var(--sidebar-width));
 }
 
 .page-header {

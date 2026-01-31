@@ -22,6 +22,11 @@ public class ExternalServiceImpl implements ExternalService {
     }
 
     @Override
+    public List<ExternalServiceEntity> getAllServices() {
+        return externalServiceRepository.findAll();
+    }
+
+    @Override
     public List<ExternalServicePropertiesEntity> getExternalServicePropertiesByServiceName(String serviceName) {
         List<ExternalServicePropertiesEntity> externalServiceProperties = null;
         ExternalServiceEntity entity = externalServiceRepository.findByServiceName(serviceName);

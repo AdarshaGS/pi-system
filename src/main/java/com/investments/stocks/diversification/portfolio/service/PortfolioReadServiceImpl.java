@@ -72,7 +72,7 @@ public class PortfolioReadServiceImpl implements PortfolioReadService {
                                         .currentValue(BigDecimal.ZERO)
                                         .totalProfitLoss(BigDecimal.ZERO)
                                         .totalProfitLossPercentage(BigDecimal.ZERO)
-                                        .sectorAllocation(SectorAllocation.builder().sectorAllocation(new HashMap<>())
+                                        .sectorAllocation(SectorAllocation.builder().sectors(new HashMap<>())
                                                         .build())
                                         .insights(PortfolioInsightsDTO.builder()
                                                         .critical(new ArrayList<>())
@@ -112,7 +112,7 @@ public class PortfolioReadServiceImpl implements PortfolioReadService {
                                 userPortfolios,
                                 stockMap,
                                 valuation.getCurrentValue(),
-                                allocation.getSectorAllocation().getSectorAllocation(),
+                                allocation.getSectorAllocation().getSectors(),
                                 allocation.getMarketCapAllocation().getSmallCapPercentage());
 
                 // 5. Scoring

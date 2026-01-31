@@ -34,7 +34,7 @@ public class LendingServiceImplTest {
     void setUp() {
         lendingRepository = mock(LendingRepository.class);
         repaymentRepository = mock(RepaymentRepository.class);
-        lendingService = new LendingServiceImpl(lendingRepository, repaymentRepository);
+        lendingService = new LendingServiceImpl(lendingRepository, repaymentRepository, null);
     }
 
     @Test

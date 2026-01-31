@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.common.security.AuthenticationHelper;
 import com.savings.data.FixedDeposit;
 import com.savings.data.FixedDepositDTO;
 import com.savings.repo.FixedDepositRepository;
@@ -20,14 +21,18 @@ import com.savings.exception.SavingsEntityNotFoundException;
 public class FixedDepositServiceImpl implements FixedDepositService {
 
     private final FixedDepositRepository repository;
+    private final AuthenticationHelper authenticationHelper;
 
-    public FixedDepositServiceImpl(FixedDepositRepository repository) {
+    public FixedDepositServiceImpl(FixedDepositRepository repository,
+            AuthenticationHelper authenticationHelper) {
         this.repository = repository;
+        this.authenticationHelper = authenticationHelper;
     }
 
     @Override
     @Transactional
     public FixedDepositDTO createFixedDeposit(FixedDeposit fixedDeposit) {
+        authenticationHelper.validateUserAccess(fixedDeposit.getUserId());
         // Calculate maturity date
         validateFixedDepositAccountDetails(fixedDeposit);
         LocalDate maturityDate = fixedDeposit.getStartDate().plusMonths(fixedDeposit.getTenureMonths());
@@ -80,6 +85,7 @@ public class FixedDepositServiceImpl implements FixedDepositService {
     @Override
     @Transactional(readOnly = true)
     public FixedDepositDTO getFixedDeposit(Long id, Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         FixedDeposit fd = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new SavingsEntityNotFoundException("Fixed Deposit", id));
         return convertToDTO(fd);
@@ -88,6 +94,7 @@ public class FixedDepositServiceImpl implements FixedDepositService {
     @Override
     @Transactional(readOnly = true)
     public List<FixedDepositDTO> getAllFixedDeposits(Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         return repository.findAllByUserId(userId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -96,6 +103,7 @@ public class FixedDepositServiceImpl implements FixedDepositService {
     @Override
     @Transactional
     public FixedDepositDTO updateFixedDeposit(Long id, Long userId, FixedDeposit fixedDeposit) {
+        authenticationHelper.validateUserAccess(userId);
         FixedDeposit existing = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new SavingsEntityNotFoundException("Fixed Deposit", id));
 
@@ -135,6 +143,7 @@ public class FixedDepositServiceImpl implements FixedDepositService {
     @Override
     @Transactional
     public void deleteFixedDeposit(Long id, Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         FixedDeposit fd = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new SavingsEntityNotFoundException("Fixed Deposit", id));
         repository.delete(fd);

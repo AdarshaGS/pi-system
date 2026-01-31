@@ -1,7 +1,7 @@
 package com.tax.controller;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import com.tax.data.Tax;
 import com.tax.data.TaxDTO;
 import com.tax.service.TaxService;
@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 @Tag(name = "Income Tax Management")
 @RequestMapping("api/v1/tax")
 @RequiredArgsConstructor
-@PreAuthorize("isAuthenticated()")
 public class TaxController {
     private final TaxService taxService;
 

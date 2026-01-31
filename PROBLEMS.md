@@ -9,7 +9,7 @@ This document identifies technical issues, architectural concerns, and areas req
 
 ## 🔴 CRITICAL ISSUES (High Priority)
 
-### 1. **Hardcoded Secrets in Configuration**
+### 1. **Hardcoded Secrets in Configuration** -> done
 **Location**: [application.yml](src/main/resources/application.yml#L33-L38)  
 **Problem**: JWT secret and OAuth2 credentials are hardcoded with placeholder values
 ```yaml
@@ -32,7 +32,7 @@ google:
 
 ---
 
-### 2. **Missing Input Validation**
+### 2. **Missing Input Validation** -> Done
 **Location**: All Controller classes  
 **Problem**: No `@Valid` annotations found on request bodies across controllers
 ```java
@@ -61,7 +61,7 @@ public Portfolio postPortfolioData(@Valid @RequestBody Portfolio portfolio) {
 
 ---
 
-### 3. **Exception Handling with printStackTrace()**
+### 3. **Exception Handling with printStackTrace()** -> Done
 **Location**: 
 - [IndianAPIServiceImpl.java](src/main/java/com/investments/stocks/thirdParty/providers/IndianAPI/service/IndianAPIServiceImpl.java#L99-L101)
 - [GlobalExceptionHandler.java](src/main/java/com/common/exception/GlobalExceptionHandler.java#L58)
@@ -146,7 +146,7 @@ public Portfolio postPortfolioData(@Valid @RequestBody Portfolio portfolio) {
 
 ---
 
-### 7. **Incomplete Transaction Management**
+### 7. **Incomplete Transaction Management** -> Done
 **Location**: Service layer  
 **Problem**: Only 3 services have `@Transactional` annotations
 ```

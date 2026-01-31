@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import jakarta.validation.Valid;
 
+import com.common.security.AuthenticationHelper;
 import com.investments.stocks.diversification.portfolio.data.Portfolio;
 import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
 import com.investments.stocks.diversification.portfolio.service.PortfolioReadService;
@@ -21,31 +22,33 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/v1/portfolio")
 @Tag(name = "Portfolio Management", description = "APIs for managing and analyzing portfolios")
-@PreAuthorize("isAuthenticated()")
 public class PortfolioController {
 
     private final PortfolioWriteService portfolioWriteService;
     private final PortfolioReadService portfolioReadService;
+    private final AuthenticationHelper authenticationHelper;
 
     public PortfolioController(final PortfolioWriteService portfolioWriteService,
-            final PortfolioReadService portfolioReadService) {
+            final PortfolioReadService portfolioReadService,
+            final AuthenticationHelper authenticationHelper) {
         this.portfolioWriteService = portfolioWriteService;
         this.portfolioReadService = portfolioReadService;
+        this.authenticationHelper = authenticationHelper;
     }
 
     @PostMapping()
     @Operation(summary = "Add portfolio item", description = "Adds a stock to the user's portfolio.")
     @ApiResponse(responseCode = "200", description = "Successfully added portfolio item")
-    @PreAuthorize("@userSecurity.hasUserId(#portfolio.userId)")
     public Portfolio postPortfolioData(@Valid @RequestBody Portfolio portfolio) {
+        authenticationHelper.validateUserAccess(portfolio.getUserId());
         return this.portfolioWriteService.addPortfolio(portfolio);
     }
 
     @GetMapping("/summary/{userId}")
     @Operation(summary = "Get portfolio summary", description = "Returns a comprehensive summary including investment, value, and analysis.")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved portfolio summary")
-    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public PortfolioDTOResponse getPortfolioSummary(@PathVariable("userId") Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         return this.portfolioReadService.getPortfolioSummary(userId);
     }
 

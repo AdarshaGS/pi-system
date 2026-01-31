@@ -1,0 +1,131 @@
+.bulk-toolbar {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    z-index: 100;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+.bulk-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 8px;
+    background: #6366f1;
+    color: white;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bulk-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.bulk-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.bulk-btn.danger {
+    color: #dc2626;
+}
+
+.bulk-btn.danger:hover {
+    background: #fee2e2;
+    border-color: #fecaca;
+}
+
+.clear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    color: #6b7280;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clear-btn:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+@media (max-width: 768px) {
+    .bulk-toolbar {
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+        transform: none;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .bulk-info {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .bulk-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .bulk-btn {
+        flex: 1;
+        min-width: 120px;
+    }
+}

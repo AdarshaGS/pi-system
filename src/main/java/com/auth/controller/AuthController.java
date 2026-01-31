@@ -28,6 +28,7 @@ import com.users.data.Users;
 import com.users.exception.UserNotFoundException;
 import com.users.repo.UsersRepository;
 import com.users.service.UserWriteService;
+import com.audit.service.ActivityLogService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,11 +46,13 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final IRefreshTokenService refreshTokenService;
     private final com.auth.security.CustomUserDetailsService customUserDetailsService;
+    private final ActivityLogService activityLogService;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
             UsersRepository usersRepository, UserWriteService userWriteService, PasswordEncoder passwordEncoder,
             IRefreshTokenService refreshTokenService,
-            com.auth.security.CustomUserDetailsService customUserDetailsService) {
+            com.auth.security.CustomUserDetailsService customUserDetailsService,
+            ActivityLogService activityLogService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.usersRepository = usersRepository;
@@ -57,6 +60,7 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenService = refreshTokenService;
         this.customUserDetailsService = customUserDetailsService;
+        this.activityLogService = activityLogService;
     }
 
     @PostMapping("/login")
@@ -75,6 +79,10 @@ public class AuthController {
             Users user = usersRepository.findByEmail(loginRequest.getEmail())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
+            // Log successful login
+            activityLogService.logActivity(user.getId(), user.getName(), user.getEmail(), "LOGIN",
+                    "User logged in successfully");
+
             LoginResponse response = LoginResponse.builder()
                     .userId(user.getId())
                     .token(token)
@@ -87,6 +95,12 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException e) {
+            // Log failed login attempt
+            usersRepository.findByEmail(loginRequest.getEmail()).ifPresent(user -> {
+                activityLogService.logActivity(user.getId(), user.getName(), user.getEmail(), "LOGIN",
+                        null, null, "Failed login attempt", "FAILURE", "Invalid credentials");
+            });
+            
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(LoginResponse.builder().message("Invalid email or password").build());
         }
@@ -104,6 +118,10 @@ public class AuthController {
             }
 
             Users savedUser = userWriteService.createUser(user);
+
+            // Log user registration
+            activityLogService.logActivity(savedUser.getId(), savedUser.getName(), savedUser.getEmail(), "REGISTER",
+                    "User", savedUser.getId().toString(), "New user registered", "SUCCESS", null);
 
             // Fetch UserDetails to include roles in JWT
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(savedUser.getEmail());
@@ -147,16 +165,28 @@ public class AuthController {
     @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing token")
     public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         String username = null;
+        Users user = null;
+        
         // Extract username and blacklist access token if present
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(token);
+                if (username != null) {
+                    user = usersRepository.findByEmail(username).orElse(null);
+                }
                 refreshTokenService.blacklistAccessToken(token);
             } catch (Exception e) {
                 // Token is invalid or expired, but we'll still proceed with logout
             }
         }
+
+        // Log logout activity
+        if (user != null) {
+            activityLogService.logActivity(user.getId(), user.getName(), user.getEmail(), "LOGOUT",
+                    "User logged out");
+        }
+
         // Clear the security context
         SecurityContextHolder.clearContext();
 
@@ -248,6 +278,35 @@ public class AuthController {
             return true;
         } else {
             throw new UserNotFoundException();
+        }
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "Get current user profile", description = "Returns the authenticated user's profile including userId")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved user profile")
+    @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing token")
+    public ResponseEntity<?> getProfile(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(LoginResponse.builder().message("Authorization header missing or invalid").build());
+        }
+
+        String token = authHeader.substring(7);
+        try {
+            String email = jwtUtil.extractUsername(token);
+            Users user = usersRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            LoginResponse response = LoginResponse.builder()
+                    .userId(user.getId())
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(LoginResponse.builder().message("Invalid token: " + e.getMessage()).build());
         }
     }
 }

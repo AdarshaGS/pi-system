@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -23,11 +23,12 @@ public class SuperAdminController {
 
     private final UsersRepository usersRepository;
     private final RoleRepository roleRepository;
+    private final com.common.security.AuthenticationHelper authenticationHelper;
 
     @PostMapping("/update-role/{userId}")
     @Operation(summary = "Change a user's role", description = "Only SUPER_ADMIN can execute this")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> updateRole(@PathVariable Long userId, @Valid @RequestBody Map<String, String> request) {
+        authenticationHelper.validateAdminAccess();
         String roleName = request.get("role");
         if (roleName == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Role name is required"));

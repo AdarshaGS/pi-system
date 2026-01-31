@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.common.security.AuthenticationHelper;
 import com.loan.data.Loan;
 import com.loan.repo.LoanRepository;
 
@@ -20,11 +21,13 @@ import lombok.RequiredArgsConstructor;
 public class LoanServiceImpl implements LoanService {
 
     private final LoanRepository loanRepository;
+    private final AuthenticationHelper authenticationHelper;
     private static final MathContext MC = new MathContext(10, RoundingMode.HALF_UP);
 
     @Override
     @Transactional
     public Loan createLoan(Loan loan) {
+        authenticationHelper.validateUserAccess(loan.getUserId());
         if (loan.getEmiAmount() == null && loan.getPrincipalAmount() != null
                 && loan.getInterestRate() != null && loan.getTenureMonths() != null) {
             loan.setEmiAmount(calculateEMI(loan.getPrincipalAmount(), loan.getInterestRate(), loan.getTenureMonths()));
@@ -45,25 +48,35 @@ public class LoanServiceImpl implements LoanService {
     @Override
     @Transactional(readOnly = true)
     public List<Loan> getAllLoans() {
+        authenticationHelper.validateAdminAccess();
         return loanRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Loan> getLoansByUserId(Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         return loanRepository.findByUserId(userId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Loan getLoanById(Long id) {
-        return loanRepository.findById(id).orElse(null);
+        Loan loan = loanRepository.findById(id).orElse(null);
+        if (loan != null) {
+            authenticationHelper.validateUserAccess(loan.getUserId());
+        }
+        return loan;
     }
 
     @Override
     @Transactional
     public void deleteLoan(Long id) {
-        loanRepository.deleteById(id);
+        Loan loan = loanRepository.findById(id).orElse(null);
+        if (loan != null) {
+            authenticationHelper.validateUserAccess(loan.getUserId());
+            loanRepository.deleteById(id);
+        }
     }
 
     @Override
@@ -95,7 +108,7 @@ public class LoanServiceImpl implements LoanService {
     public Map<String, Object> simulatePrepayment(Long loanId, BigDecimal prepaymentAmount) {
         Loan loan = getLoanById(loanId);
         if (loan == null) {
-            throw new RuntimeException("Loan not found"); // Should handle better
+            throw new RuntimeException("Loan not found");
         }
 
         BigDecimal currentOutstanding = loan.getOutstandingAmount();

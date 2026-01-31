@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.common.security.AuthenticationHelper;
 import com.common.utils.XirrCalculator;
 import com.investments.mutualfunds.data.MFAssetType;
 import com.investments.mutualfunds.data.MFTransaction;
@@ -24,26 +25,29 @@ import lombok.extern.slf4j.Slf4j;
 public class MutualFundServiceImpl implements MutualFundService {
 
     private final MutualFundFetchService fetchService;
+    private final AuthenticationHelper authenticationHelper;
 
     @Override
     public List<MutualFundHolding> getHoldings(Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         return fetchService.fetchPortfolio(userId);
     }
 
     @Override
     public MutualFundSummary getSummary(Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         List<MutualFundHolding> holdings = fetchService.fetchPortfolio(userId);
-        
+
         BigDecimal totalCurrentValue = holdings.stream()
                 .map(MutualFundHolding::getCurrentValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
+
         BigDecimal totalCostValue = holdings.stream()
                 .map(MutualFundHolding::getCostValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalUnrealizedGain = totalCurrentValue.subtract(totalCostValue);
-        
+
         double xirr = calculatePortfolioXirr(holdings);
 
         return MutualFundSummary.builder()
@@ -56,6 +60,7 @@ public class MutualFundServiceImpl implements MutualFundService {
 
     @Override
     public MutualFundInsights getInsights(Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         List<MutualFundHolding> holdings = fetchService.fetchPortfolio(userId);
 
         // Asset Allocation
@@ -78,7 +83,7 @@ public class MutualFundServiceImpl implements MutualFundService {
             String risk = getRiskBucket(h.getAssetType());
             riskBuckets.put(risk, riskBuckets.getOrDefault(risk, BigDecimal.ZERO).add(h.getCurrentValue()));
         }
-        
+
         double xirr = calculatePortfolioXirr(holdings);
 
         return MutualFundInsights.builder()
@@ -91,16 +96,20 @@ public class MutualFundServiceImpl implements MutualFundService {
 
     private String getRiskBucket(MFAssetType type) {
         switch (type) {
-            case EQUITY: return "HIGH";
-            case HYBRID: return "MODERATE";
-            case DEBT: return "LOW";
-            default: return "UNKNOWN";
+            case EQUITY:
+                return "HIGH";
+            case HYBRID:
+                return "MODERATE";
+            case DEBT:
+                return "LOW";
+            default:
+                return "UNKNOWN";
         }
     }
 
     private double calculatePortfolioXirr(List<MutualFundHolding> holdings) {
         List<XirrCalculator.CashFlow> cashFlows = new ArrayList<>();
-        
+
         for (MutualFundHolding holding : holdings) {
             // Add transactions as cash flows
             if (holding.getTransactions() != null) {
@@ -114,11 +123,13 @@ public class MutualFundServiceImpl implements MutualFundService {
                 }
             }
             // Add current value as a final positive cash flow (terminal value)
-            cashFlows.add(new XirrCalculator.CashFlow(java.time.LocalDate.now(), holding.getCurrentValue().doubleValue()));
+            cashFlows.add(
+                    new XirrCalculator.CashFlow(java.time.LocalDate.now(), holding.getCurrentValue().doubleValue()));
         }
 
-        if (cashFlows.isEmpty()) return 0.0;
-        
+        if (cashFlows.isEmpty())
+            return 0.0;
+
         // Sort cashflows by date
         cashFlows.sort(java.util.Comparator.comparing(cf -> cf.date));
 

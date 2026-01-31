@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.common.security.AuthenticationHelper;
 import com.savings.data.FixedDeposit;
 import com.savings.data.FixedDepositDTO;
 import com.savings.repo.FixedDepositRepository;
@@ -26,6 +27,9 @@ class FixedDepositServiceImplTest {
 
     @Mock
     private FixedDepositRepository repository;
+
+    @Mock
+    private AuthenticationHelper authenticationHelper;
 
     @InjectMocks
     private FixedDepositServiceImpl service;

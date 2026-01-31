@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.common.security.AuthenticationHelper;
 import com.lending.data.LendingDTO;
 import com.lending.data.LendingRecord;
 import com.lending.data.LendingStatus;
@@ -23,10 +24,12 @@ public class LendingServiceImpl implements LendingService {
 
     private final LendingRepository lendingRepository;
     private final RepaymentRepository repaymentRepository;
+    private final AuthenticationHelper authenticationHelper;
 
     @Override
     @Transactional
     public LendingDTO createLending(LendingDTO dto) {
+        authenticationHelper.validateUserAccess(dto.getUserId());
         LendingRecord record = LendingRecord.builder()
                 .userId(dto.getUserId())
                 .borrowerName(dto.getBorrowerName())
@@ -45,6 +48,7 @@ public class LendingServiceImpl implements LendingService {
 
     @Override
     public List<LendingDTO> getUserLendings(Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         return lendingRepository.findByUserId(userId).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -52,9 +56,10 @@ public class LendingServiceImpl implements LendingService {
 
     @Override
     public LendingDTO getLendingById(Long id) {
-        return lendingRepository.findById(id)
-                .map(this::mapToDTO)
+        LendingRecord record = lendingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lending record not found with id: " + id));
+        authenticationHelper.validateUserAccess(record.getUserId());
+        return mapToDTO(record);
     }
 
     @Override
@@ -62,6 +67,7 @@ public class LendingServiceImpl implements LendingService {
     public LendingDTO addRepayment(Long lendingId, RepaymentDTO repaymentDTO) {
         LendingRecord record = lendingRepository.findById(lendingId)
                 .orElseThrow(() -> new RuntimeException("Lending record not found"));
+        authenticationHelper.validateUserAccess(record.getUserId());
 
         if (repaymentDTO.getAmount().compareTo(record.getOutstandingAmount()) > 0) {
             throw new RuntimeException("Repayment amount cannot exceed outstanding amount");
@@ -97,6 +103,7 @@ public class LendingServiceImpl implements LendingService {
     public LendingDTO closeLending(Long id) {
         LendingRecord record = lendingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lending record not found"));
+        authenticationHelper.validateUserAccess(record.getUserId());
 
         record.setAmountRepaid(record.getAmountLent());
         record.setOutstandingAmount(BigDecimal.ZERO);

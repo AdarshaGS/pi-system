@@ -5,7 +5,6 @@ import com.investments.etf.service.EtfService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.List;
 @RequestMapping("/api/v1/etf")
 @RequiredArgsConstructor
 @Tag(name = "ETF Module", description = "APIs for managing ETFs")
-@PreAuthorize("isAuthenticated()")
 public class EtfController {
 
     private final EtfService etfService;

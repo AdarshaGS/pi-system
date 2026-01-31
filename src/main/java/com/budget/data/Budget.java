@@ -26,12 +26,29 @@ public class Budget {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private ExpenseCategory category;
+
+    @Column(name = "custom_category_name", length = 50)
+    private String customCategoryName; // For user-defined categories
 
     @Column(name = "monthly_limit", nullable = false)
     private BigDecimal monthlyLimit;
 
     @Column(name = "month_year", nullable = false)
     private String monthYear; // Format: YYYY-MM
+
+    // Helper method to get the effective category name
+    public String getEffectiveCategoryName() {
+        if (customCategoryName != null && !customCategoryName.isEmpty()) {
+            return customCategoryName;
+        }
+        return category != null ? category.name() : null;
+    }
+
+    // Check if this is a custom category
+    public boolean isCustomCategory() {
+        return customCategoryName != null && !customCategoryName.isEmpty();
+    }
 }
+

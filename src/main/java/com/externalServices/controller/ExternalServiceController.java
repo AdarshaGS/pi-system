@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.externalServices.service.ExternalService;
+import com.externalServices.data.ExternalServiceEntity;
 import com.externalServices.data.ExternalServicePropertiesEntity;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/v1/external-services")
 @Tag(name = "External Services", description = "APIs for fetching external service configurations")
-@PreAuthorize("isAuthenticated()")
 public class ExternalServiceController {
 
     private final ExternalService externalService;
@@ -27,10 +26,17 @@ public class ExternalServiceController {
         this.externalService = externalService;
     }
 
+    @GetMapping
+    @Operation(summary = "Get all external services", description = "Fetches all available external services.")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved all services")
+    public List<ExternalServiceEntity> getAllServices() {
+        return this.externalService.getAllServices();
+    }
+
     @GetMapping("/{serviceName}")
     @Operation(summary = "Get external service properties", description = "Fetches configuration properties for a given external service.")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved service properties")
-    public List<ExternalServicePropertiesEntity> getExternalService(@PathVariable String serviceName) {
+    public List<ExternalServicePropertiesEntity> getExternalService(@PathVariable("serviceName") final String serviceName) {
         return this.externalService.getExternalServicePropertiesByServiceName(serviceName);
     }
 }

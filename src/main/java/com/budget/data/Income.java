@@ -3,12 +3,15 @@ package com.budget.data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,12 +32,16 @@ public class Income {
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
+    @NotNull(message = "User ID is required")
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @NotNull(message = "Source is required")
     @Column(nullable = false)
     private String source; // Salary, Dividend, Freelance
 
+    @NotNull(message = "Amount is required")
+    @Positive(message = "Amount must be positive")
     @Column(nullable = false)
     private BigDecimal amount;
 
@@ -42,8 +49,13 @@ public class Income {
     private LocalDate date;
 
     @Column(name = "is_recurring")
-    private boolean isRecurring;
+    @JsonProperty("isRecurring")
+    private Boolean isRecurring;
 
     @Column(name = "is_stable")
-    private boolean isStable; // True for Salary, False for Bonus
+    @JsonProperty("isStable")
+    private Boolean isStable; // True for Salary, False for Bonus
+
+    @Column(length = 500)
+    private String notes; // Additional notes or comments
 }

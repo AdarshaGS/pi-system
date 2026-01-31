@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.common.security.AuthenticationHelper;
 import com.savings.data.RecurringDeposit;
 import com.savings.data.RecurringDepositDTO;
 import com.savings.repo.RecurringDepositRepository;
@@ -26,6 +27,9 @@ class RecurringDepositServiceImplTest {
 
     @Mock
     private RecurringDepositRepository repository;
+
+    @Mock
+    private AuthenticationHelper authenticationHelper;
 
     @InjectMocks
     private RecurringDepositServiceImpl service;

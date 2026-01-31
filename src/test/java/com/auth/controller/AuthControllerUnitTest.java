@@ -3,6 +3,9 @@ package com.auth.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -27,6 +30,8 @@ import com.auth.controller.AuthController;
 import com.auth.data.LoginRequest;
 import com.auth.data.LoginResponse;
 import com.auth.security.JwtUtil;
+import com.auth.service.IRefreshTokenService;
+import com.audit.service.ActivityLogService;
 import com.users.data.Users;
 import com.users.repo.UsersRepository;
 import com.users.service.UserWriteService;
@@ -48,6 +53,15 @@ public class AuthControllerUnitTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+    
+    @Mock
+    private IRefreshTokenService refreshTokenService;
+    
+    @Mock
+    private com.auth.security.CustomUserDetailsService customUserDetailsService;
+    
+    @Mock
+    private ActivityLogService activityLogService;
 
     @InjectMocks
     private AuthController authController;
@@ -83,8 +97,10 @@ public class AuthControllerUnitTest {
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
-        when(jwtUtil.generateToken("test@example.com"))
+        when(jwtUtil.generateToken(any(UserDetails.class)))
                 .thenReturn("mock-jwt-token");
+        when(refreshTokenService.createRefreshToken("test@example.com"))
+                .thenReturn("mock-refresh-token");
         when(usersRepository.findByEmail("test@example.com"))
                 .thenReturn(Optional.of(testUser));
 
@@ -137,12 +153,25 @@ public class AuthControllerUnitTest {
                 .password("$2a$10$hashedPassword")
                 .build();
 
+        UserDetails newUserDetails = User.builder()
+                .username("newuser@example.com")
+                .password("$2a$10$hashedPassword")
+                .authorities("ROLE_USER")
+                .build();
+
         when(usersRepository.findByEmail("newuser@example.com"))
                 .thenReturn(Optional.empty());
         when(passwordEncoder.encode("password123"))
                 .thenReturn("$2a$10$hashedPassword");
         when(userWriteService.createUser(any(Users.class)))
                 .thenReturn(savedUser);
+        when(customUserDetailsService.loadUserByUsername("newuser@example.com"))
+                .thenReturn(newUserDetails);
+        when(jwtUtil.generateToken(any(UserDetails.class)))
+                .thenReturn("mock-jwt-token");
+        when(refreshTokenService.createRefreshToken("newuser@example.com"))
+                .thenReturn("mock-refresh-token");
+        doNothing().when(activityLogService).logActivity(any(), any(), any(), any(), any(), any(), any(), any(), any());
 
         // Act
         ResponseEntity<?> response = authController.register(newUser);

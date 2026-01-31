@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.common.security.AuthenticationHelper;
 import com.savings.data.RecurringDeposit;
 import com.savings.data.RecurringDepositDTO;
 import com.savings.repo.RecurringDepositRepository;
@@ -20,14 +21,18 @@ import com.savings.exception.SavingsEntityNotFoundException;
 public class RecurringDepositServiceImpl implements RecurringDepositService {
 
     private final RecurringDepositRepository repository;
+    private final com.common.security.AuthenticationHelper authenticationHelper;
 
-    public RecurringDepositServiceImpl(RecurringDepositRepository repository) {
+    public RecurringDepositServiceImpl(RecurringDepositRepository repository,
+            AuthenticationHelper authenticationHelper) {
         this.repository = repository;
+        this.authenticationHelper = authenticationHelper;
     }
 
     @Override
     @Transactional
     public RecurringDepositDTO createRecurringDeposit(RecurringDeposit recurringDeposit) {
+        authenticationHelper.validateUserAccess(recurringDeposit.getUserId());
         // Calculate maturity date
         LocalDate maturityDate = recurringDeposit.getStartDate().plusMonths(recurringDeposit.getTenureMonths());
         recurringDeposit.setMaturityDate(maturityDate);
@@ -62,6 +67,7 @@ public class RecurringDepositServiceImpl implements RecurringDepositService {
     @Override
     @Transactional(readOnly = true)
     public RecurringDepositDTO getRecurringDeposit(Long id, Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         RecurringDeposit rd = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new SavingsEntityNotFoundException("Recurring Deposit", id));
         return convertToDTO(rd);
@@ -70,6 +76,7 @@ public class RecurringDepositServiceImpl implements RecurringDepositService {
     @Override
     @Transactional(readOnly = true)
     public List<RecurringDepositDTO> getAllRecurringDeposits(Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         return repository.findAllByUserId(userId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -78,6 +85,7 @@ public class RecurringDepositServiceImpl implements RecurringDepositService {
     @Override
     @Transactional
     public RecurringDepositDTO updateRecurringDeposit(Long id, Long userId, RecurringDeposit recurringDeposit) {
+        authenticationHelper.validateUserAccess(userId);
         RecurringDeposit existing = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new SavingsEntityNotFoundException("Recurring Deposit", id));
 
@@ -116,6 +124,7 @@ public class RecurringDepositServiceImpl implements RecurringDepositService {
     @Override
     @Transactional
     public void deleteRecurringDeposit(Long id, Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         RecurringDeposit rd = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new SavingsEntityNotFoundException("Recurring Deposit", id));
         repository.delete(rd);

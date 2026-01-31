@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import jakarta.validation.Valid;
 
 import com.lending.data.LendingDTO;
@@ -26,21 +26,18 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/lending")
 @RequiredArgsConstructor
 @Tag(name = "Lending Money", description = "APIs for tracking money lent to friends and family")
-@PreAuthorize("isAuthenticated()")
 public class LendingController {
 
     private final LendingService lendingService;
 
     @PostMapping
     @Operation(summary = "Add new lending record")
-    @PreAuthorize("@userSecurity.hasUserId(#lendingDTO.userId)")
     public ResponseEntity<LendingDTO> addLending(@Valid @RequestBody LendingDTO lendingDTO) {
         return ResponseEntity.ok(lendingService.createLending(lendingDTO));
     }
 
     @GetMapping
     @Operation(summary = "List all lendings for a user")
-    @PreAuthorize("@userSecurity.hasUserId(#userId)")
     public ResponseEntity<List<LendingDTO>> getLendings(@RequestParam("userId") Long userId) {
         return ResponseEntity.ok(lendingService.getUserLendings(userId));
     }
