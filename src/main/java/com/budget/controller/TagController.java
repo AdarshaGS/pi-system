@@ -20,13 +20,13 @@ public class TagController {
 
     @GetMapping("/{userId}")
     @Operation(summary = "Get user tags", description = "Retrieve all tags for a user")
-    public List<Tag> getUserTags(@PathVariable Long userId) {
+    public List<Tag> getUserTags(@PathVariable("userId") Long userId) {
         return tagService.getUserTags(userId);
     }
 
     @GetMapping("/detail/{tagId}")
     @Operation(summary = "Get tag by ID", description = "Retrieve a specific tag by ID")
-    public Tag getTagById(@PathVariable Long tagId) {
+    public Tag getTagById(@PathVariable("tagId") Long tagId) {
         return tagService.getTagById(tagId);
     }
 
@@ -38,13 +38,13 @@ public class TagController {
 
     @PutMapping("/{tagId}")
     @Operation(summary = "Update tag", description = "Update an existing tag")
-    public Tag updateTag(@PathVariable Long tagId, @RequestBody Tag tag) {
+    public Tag updateTag(@PathVariable("tagId") Long tagId, @RequestBody Tag tag) {
         return tagService.updateTag(tagId, tag);
     }
 
     @DeleteMapping("/{tagId}")
     @Operation(summary = "Delete tag", description = "Delete a tag")
-    public ResponseEntity<Map<String, String>> deleteTag(@PathVariable Long tagId) {
+    public ResponseEntity<Map<String, String>> deleteTag(@PathVariable("tagId") Long tagId) {
         tagService.deleteTag(tagId);
         return ResponseEntity.ok(Map.of("message", "Tag deleted successfully"));
     }

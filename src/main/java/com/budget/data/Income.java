@@ -57,5 +57,5 @@ public class Income {
     private Boolean isStable; // True for Salary, False for Bonus
 
     @Column(length = 500)
-    private String notes; // Additional notes or comments
+    private String description; // Additional notes or comments
 }

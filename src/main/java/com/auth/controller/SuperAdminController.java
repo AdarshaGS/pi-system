@@ -27,7 +27,7 @@ public class SuperAdminController {
 
     @PostMapping("/update-role/{userId}")
     @Operation(summary = "Change a user's role", description = "Only SUPER_ADMIN can execute this")
-    public ResponseEntity<?> updateRole(@PathVariable Long userId, @Valid @RequestBody Map<String, String> request) {
+    public ResponseEntity<?> updateRole(@PathVariable("userId") Long userId, @Valid @RequestBody Map<String, String> request) {
         authenticationHelper.validateAdminAccess();
         String roleName = request.get("role");
         if (roleName == null) {

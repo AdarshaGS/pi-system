@@ -43,14 +43,14 @@ public class LoanController {
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get loans by user id", description = "Get loans by user id")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
-    public ResponseEntity<List<Loan>> getLoansByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<Loan>> getLoansByUserId(@PathVariable("userId") Long userId) {
         return new ResponseEntity<>(loanService.getLoansByUserId(userId), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get Loan by ID", description = "Retrieve loan details by its ID")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
-    public ResponseEntity<Loan> getLoanById(@PathVariable Long id) {
+    public ResponseEntity<Loan> getLoanById(@PathVariable("id") Long id) {
         Loan loan = loanService.getLoanById(id);
         if (loan != null) {
             return new ResponseEntity<>(loan, HttpStatus.OK);
@@ -61,7 +61,7 @@ public class LoanController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Loan", description = "Delete a loan by its ID")
     @ApiResponse(responseCode = "204", description = "Successfully deleted")
-    public ResponseEntity<Void> deleteLoan(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteLoan(@PathVariable("id") Long id) {
         loanService.deleteLoan(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -70,7 +70,7 @@ public class LoanController {
     @Operation(summary = "Simulate Prepayment", description = "Calculate impact of prepayment on loan tenure and interest")
     @ApiResponse(responseCode = "200", description = "Simulation result retrieved")
     public ResponseEntity<Map<String, Object>> simulatePrepayment(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam BigDecimal amount) {
         Map<String, Object> simulation = loanService.simulatePrepayment(id, amount);
         return new ResponseEntity<>(simulation, HttpStatus.OK);

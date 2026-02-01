@@ -1,0 +1,20 @@
+{
+  "name": "pi-system-devtools",
+  "version": "1.0.0",
+  "description": "Developer tools for Pi System project organization",
+  "main": "index.js",
+  "scripts": {
+    "gen:docs": "node doc-index-generator.js",
+    "gen:api": "node api-doc-generator.js",
+    "gen:all": "npm run gen:docs && npm run gen:api",
+    "dashboard": "open dev-dashboard.html",
+    "migrate:drift": "node migration-cli.js drift",
+    "migrate:generate": "node migration-cli.js generate",
+    "migrate:snapshot": "node migration-cli.js snapshot",
+    "migrate:schema": "node migration-cli.js schema",
+    "migrate:help": "node migration-cli.js help"
+  },
+  "keywords": ["devtools", "documentation", "api", "migration"],
+  "author": "Pi System Team",
+  "license": "MIT"
+}

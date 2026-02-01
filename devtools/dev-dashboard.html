@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi System - Developer Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-right: 15px;
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .status.running {
+            background: #10b981;
+            color: white;
+        }
+
+        .status.stopped {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status.unknown {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .card-content {
+            line-height: 1.8;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-link {
+            display: block;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .quick-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .logs-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-line {
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .log-error {
+            color: #f87171;
+        }
+
+        .log-warning {
+            color: #fbbf24;
+        }
+
+        .log-info {
+            color: #60a5fa;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #5568d3;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            padding-left: 10px;
+            border-left: 5px solid white;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Pi System Developer Dashboard</h1>
+            <p class="subtitle">Local Development Environment Monitor</p>
+            <p style="margin-top: 10px; color: #999;">Last updated: <span id="last-updated">--</span></p>
+        </header>
+
+        <h2 class="section-title">⚙️ Services Status</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">☕</span>
+                    <div>
+                        <div class="card-title">Backend (Spring Boot)</div>
+                    </div>
+                    <span class="status" id="backend-status">unknown</span>
+                </div>
+                <div class="card-content">
+                    <div class="stat">
+                        <span class="stat-label">Port</span>
+                        <span class="stat-value">8080</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Health</span>
+                        <span class="stat-value" id="backend-health">Checking...</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Profile</span>
+                        <span class="stat-value" id="backend-profile">dev</span>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <a href="http://localhost:8080/actuator/health" target="_blank" class="quick-link">Health Check</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">⚛️</span>
+                    <div>
+                        <div class="card-title">Frontend (React)</div>
+                    </div>
+                    <span class="status" id="frontend-status">unknown</span>
+                </div>
+                <div class="card-content">
+                    <div class="stat">
+                        <span class="stat-label">Port</span>
+                        <span class="stat-value">5173</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value" id="frontend-health">Checking...</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Build Tool</span>
+                        <span class="stat-value">Vite</span>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <a href="http://localhost:5173" target="_blank" class="quick-link">Open App</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🗄️</span>
+                    <div>
+                        <div class="card-title">Database (H2)</div>
+                    </div>
+                    <span class="status" id="db-status">unknown</span>
+                </div>
+                <div class="card-content">
+                    <div class="stat">
+                        <span class="stat-label">Type</span>
+                        <span class="stat-value">H2 In-Memory</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Console</span>
+                        <span class="stat-value">http://localhost:8080/h2-console</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">JDBC URL</span>
+                        <span class="stat-value">jdbc:h2:mem:testdb</span>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <a href="http://localhost:8080/h2-console" target="_blank" class="quick-link">Open Console</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🔗 Quick Links</h2>
+        <div class="card">
+            <div class="quick-links">
+                <a href="../API_DASHBOARD.md" class="quick-link">📡 API Dashboard</a>
+                <a href="../DOC_INDEX.md" class="quick-link">📚 Doc Index</a>
+                <a href="MIGRATION_GENERATOR.md" class="quick-link">🔄 Migration Generator</a>
+                <a href="MIGRATION_QUICK_REF.md" class="quick-link">⚡ Migration Quick Ref</a>
+                <a href="../README.md" class="quick-link">📖 README</a>
+                <a href="../docs/README.md" class="quick-link">📂 Docs Folder</a>
+                <a href="../TESTING_GUIDE.md" class="quick-link">🧪 Testing Guide</a>
+                <a href="../DEPLOYMENT.md" class="quick-link">🚀 Deployment</a>
+                <a href="http://localhost:8080/swagger-ui.html" target="_blank" class="quick-link">📋 Swagger UI</a>
+                <a href="../build/reports/tests/test/index.html" target="_blank" class="quick-link">📊 Test Reports</a>
+            </div>
+        </div>
+
+        <h2 class="section-title">📊 Project Stats</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📂</span>
+                    <div class="card-title">Codebase</div>
+                </div>
+                <div class="card-content">
+                    <div class="stat">
+                        <span class="stat-label">Controllers</span>
+                        <span class="stat-value" id="controllers-count">--</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">API Endpoints</span>
+                        <span class="stat-value" id="endpoints-count">--</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Documentation Files</span>
+                        <span class="stat-value" id="docs-count">--</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Tests</span>
+                        <span class="stat-value" id="tests-count">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🎯</span>
+                    <div class="card-title">Domains</div>
+                </div>
+                <div class="card-content">
+                    <div class="stat">
+                        <span class="stat-label">Budget Management</span>
+                        <span class="badge success">Active</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Stocks & Investments</span>
+                        <span class="badge success">Active</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Mutual Funds</span>
+                        <span class="badge success">Active</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Savings & Insurance</span>
+                        <span class="badge warning">In Progress</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🔧</span>
+                    <div class="card-title">Developer Tools</div>
+                </div>
+                <div class="card-content">
+                    <div style="margin-bottom: 10px;">
+                        <button class="refresh-btn" onclick="generateDocs()">🔄 Regenerate All Docs</button>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="refresh-btn" onclick="detectDrift()">🔍 Detect Schema Drift</button>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="refresh-btn" onclick="runTests()">🧪 Run All Tests</button>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="refresh-btn" onclick="refreshStatus()">♻️ Refresh Status</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">📝 Recent Logs</h2>
+        <div class="card">
+            <div class="card-header">
+                <span class="card-icon">📋</span>
+                <div class="card-title">Application Logs</div>
+                <button class="refresh-btn" onclick="refreshLogs()" style="margin-left: auto;">Refresh</button>
+            </div>
+            <div class="logs-container" id="logs-container">
+                <div class="log-line log-info">Waiting for log data...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check service status
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch('http://localhost:8080/actuator/health', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                if (response.ok) {
+                    document.getElementById('backend-status').textContent = 'running';
+                    document.getElementById('backend-status').className = 'status running';
+                    document.getElementById('backend-health').textContent = '✅ UP';
+                    return true;
+                }
+            } catch (error) {
+                document.getElementById('backend-status').textContent = 'stopped';
+                document.getElementById('backend-status').className = 'status stopped';
+                document.getElementById('backend-health').textContent = '❌ DOWN';
+                return false;
+            }
+        }
+
+        async function checkFrontendStatus() {
+            try {
+                const response = await fetch('http://localhost:5173', {
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                // With no-cors, we can't check the response, but if it doesn't throw, it's probably running
+                document.getElementById('frontend-status').textContent = 'running';
+                document.getElementById('frontend-status').className = 'status running';
+                document.getElementById('frontend-health').textContent = '✅ UP';
+                return true;
+            } catch (error) {
+                document.getElementById('frontend-status').textContent = 'stopped';
+                document.getElementById('frontend-status').className = 'status stopped';
+                document.getElementById('frontend-health').textContent = '❌ DOWN';
+                return false;
+            }
+        }
+
+        async function checkDatabaseStatus() {
+            // Database status depends on backend
+            const backendUp = await checkBackendStatus();
+            if (backendUp) {
+                document.getElementById('db-status').textContent = 'running';
+                document.getElementById('db-status').className = 'status running';
+            } else {
+                document.getElementById('db-status').textContent = 'stopped';
+                document.getElementById('db-status').className = 'status stopped';
+            }
+        }
+
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('last-updated').textContent = now.toLocaleTimeString();
+        }
+
+        function refreshStatus() {
+            updateLastUpdated();
+            checkBackendStatus();
+            checkFrontendStatus();
+            checkDatabaseStatus();
+        }
+
+        function refreshLogs() {
+            // This would typically fetch logs from a backend endpoint
+            // For now, showing placeholder
+            const logsContainer = document.getElementById('logs-container');
+            logsContainer.innerHTML = `
+                <div class="log-line log-info">[${new Date().toLocaleTimeString()}] INFO - Backend service started</div>
+                <div class="log-line log-info">[${new Date().toLocaleTimeString()}] INFO - Database initialized</div>
+                <div class="log-line log-warning">[${new Date().toLocaleTimeString()}] WARN - External API rate limit: 80% used</div>
+                <div class="log-line log-info">[${new Date().toLocaleTimeString()}] INFO - Scheduler jobs loaded</div>
+            `;
+        }
+
+        function generateDocs() {
+            alert('Running doc generators...\n\n' +
+                  'Execute these commands in your terminal:\n' +
+                  '1. node devtools/doc-index-generator.js\n' +
+                  '2. node devtools/api-doc-generator.js');
+        }
+
+        function detectDrift() {
+            alert('Detecting schema drift...\n\n' +
+                  'Execute this command in your terminal:\n' +
+                  'npm run migrate:drift\n\n' +
+                  'Then use:\n' +
+                  'npm run migrate:generate "Your description"');
+        }
+
+        function runTests() {
+            alert('Running tests...\n\n' +
+                  'Execute this command in your terminal:\n' +
+                  './gradlew test');
+        }
+
+        // Update stats from generated docs
+        function updateStats() {
+            // These would be populated from generated doc files
+            document.getElementById('controllers-count').textContent = '20+';
+            document.getElementById('endpoints-count').textContent = '100+';
+            document.getElementById('docs-count').textContent = '46';
+            document.getElementById('tests-count').textContent = 'Loading...';
+        }
+
+        // Initial load
+        window.addEventListener('load', () => {
+            refreshStatus();
+            refreshLogs();
+            updateStats();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(refreshStatus, 30000);
+        });
+    </script>
+</body>
+</html>

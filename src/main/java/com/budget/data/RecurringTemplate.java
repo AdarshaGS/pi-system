@@ -66,6 +66,9 @@ public class RecurringTemplate {
     @Column(name = "last_generated")
     private LocalDate lastGenerated; // Last date when transaction was generated
 
+    @Column(name = "next_run_date")
+    private LocalDate nextRunDate; // Next scheduled date for generation
+
     @Column(length = 500)
     private String description;
 

@@ -41,6 +41,11 @@ jwt:
 aa:
   mode: ${AA_MODE}
 
+external:
+  service:
+    mfapi:
+      base-url: https://api.mfapi.in
+
 server:
   port: ${PORT}
 

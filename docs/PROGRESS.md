@@ -73,7 +73,7 @@
 
 ---
 
-### 📊 Investment Management (8/10 - 80%)
+### 📊 Investment Management (9/10 - 90%)
 
 #### Portfolio Management (Complete)
 - [x] **Stock Data Retrieval** - Fetch stock details by symbol with price and sector
@@ -84,9 +84,10 @@
 - [x] **Diversification Scoring** - Portfolio concentration and risk metrics
 - [x] **Price Caching** - Fallback to last known prices if APIs fail
 - [x] **Net Worth Calculator** - Aggregate wealth view across all asset classes
+- [x] **Mutual Fund External API** - Integration with mfapi.in for scheme search, NAV data (Feb 1, 2026)
 
 #### Pending Investment Features
-- [ ] **Mutual Fund Tracking** - Add mutual fund holdings and NAV tracking
+- [ ] **Mutual Fund Transaction Management** - Add/track MF transactions and holdings
 - [ ] **ETF Management** - Exchange-traded fund portfolio management
 
 ---
@@ -101,26 +102,55 @@
 
 ---
 
-### 📅 Budgeting & Expenses (5/5 - 100%) ✅
+### 📅 Budgeting & Expenses (12/23 - 52%) 🚧
 
+#### Completed Features ✅
 - [x] **Monthly Budget Limits** - Set and track budget limits by category
-- [x] **Expense Management** - Full CRUD operations for expenses (add, edit, delete)
-- [x] **Income Stream Tracking** - Full CRUD operations for income sources
+- [x] **Expense Management** - Full CRUD operations with pagination, filtering, sorting
+- [x] **Income Stream Tracking** - Full CRUD operations for all income sources
 - [x] **Budget Setup UI** - Modal interface to set monthly limits for all categories
 - [x] **Cash Flow Analysis** - 6-month trends, savings rate, income stability metrics
+- [x] **Export & Reports** - CSV/Excel export, PDF generation
+- [x] **Recurring Templates** - Create templates for recurring transactions
+- [x] **Custom Categories** - User-defined expense categories with icons
+- [x] **Bulk Operations** - Delete/update multiple expenses at once
+- [x] **Budget vs. Actual Analysis** - Variance reports with % over/under budget (Feb 1, 2026)
+- [x] **Overspending Alerts** - Automated budget alerts with threshold detection (Feb 1, 2026)
+- [x] **Recurring Transaction Automation** - Auto-generate from templates with scheduler (Feb 1, 2026)
 
-**Recent Updates (Jan 31, 2026)**:
-- ✅ Added 9 new CRUD endpoints (expense, income, budget limits)
-- ✅ Implemented edit/delete functionality for expenses and incomes
-- ✅ Created budget limit setup modal with all 10 categories
-- ✅ Added professional action buttons with icons
-- ✅ Module completeness increased from 32% → 65%
+**Recent Updates (Feb 1, 2026)**:
+- ✅ Implemented Budget vs Actual Analysis API with variance calculations
+- ✅ Added performance metrics (best/worst categories, average variance)
+- ✅ Category-wise breakdown with status indicators
+- ✅ Support for custom categories in variance analysis
+- ✅ Implemented Overspending Alerts with 75%/90%/100% thresholds
+- ✅ Created Alert entity with severity levels (INFO, WARNING, CRITICAL, DANGER)
+- ✅ Auto-generation on expense creation + daily scheduled checks (9 PM)
+- ✅ Complete Alert REST API (9 endpoints) for management and notifications
+- ✅ Recurring Transaction Automation with next_run_date scheduling
+- ✅ Daily job at 1 AM to generate recurring expenses/income
+- ✅ Auto-triggers budget alerts after recurring expense generation
+- ✅ Manual trigger API for on-demand generation
 
-**Pending Enhancements**:
-- [ ] Budget vs. Actual Analysis - Comparative analysis and variance reports
-- [ ] Spending Trends Visualizations - Charts and graphs
-- [ ] Pagination and Filtering - Date range, category filters
-- [ ] Export Functionality - CSV/PDF reports
+#### Critical Missing Features 🔴 (P0 - Blocking Production)
+- [ ] **Email Report Service** - Send monthly reports via email (Requires SMTP setup)
+
+#### High Priority Missing Features 🟠 (P1 - Major Impact)
+- [ ] **Budget Forecasting** - Predict end-of-month spending based on current pace
+- [ ] **Smart Insights** - AI-powered spending analysis ("You're spending 40% more on Transport")
+- [ ] **Receipt Attachments** - Upload and store receipts/bills with OCR
+- [ ] **Merchant Management** - Track spending by vendor/merchant
+- [ ] **Budget Templates** - Pre-defined setups (Student, Professional, Family)
+
+#### Medium Priority Features 🟡 (P2 - Nice to Have)
+- [ ] **Multi-Currency Support** - Handle foreign transactions with exchange rates
+- [ ] **Budget Rollover** - Carry forward unused budget to next month
+- [ ] **Advanced Analytics** - Yearly comparisons, category trends over time
+- [ ] **Goal-Based Budgeting** - Link budgets to financial goals
+
+#### Low Priority Features 🟢 (P3 - Future)
+- [ ] **Shared/Family Budgets** - Household budget management
+- [ ] **Advanced Reporting** - Custom date range reports with charts
 
 ---
 

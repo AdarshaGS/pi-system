@@ -2,7 +2,9 @@
 
 PI SYSTEM is a comprehensive Spring Boot-based financial intelligence platform designed to centralize and analyze your entire financial life. From tracking stock portfolios to managing loans and automating account aggregation, it provides a unified view for data-driven financial decisions.
 
-> 📖 **Check out the [PRODUCT.md](./PRODUCT.md) for a detailed breakdown of Implemented vs. Planned features.**
+> 📖 **Documentation**: Start with [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md) for complete navigation  
+> 📊 **Product**: See [PRODUCT.md](./PRODUCT.md) for Implemented vs. Planned features  
+> 📈 **Progress**: Check [docs/PROGRESS.md](docs/PROGRESS.md) for current development status
 
 ---
 
@@ -89,7 +91,39 @@ Created to reduce stress for developers, this API automatically creates Flyway m
 
 ## 📁 Project Structure
 - `src/main/java/com/aa`: Account Aggregator logic.
-- `src/main/java/com/budget`: Budgeting and expense tracking.
+- `src/main/java/com/budget`: Budgeting and expense tracking (52% complete - see [docs/BUDGET_MODULE.md](docs/BUDGET_MODULE.md)).
 - `src/main/java/com/portfolio`: Core investment and stock logic.
 - `src/main/java/com/common/devtools`: Developer productivity tools.
 - `src/main/resources/db/migration`: Flyway database versioning scripts.
+
+---
+
+## 📚 Documentation
+
+### 🎯 Quick Links
+- **[Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Central navigation hub ⭐
+- **[Budget Module](docs/BUDGET_MODULE.md)** - Complete budget & expense documentation
+- **[Development Standards](docs/DEVELOPMENT_STANDARDS.md)** - Coding guidelines & best practices
+- **[Testing Process](docs/TESTING_PROCESS.md)** - Testing strategy & examples
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Deployment procedures for all environments
+
+### 📖 Core Documentation
+- [Product Overview](PRODUCT.md) - Feature roadmap & status
+- [Progress Tracker](docs/PROGRESS.md) - Development progress (52% overall)
+- [Implementation Roadmap](IMPLEMENTATION_ROADMAP.md) - Sprint planning & backlog
+- [Mobile Development](MOBILE_APP_DEVELOPMENT_GUIDE.md) - Mobile app guide
+- [Features Documentation](docs/FEATURES.md) - Comprehensive features
+- [Admin Portal](docs/ADMIN_PORTAL.md) - Admin features
+
+### 🚀 Getting Started for New Developers
+1. Read this README for project overview
+2. Check [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md) for complete navigation
+3. Review [docs/DEVELOPMENT_STANDARDS.md](docs/DEVELOPMENT_STANDARDS.md) for coding standards
+4. Follow [docs/TESTING_PROCESS.md](docs/TESTING_PROCESS.md) for testing guidelines
+5. Explore [docs/BUDGET_MODULE.md](docs/BUDGET_MODULE.md) for budget features
+
+---
+
+## 📦 Archived Documentation
+
+Older documentation has been archived in [docs/archive/](docs/archive/) for historical reference. All current documentation is accessible through [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md).

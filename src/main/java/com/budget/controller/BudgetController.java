@@ -2,6 +2,7 @@ package com.budget.controller;
 
 import com.budget.data.Budget;
 import com.budget.data.BudgetReportDTO;
+import com.budget.data.BudgetVsActualReport;
 import com.budget.data.CashFlowDTO;
 import com.budget.data.CustomCategory;
 import com.budget.data.Expense;
@@ -338,5 +339,20 @@ public class BudgetController {
             expenseIds, expenseCategory, customCategoryName, userId
         );
         return ResponseEntity.ok(result);
+    }
+    
+    // ========== Budget vs Actual Analysis ==========
+    
+    @GetMapping("/variance-analysis")
+    @Operation(
+        summary = "Get budget vs actual analysis",
+        description = "Get comprehensive variance analysis comparing budgeted amounts vs actual spending for a month. " +
+                      "Includes category-wise breakdown, performance metrics, and overspending alerts."
+    )
+    public ResponseEntity<BudgetVsActualReport> getBudgetVsActualAnalysis(
+            @RequestParam("userId") Long userId,
+            @RequestParam(value = "monthYear", required = false) String monthYear) {
+        BudgetVsActualReport report = budgetService.getBudgetVsActualReport(userId, monthYear);
+        return ResponseEntity.ok(report);
     }
 }

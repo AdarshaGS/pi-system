@@ -859,5 +859,196 @@ public class BudgetService {
             "failedIds", failedIds
         );
     }
+    
+    // ========== Budget vs Actual Analysis Methods ==========
+    
+    /**
+     * Get budget vs actual variance analysis for a specific month
+     * @param userId User ID
+     * @param monthYear Month in YYYY-MM format (e.g., "2026-02")
+     * @return Complete budget vs actual report with variance analysis
+     */
+    public BudgetVsActualReport getBudgetVsActualReport(Long userId, String monthYear) {
+        authenticationHelper.validateUserAccess(userId);
+        
+        if (monthYear == null) {
+            monthYear = YearMonth.now().toString();
+        }
+        
+        // Get all budgets for the month
+        List<Budget> budgets = budgetRepository.findByUserIdAndMonthYear(userId, monthYear);
+        
+        // Get all expenses for the month
+        YearMonth ym = YearMonth.parse(monthYear);
+        LocalDate startDate = ym.atDay(1);
+        LocalDate endDate = ym.atEndOfMonth();
+        List<Expense> expenses = expenseRepository.findByUserIdAndExpenseDateBetween(userId, startDate, endDate);
+        
+        // Group expenses by category
+        Map<String, BigDecimal> expensesByCategory = new HashMap<>();
+        for (Expense expense : expenses) {
+            String key = expense.isCustomCategory() ? 
+                    "CUSTOM:" + expense.getCustomCategoryName() : 
+                    "SYSTEM:" + expense.getCategory().name();
+            expensesByCategory.merge(key, expense.getAmount(), BigDecimal::add);
+        }
+        
+        // Build variance analysis for each category
+        List<BudgetVarianceAnalysis> categoryBreakdown = new ArrayList<>();
+        BigDecimal totalBudget = BigDecimal.ZERO;
+        BigDecimal totalSpent = BigDecimal.ZERO;
+        
+        for (Budget budget : budgets) {
+            // Skip TOTAL category - it's calculated
+            if (budget.getCategory() == ExpenseCategory.TOTAL) {
+                continue;
+            }
+            
+            String key = budget.isCustomCategory() ? 
+                    "CUSTOM:" + budget.getCustomCategoryName() : 
+                    "SYSTEM:" + budget.getCategory().name();
+            
+            BigDecimal budgetAmount = budget.getMonthlyLimit();
+            BigDecimal actualSpent = expensesByCategory.getOrDefault(key, BigDecimal.ZERO);
+            BigDecimal variance = budgetAmount.subtract(actualSpent);
+            BigDecimal variancePercentage = budgetAmount.compareTo(BigDecimal.ZERO) > 0 ?
+                    actualSpent.divide(budgetAmount, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)) :
+                    BigDecimal.ZERO;
+            
+            // Determine status
+            BudgetVarianceAnalysis.VarianceStatus status;
+            if (variancePercentage.compareTo(BigDecimal.valueOf(100)) > 0) {
+                status = BudgetVarianceAnalysis.VarianceStatus.OVER_BUDGET;
+            } else if (variancePercentage.compareTo(BigDecimal.valueOf(90)) >= 0) {
+                status = BudgetVarianceAnalysis.VarianceStatus.ON_TRACK;
+            } else {
+                status = BudgetVarianceAnalysis.VarianceStatus.UNDER_BUDGET;
+            }
+            
+            String categoryName = budget.isCustomCategory() ? 
+                    budget.getCustomCategoryName() : 
+                    budget.getCategory().name();
+            
+            long transactionCount = expenses.stream()
+                    .filter(e -> key.equals(e.isCustomCategory() ? 
+                            "CUSTOM:" + e.getCustomCategoryName() : 
+                            "SYSTEM:" + e.getCategory().name()))
+                    .count();
+            
+            categoryBreakdown.add(BudgetVarianceAnalysis.builder()
+                    .category(categoryName)
+                    .budgetAmount(budgetAmount)
+                    .actualSpent(actualSpent)
+                    .variance(variance)
+                    .variancePercentage(variancePercentage.setScale(2, RoundingMode.HALF_UP))
+                    .status(status)
+                    .remaining(variance.max(BigDecimal.ZERO))
+                    .transactionCount((int) transactionCount)
+                    .build());
+            
+            totalBudget = totalBudget.add(budgetAmount);
+            totalSpent = totalSpent.add(actualSpent);
+        }
+        
+        // Calculate overall metrics
+        BigDecimal totalVariance = totalBudget.subtract(totalSpent);
+        BigDecimal totalVariancePercentage = totalBudget.compareTo(BigDecimal.ZERO) > 0 ?
+                totalSpent.divide(totalBudget, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)) :
+                BigDecimal.ZERO;
+        
+        String overallStatus;
+        if (totalVariancePercentage.compareTo(BigDecimal.valueOf(100)) > 0) {
+            overallStatus = "OVER_BUDGET";
+        } else if (totalVariancePercentage.compareTo(BigDecimal.valueOf(90)) >= 0) {
+            overallStatus = "ON_TRACK";
+        } else {
+            overallStatus = "UNDER_BUDGET";
+        }
+        
+        // Calculate performance metrics
+        BudgetVsActualReport.BudgetPerformanceMetrics metrics = calculatePerformanceMetrics(categoryBreakdown);
+        
+        return BudgetVsActualReport.builder()
+                .month(ym)
+                .totalBudget(totalBudget)
+                .totalSpent(totalSpent)
+                .totalVariance(totalVariance)
+                .variancePercentage(totalVariancePercentage.setScale(2, RoundingMode.HALF_UP))
+                .overallStatus(overallStatus)
+                .categoryBreakdown(categoryBreakdown)
+                .metrics(metrics)
+                .build();
+    }
+    
+    /**
+     * Calculate performance metrics from category breakdown
+     */
+    private BudgetVsActualReport.BudgetPerformanceMetrics calculatePerformanceMetrics(
+            List<BudgetVarianceAnalysis> categoryBreakdown) {
+        
+        int overBudget = 0;
+        int underBudget = 0;
+        int onTrack = 0;
+        int noBudget = 0;
+        
+        BigDecimal totalVariancePercentage = BigDecimal.ZERO;
+        String worstCategory = null;
+        BigDecimal worstVariance = BigDecimal.ZERO;
+        String bestCategory = null;
+        BigDecimal bestVariance = BigDecimal.ZERO;
+        
+        for (BudgetVarianceAnalysis analysis : categoryBreakdown) {
+            switch (analysis.getStatus()) {
+                case OVER_BUDGET:
+                    overBudget++;
+                    break;
+                case UNDER_BUDGET:
+                    underBudget++;
+                    break;
+                case ON_TRACK:
+                    onTrack++;
+                    break;
+                case NO_BUDGET:
+                    noBudget++;
+                    break;
+            }
+            
+            totalVariancePercentage = totalVariancePercentage.add(analysis.getVariancePercentage());
+            
+            // Track worst (most over budget)
+            if (analysis.getStatus() == BudgetVarianceAnalysis.VarianceStatus.OVER_BUDGET) {
+                BigDecimal overAmount = analysis.getActualSpent().subtract(analysis.getBudgetAmount());
+                if (worstCategory == null || overAmount.compareTo(worstVariance) > 0) {
+                    worstCategory = analysis.getCategory();
+                    worstVariance = overAmount;
+                }
+            }
+            
+            // Track best (most under budget)
+            if (analysis.getStatus() == BudgetVarianceAnalysis.VarianceStatus.UNDER_BUDGET) {
+                BigDecimal underAmount = analysis.getBudgetAmount().subtract(analysis.getActualSpent());
+                if (bestCategory == null || underAmount.compareTo(bestVariance) > 0) {
+                    bestCategory = analysis.getCategory();
+                    bestVariance = underAmount;
+                }
+            }
+        }
+        
+        BigDecimal avgVariancePercentage = categoryBreakdown.isEmpty() ? 
+                BigDecimal.ZERO : 
+                totalVariancePercentage.divide(BigDecimal.valueOf(categoryBreakdown.size()), 2, RoundingMode.HALF_UP);
+        
+        return BudgetVsActualReport.BudgetPerformanceMetrics.builder()
+                .categoriesOverBudget(overBudget)
+                .categoriesUnderBudget(underBudget)
+                .categoriesOnTrack(onTrack)
+                .categoriesWithNoBudget(noBudget)
+                .averageVariancePercentage(avgVariancePercentage)
+                .worstCategory(worstCategory)
+                .worstCategoryVariance(worstVariance)
+                .bestCategory(bestCategory)
+                .bestCategoryVariance(bestVariance)
+                .build();
+    }
 }
 

@@ -1,11 +1,13 @@
 package com.budget.data;
 
 /**
- * Enum for transaction type (Expense or Income)
+ * Enum for transaction type (Expense, Income, Investments, Needs)
  */
 public enum TransactionType {
     EXPENSE("Expense"),
-    INCOME("Income");
+    INCOME("Income"),
+    INVESTMENTS("Investments"),
+    NEEDS("Needs");
 
     private final String displayName;
 

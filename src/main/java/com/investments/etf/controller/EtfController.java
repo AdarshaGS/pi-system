@@ -28,7 +28,7 @@ public class EtfController {
     }
 
     @GetMapping("/{symbol}")
-    public Etf getEtfBySymbol(@PathVariable String symbol) {
+    public Etf getEtfBySymbol(@PathVariable("symbol") String symbol) {
         return etfService.getEtfBySymbol(symbol);
     }
 }

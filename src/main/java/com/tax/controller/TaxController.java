@@ -26,13 +26,13 @@ public class TaxController {
 
     @GetMapping("/{userId}")
     @Operation(summary = "Get tax details by user and financial year")
-    public TaxDTO getTaxDetails(@PathVariable Long userId, @RequestParam String financialYear) {
+    public TaxDTO getTaxDetails(@PathVariable("userId") Long userId, @RequestParam String financialYear) {
         return this.taxService.getTaxDetailsByUserId(userId, financialYear);
     }
 
     @GetMapping("/{userId}/liability")
     @Operation(summary = "Get outstanding tax liability")
-    public BigDecimal getOutstandingTaxLiability(@PathVariable Long userId) {
+    public BigDecimal getOutstandingTaxLiability(@PathVariable("userId") Long userId) {
         return this.taxService.getOutstandingTaxLiability(userId);
     }
 }

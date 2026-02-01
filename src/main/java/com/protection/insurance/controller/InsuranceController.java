@@ -48,14 +48,14 @@ public class InsuranceController {
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get insurance policies by user id", description = "Get insurance policies by user id")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
-    public ResponseEntity<List<Insurance>> getInsuranceDetailsByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<Insurance>> getInsuranceDetailsByUserId(@PathVariable("userId") Long userId) {
         return new ResponseEntity<>(insuranceService.getInsurancePoliciesByUserId(userId), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get insurance policy by id", description = "Get insurance policy by id")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved")
-    public ResponseEntity<Insurance> getInsuranceDetailsById(@PathVariable Long id) {
+    public ResponseEntity<Insurance> getInsuranceDetailsById(@PathVariable("id") Long id) {
         Insurance insurance = insuranceService.getInsurancePolicyById(id);
         if (insurance != null) {
             return new ResponseEntity<>(insurance, HttpStatus.OK);
@@ -66,7 +66,7 @@ public class InsuranceController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete insurance policy", description = "Delete insurance policy by id")
     @ApiResponse(responseCode = "204", description = "Successfully deleted")
-    public ResponseEntity<Void> deleteInsurancePolicy(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteInsurancePolicy(@PathVariable("id") Long id) {
         insuranceService.deleteInsurancePolicy(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

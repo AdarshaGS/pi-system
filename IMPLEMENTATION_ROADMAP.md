@@ -27,8 +27,8 @@ These documents provide context and vision. Read them in this order:
 
 #### Sprint 1: Budget Module UI (Week 1-2)
 **Reference Documents**:
-- **[docs/budget/Implementation_Status.md](docs/budget/Implementation_Status.md)** ⭐ - Current status & TODO list
-- **[docs/budget/Budget_Features.md](docs/budget/Budget_Features.md)** - Complete feature analysis
+- **[docs/BUDGET_MODULE.md](docs/BUDGET_MODULE.md)** ⭐ - Complete budget module documentation
+- **[docs/PROGRESS.md](docs/PROGRESS.md)** - Current status & progress tracker
 
 **Tasks** (In Order):
 1. ✅ Backend CRUD APIs - COMPLETED
@@ -264,11 +264,10 @@ These documents provide context and vision. Read them in this order:
 - `Feature-Product-Designs.md` - Feature flags design
 
 ### Implementation Guides
-- `docs/budget/Implementation_Status.md` - Budget module status
-- `docs/budget/Budget_Features.md` - Budget feature analysis
-- `docs/INCOME_TRACKING_IMPLEMENTATION.md` - Income tracking guide
+- `docs/BUDGET_MODULE.md` - Complete budget module documentation (consolidated)
+- `docs/DEVELOPMENT_STANDARDS.md` - Coding guidelines & best practices
 - `docs/ADMIN_PORTAL.md` - Admin portal features
-- `docs/DEVELOPMENT_BACKLOG.md` - Task backlog
+- `docs/planning/DEVELOPMENT_BACKLOG.md` - Task backlog
 
 ### Progress & Status
 - `docs/PROGRESS.md` - Overall progress tracker

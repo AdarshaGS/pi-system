@@ -11,5 +11,6 @@ public enum ExpenseCategory {
     EDUCATION,
     INVESTMENT,
     OTHERS,
-    TOTAL
+    TOTAL,
+    INSURANCE
 }

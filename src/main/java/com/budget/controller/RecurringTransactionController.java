@@ -26,7 +26,7 @@ public class RecurringTransactionController {
 
     @GetMapping("/{userId}")
     @Operation(summary = "Get user's recurring templates", description = "Retrieve all recurring templates for a user")
-    public List<RecurringTemplateDTO> getUserTemplates(@PathVariable Long userId) {
+    public List<RecurringTemplateDTO> getUserTemplates(@PathVariable("userId") Long userId) {
         return recurringTransactionService.getUserTemplates(userId).stream()
                 .map(RecurringTemplateDTO::fromEntity)
                 .collect(Collectors.toList());
@@ -34,7 +34,7 @@ public class RecurringTransactionController {
 
     @GetMapping("/{userId}/active")
     @Operation(summary = "Get active templates", description = "Retrieve only active recurring templates")
-    public List<RecurringTemplateDTO> getActiveTemplates(@PathVariable Long userId) {
+    public List<RecurringTemplateDTO> getActiveTemplates(@PathVariable("userId") Long userId) {
         return recurringTransactionService.getActiveTemplates(userId).stream()
                 .map(RecurringTemplateDTO::fromEntity)
                 .collect(Collectors.toList());
@@ -58,7 +58,7 @@ public class RecurringTransactionController {
     @PutMapping("/{id}")
     @Operation(summary = "Update recurring template", description = "Update an existing recurring template")
     public RecurringTemplateDTO updateTemplate(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody RecurringTemplateDTO templateDTO) {
         RecurringTemplate template = templateDTO.toEntity();
         RecurringTemplate updated = recurringTransactionService.updateTemplate(id, template);
@@ -67,14 +67,14 @@ public class RecurringTransactionController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete recurring template", description = "Delete a recurring template")
-    public ResponseEntity<Map<String, String>> deleteTemplate(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteTemplate(@PathVariable("id") Long id) {
         recurringTransactionService.deleteTemplate(id);
         return ResponseEntity.ok(Map.of("message", "Recurring template deleted successfully"));
     }
 
     @PostMapping("/{id}/toggle")
     @Operation(summary = "Toggle active status", description = "Toggle the active/inactive status of a template")
-    public RecurringTemplateDTO toggleActive(@PathVariable Long id) {
+    public RecurringTemplateDTO toggleActive(@PathVariable("id") Long id) {
         RecurringTemplate toggled = recurringTransactionService.toggleActive(id);
         return RecurringTemplateDTO.fromEntity(toggled);
     }
@@ -82,7 +82,7 @@ public class RecurringTransactionController {
     @GetMapping("/{id}/upcoming")
     @Operation(summary = "Get upcoming dates", description = "Get upcoming generation dates for a template")
     public List<LocalDate> getUpcomingDates(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam(defaultValue = "6") int months) {
         return recurringTransactionService.getUpcomingDates(id, months);
     }

@@ -15,6 +15,11 @@ import com.investments.mutualfunds.data.MFTransaction;
 import com.investments.mutualfunds.data.MutualFundHolding;
 import com.investments.mutualfunds.data.MutualFundInsights;
 import com.investments.mutualfunds.data.MutualFundSummary;
+import com.externalServices.mutualfund.dto.MFLatestNAVResponse;
+import com.externalServices.mutualfund.dto.MFNAVHistoryResponse;
+import com.externalServices.mutualfund.dto.MFSchemeListItem;
+import com.externalServices.mutualfund.dto.MFSchemeSearchResult;
+import com.externalServices.mutualfund.service.MutualFundDataProvider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +31,7 @@ public class MutualFundServiceImpl implements MutualFundService {
 
     private final MutualFundFetchService fetchService;
     private final AuthenticationHelper authenticationHelper;
+    private final MutualFundDataProvider mutualFundDataProvider;
 
     @Override
     public List<MutualFundHolding> getHoldings(Long userId) {
@@ -139,5 +145,37 @@ public class MutualFundServiceImpl implements MutualFundService {
             log.error("Error calculating XIRR", e);
             return 0.0;
         }
+    }
+    
+    // ========== External API Methods ==========
+    
+    @Override
+    public List<MFSchemeSearchResult> searchSchemes(String query) {
+        log.info("Searching mutual fund schemes for query: {}", query);
+        return mutualFundDataProvider.searchSchemes(query);
+    }
+    
+    @Override
+    public List<MFSchemeListItem> listAllSchemes(Integer limit, Integer offset) {
+        log.info("Listing all mutual fund schemes with limit: {}, offset: {}", limit, offset);
+        return mutualFundDataProvider.listAllSchemes(limit, offset);
+    }
+    
+    @Override
+    public MFLatestNAVResponse getLatestNAV(Long schemeCode) {
+        log.info("Fetching latest NAV for scheme code: {}", schemeCode);
+        return mutualFundDataProvider.getLatestNAV(schemeCode);
+    }
+    
+    @Override
+    public MFNAVHistoryResponse getNAVHistory(Long schemeCode) {
+        log.info("Fetching NAV history for scheme code: {}", schemeCode);
+        return mutualFundDataProvider.getSchemeNAVHistory(schemeCode);
+    }
+    
+    @Override
+    public MFNAVHistoryResponse getNAVHistory(Long schemeCode, String startDate, String endDate) {
+        log.info("Fetching NAV history for scheme code: {} from {} to {}", schemeCode, startDate, endDate);
+        return mutualFundDataProvider.getSchemeNAVHistory(schemeCode, startDate, endDate);
     }
 }

@@ -87,7 +87,7 @@ public class ExportService {
                         income.getDate().format(DATE_FORMATTER),
                         income.getSource() != null ? income.getSource() : "",
                         income.getAmount().toString(),
-                        income.getNotes() != null ? income.getNotes() : ""
+                        income.getDescription() != null ? income.getDescription() : ""
                 };
                 csvWriter.writeNext(row);
             }
@@ -199,7 +199,7 @@ public class ExportService {
                 row.createCell(0).setCellValue(income.getDate().format(DATE_FORMATTER));
                 row.createCell(1).setCellValue(income.getSource() != null ? income.getSource() : "");
                 row.createCell(2).setCellValue(income.getAmount().doubleValue());
-                row.createCell(3).setCellValue(income.getNotes() != null ? income.getNotes() : "");
+                row.createCell(3).setCellValue(income.getDescription() != null ? income.getDescription() : "");
                 total = total.add(income.getAmount());
             }
 

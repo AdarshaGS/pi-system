@@ -74,6 +74,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/auth/**", "/login/**", "/oauth2/**").permitAll()
                                                 .requestMatchers("/api/health/**").permitAll()
                                                 .requestMatchers("/api/v1/dev/**").permitAll() // Keep dev tools open
+                                                .requestMatchers("/open/dev/**").permitAll() // Migration generator APIs
                                                                                                // for now or secure them
                                                 .requestMatchers("/api/v1/user/**").hasRole("USER_READ_ONLY")
                                                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
