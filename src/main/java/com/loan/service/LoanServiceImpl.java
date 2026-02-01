@@ -3,15 +3,23 @@ package com.loan.service;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.common.security.AuthenticationHelper;
 import com.loan.data.Loan;
+import com.loan.data.LoanPayment;
+import com.loan.data.PaymentStatus;
+import com.loan.data.PaymentType;
+import com.loan.dto.*;
+import com.loan.repo.LoanPaymentRepository;
 import com.loan.repo.LoanRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,8 +29,12 @@ import lombok.RequiredArgsConstructor;
 public class LoanServiceImpl implements LoanService {
 
     private final LoanRepository loanRepository;
+    private final LoanPaymentRepository loanPaymentRepository;
     private final AuthenticationHelper authenticationHelper;
     private static final MathContext MC = new MathContext(10, RoundingMode.HALF_UP);
+    private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
+    private static final BigDecimal TWELVE = BigDecimal.valueOf(12);
+    private static final BigDecimal TWELVE_HUNDRED = BigDecimal.valueOf(1200);
 
     @Override
     @Transactional
@@ -86,7 +98,7 @@ public class LoanServiceImpl implements LoanService {
         }
 
         // r = rate / 12 / 100
-        BigDecimal monthlyRate = rate.divide(BigDecimal.valueOf(1200), MC);
+        BigDecimal monthlyRate = rate.divide(TWELVE_HUNDRED, MC);
 
         // (1+r)^n
         BigDecimal onePlusRToN = monthlyRate.add(BigDecimal.ONE).pow(tenureMonths, MC);
@@ -174,5 +186,334 @@ public class LoanServiceImpl implements LoanService {
         result.put("savedInterest", savedInterest.setScale(2, RoundingMode.HALF_UP));
 
         return result;
+    }
+
+    // ==================== Advanced Calculations ====================
+
+    @Override
+    @Transactional(readOnly = true)
+    public AmortizationScheduleResponse generateAmortizationSchedule(Long loanId) {
+        Loan loan = getLoanById(loanId);
+        if (loan == null) {
+            throw new RuntimeException("Loan not found");
+        }
+
+        BigDecimal principal = loan.getPrincipalAmount();
+        BigDecimal rate = loan.getInterestRate();
+        Integer tenureMonths = loan.getTenureMonths();
+        BigDecimal emi = loan.getEmiAmount();
+        LocalDate startDate = loan.getStartDate();
+
+        if (principal == null || rate == null || tenureMonths == null || emi == null) {
+            throw new RuntimeException("Incomplete loan data for amortization schedule");
+        }
+
+        BigDecimal monthlyRate = rate.divide(TWELVE_HUNDRED, MC);
+        BigDecimal balance = principal;
+        BigDecimal totalInterest = BigDecimal.ZERO;
+
+        List<AmortizationScheduleResponse.AmortizationEntry> schedule = new ArrayList<>();
+
+        for (int i = 1; i <= tenureMonths; i++) {
+            BigDecimal interestForMonth = balance.multiply(monthlyRate).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal principalForMonth = emi.subtract(interestForMonth).setScale(2, RoundingMode.HALF_UP);
+
+            // Adjust for last payment
+            if (i == tenureMonths || principalForMonth.compareTo(balance) > 0) {
+                principalForMonth = balance;
+                interestForMonth = emi.subtract(principalForMonth);
+            }
+
+            balance = balance.subtract(principalForMonth).setScale(2, RoundingMode.HALF_UP);
+            if (balance.compareTo(BigDecimal.ZERO) < 0) {
+                balance = BigDecimal.ZERO;
+            }
+
+            totalInterest = totalInterest.add(interestForMonth);
+
+            LocalDate paymentDate = startDate != null ? startDate.plusMonths(i) : null;
+
+            AmortizationScheduleResponse.AmortizationEntry entry = AmortizationScheduleResponse.AmortizationEntry.builder()
+                    .paymentNumber(i)
+                    .paymentDate(paymentDate)
+                    .emiAmount(emi)
+                    .principalComponent(principalForMonth)
+                    .interestComponent(interestForMonth)
+                    .outstandingBalance(balance)
+                    .build();
+
+            schedule.add(entry);
+        }
+
+        return AmortizationScheduleResponse.builder()
+                .loanId(loanId)
+                .totalPrincipal(principal)
+                .totalInterest(totalInterest.setScale(2, RoundingMode.HALF_UP))
+                .totalPayable(principal.add(totalInterest).setScale(2, RoundingMode.HALF_UP))
+                .tenureMonths(tenureMonths)
+                .schedule(schedule)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LoanAnalysisResponse analyzeLoan(Long loanId) {
+        Loan loan = getLoanById(loanId);
+        if (loan == null) {
+            throw new RuntimeException("Loan not found");
+        }
+
+        BigDecimal totalInterest = calculateTotalInterest(loanId);
+        BigDecimal totalPayable = loan.getPrincipalAmount().add(totalInterest);
+        BigDecimal interestToPrincipalRatio = totalInterest
+                .divide(loan.getPrincipalAmount(), 4, RoundingMode.HALF_UP)
+                .multiply(HUNDRED);
+
+        // Calculate remaining tenure based on current outstanding
+        BigDecimal monthlyRate = loan.getInterestRate().divide(TWELVE_HUNDRED, MC);
+        BigDecimal emi = loan.getEmiAmount();
+        BigDecimal outstanding = loan.getOutstandingAmount();
+
+        int remainingMonths = 0;
+        BigDecimal remainingInterest = BigDecimal.ZERO;
+
+        if (outstanding.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal pTimesR = outstanding.multiply(monthlyRate);
+            if (pTimesR.compareTo(emi) < 0) {
+                BigDecimal emiMinusPR = emi.subtract(pTimesR);
+                BigDecimal ratio = emi.divide(emiMinusPR, MC);
+                double logRatio = Math.log(ratio.doubleValue());
+                double logOnePlusR = Math.log(monthlyRate.add(BigDecimal.ONE).doubleValue());
+                remainingMonths = (int) Math.ceil(logRatio / logOnePlusR);
+
+                remainingInterest = emi.multiply(BigDecimal.valueOf(remainingMonths))
+                        .subtract(outstanding)
+                        .setScale(2, RoundingMode.HALF_UP);
+            }
+        }
+
+        List<LoanPayment> payments = loanPaymentRepository.findByLoanIdAndPaymentStatus(loanId, PaymentStatus.PAID);
+        int paymentsCompleted = payments.size();
+        int totalPayments = loan.getTenureMonths();
+        BigDecimal completionPercentage = BigDecimal.valueOf(paymentsCompleted)
+                .divide(BigDecimal.valueOf(totalPayments), 4, RoundingMode.HALF_UP)
+                .multiply(HUNDRED);
+
+        return LoanAnalysisResponse.builder()
+                .loanId(loanId)
+                .totalInterestPayable(totalInterest)
+                .totalAmountPayable(totalPayable)
+                .interestToPrincipalRatio(interestToPrincipalRatio)
+                .effectiveInterestRate(loan.getInterestRate())
+                .remainingTenureMonths(remainingMonths)
+                .remainingInterest(remainingInterest)
+                .paymentsCompleted(paymentsCompleted)
+                .totalPayments(totalPayments)
+                .completionPercentage(completionPercentage)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal calculateTotalInterest(Long loanId) {
+        Loan loan = getLoanById(loanId);
+        if (loan == null) {
+            throw new RuntimeException("Loan not found");
+        }
+
+        BigDecimal totalPayable = loan.getEmiAmount().multiply(BigDecimal.valueOf(loan.getTenureMonths()));
+        return totalPayable.subtract(loan.getPrincipalAmount()).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // ==================== Payment Tracking ====================
+
+    @Override
+    @Transactional
+    public LoanPayment recordPayment(RecordPaymentRequest request) {
+        Loan loan = getLoanById(request.getLoanId());
+        if (loan == null) {
+            throw new RuntimeException("Loan not found");
+        }
+
+        authenticationHelper.validateUserAccess(loan.getUserId());
+
+        BigDecimal paymentAmount = request.getPaymentAmount();
+        BigDecimal outstandingBalance = loan.getOutstandingAmount();
+        BigDecimal monthlyRate = loan.getInterestRate().divide(TWELVE_HUNDRED, MC);
+
+        // Calculate interest and principal components
+        BigDecimal interestPaid = outstandingBalance.multiply(monthlyRate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal principalPaid = paymentAmount.subtract(interestPaid).setScale(2, RoundingMode.HALF_UP);
+
+        // For prepayment, entire amount goes to principal (no interest on prepayment)
+        if (request.getPaymentType() == PaymentType.PREPAYMENT) {
+            principalPaid = paymentAmount;
+            interestPaid = BigDecimal.ZERO;
+        }
+
+        // Update outstanding balance
+        BigDecimal newOutstanding = outstandingBalance.subtract(principalPaid).setScale(2, RoundingMode.HALF_UP);
+        if (newOutstanding.compareTo(BigDecimal.ZERO) < 0) {
+            newOutstanding = BigDecimal.ZERO;
+        }
+
+        loan.setOutstandingAmount(newOutstanding);
+        loanRepository.save(loan);
+
+        // Create payment record
+        LoanPayment payment = new LoanPayment();
+        payment.setLoanId(request.getLoanId());
+        payment.setPaymentDate(request.getPaymentDate());
+        payment.setPaymentAmount(paymentAmount);
+        payment.setPrincipalPaid(principalPaid);
+        payment.setInterestPaid(interestPaid);
+        payment.setOutstandingBalance(newOutstanding);
+        payment.setPaymentType(request.getPaymentType());
+        payment.setPaymentStatus(PaymentStatus.PAID);
+        payment.setPaymentMethod(request.getPaymentMethod());
+        payment.setTransactionReference(request.getTransactionReference());
+        payment.setNotes(request.getNotes());
+        payment.setCreatedAt(LocalDate.now());
+
+        return loanPaymentRepository.save(payment);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaymentHistoryResponse getPaymentHistory(Long loanId) {
+        Loan loan = getLoanById(loanId);
+        if (loan == null) {
+            throw new RuntimeException("Loan not found");
+        }
+
+        authenticationHelper.validateUserAccess(loan.getUserId());
+
+        List<LoanPayment> payments = loanPaymentRepository.findByLoanIdOrderByPaymentDateDesc(loanId);
+        
+        long missedPaymentsCount = loanPaymentRepository.countMissedPaymentsByLoanId(loanId);
+
+        BigDecimal totalPaid = BigDecimal.ZERO;
+        BigDecimal totalPrincipalPaid = BigDecimal.ZERO;
+        BigDecimal totalInterestPaid = BigDecimal.ZERO;
+
+        List<PaymentHistoryResponse.PaymentSummary> paymentSummaries = new ArrayList<>();
+
+        for (LoanPayment payment : payments) {
+            if (payment.getPaymentStatus() == PaymentStatus.PAID) {
+                totalPaid = totalPaid.add(payment.getPaymentAmount());
+                totalPrincipalPaid = totalPrincipalPaid.add(payment.getPrincipalPaid());
+                totalInterestPaid = totalInterestPaid.add(payment.getInterestPaid());
+            }
+
+            PaymentHistoryResponse.PaymentSummary summary = PaymentHistoryResponse.PaymentSummary.builder()
+                    .paymentId(payment.getId())
+                    .paymentDate(payment.getPaymentDate().toString())
+                    .amount(payment.getPaymentAmount())
+                    .principalPaid(payment.getPrincipalPaid())
+                    .interestPaid(payment.getInterestPaid())
+                    .paymentType(payment.getPaymentType().toString())
+                    .paymentStatus(payment.getPaymentStatus().toString())
+                    .paymentMethod(payment.getPaymentMethod())
+                    .build();
+
+            paymentSummaries.add(summary);
+        }
+
+        return PaymentHistoryResponse.builder()
+                .loanId(loanId)
+                .totalPayments(payments.size())
+                .missedPayments((int) missedPaymentsCount)
+                .totalPaid(totalPaid.setScale(2, RoundingMode.HALF_UP))
+                .totalPrincipalPaid(totalPrincipalPaid.setScale(2, RoundingMode.HALF_UP))
+                .totalInterestPaid(totalInterestPaid.setScale(2, RoundingMode.HALF_UP))
+                .outstandingBalance(loan.getOutstandingAmount())
+                .payments(paymentSummaries)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LoanPayment> getMissedPayments(Long loanId) {
+        Loan loan = getLoanById(loanId);
+        if (loan == null) {
+            throw new RuntimeException("Loan not found");
+        }
+
+        authenticationHelper.validateUserAccess(loan.getUserId());
+        return loanPaymentRepository.findMissedPaymentsByLoanId(loanId);
+    }
+
+    // ==================== Foreclosure ====================
+
+    @Override
+    @Transactional(readOnly = true)
+    public ForeclosureCalculationResponse calculateForeclosure(Long loanId, BigDecimal foreclosureChargesPercentage) {
+        Loan loan = getLoanById(loanId);
+        if (loan == null) {
+            throw new RuntimeException("Loan not found");
+        }
+
+        authenticationHelper.validateUserAccess(loan.getUserId());
+
+        BigDecimal outstandingPrincipal = loan.getOutstandingAmount();
+        
+        // Calculate outstanding interest for the current month
+        BigDecimal monthlyRate = loan.getInterestRate().divide(TWELVE_HUNDRED, MC);
+        BigDecimal outstandingInterest = outstandingPrincipal.multiply(monthlyRate).setScale(2, RoundingMode.HALF_UP);
+
+        // Calculate foreclosure charges
+        BigDecimal foreclosureCharges = BigDecimal.ZERO;
+        if (foreclosureChargesPercentage != null && foreclosureChargesPercentage.compareTo(BigDecimal.ZERO) > 0) {
+            foreclosureCharges = outstandingPrincipal
+                    .multiply(foreclosureChargesPercentage)
+                    .divide(HUNDRED, 2, RoundingMode.HALF_UP);
+        }
+
+        BigDecimal totalForeclosureAmount = outstandingPrincipal
+                .add(outstandingInterest)
+                .add(foreclosureCharges)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        return ForeclosureCalculationResponse.builder()
+                .loanId(loanId)
+                .outstandingPrincipal(outstandingPrincipal)
+                .outstandingInterest(outstandingInterest)
+                .foreclosureCharges(foreclosureCharges)
+                .foreclosureChargesPercentage(foreclosureChargesPercentage != null ? foreclosureChargesPercentage : BigDecimal.ZERO)
+                .totalForeclosureAmount(totalForeclosureAmount)
+                .message("Loan can be foreclosed by paying the total foreclosure amount")
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public LoanPayment processForeclosure(Long loanId, BigDecimal foreclosureChargesPercentage) {
+        Loan loan = getLoanById(loanId);
+        if (loan == null) {
+            throw new RuntimeException("Loan not found");
+        }
+
+        authenticationHelper.validateUserAccess(loan.getUserId());
+
+        ForeclosureCalculationResponse calculation = calculateForeclosure(loanId, foreclosureChargesPercentage);
+
+        // Create foreclosure payment record
+        LoanPayment foreclosurePayment = new LoanPayment();
+        foreclosurePayment.setLoanId(loanId);
+        foreclosurePayment.setPaymentDate(LocalDate.now());
+        foreclosurePayment.setPaymentAmount(calculation.getTotalForeclosureAmount());
+        foreclosurePayment.setPrincipalPaid(calculation.getOutstandingPrincipal());
+        foreclosurePayment.setInterestPaid(calculation.getOutstandingInterest().add(calculation.getForeclosureCharges()));
+        foreclosurePayment.setOutstandingBalance(BigDecimal.ZERO);
+        foreclosurePayment.setPaymentType(PaymentType.FORECLOSURE);
+        foreclosurePayment.setPaymentStatus(PaymentStatus.PAID);
+        foreclosurePayment.setNotes("Loan foreclosure with " + foreclosureChargesPercentage + "% charges");
+        foreclosurePayment.setCreatedAt(LocalDate.now());
+
+        // Update loan outstanding to zero
+        loan.setOutstandingAmount(BigDecimal.ZERO);
+        loanRepository.save(loan);
+
+        return loanPaymentRepository.save(foreclosurePayment);
     }
 }

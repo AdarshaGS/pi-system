@@ -159,3 +159,11 @@ export const externalServicesApi = {
     getAllServices: (token) => apiCall('/v1/external-services', 'GET', null, token),
     getServiceProperties: (serviceName, token) => apiCall(`/v1/external-services/${serviceName}`, 'GET', null, token),
 };
+
+export const featureApi = {
+    getAllFeatures: (token) => apiCall('/v1/admin/features', 'GET', null, token),
+    getEnabledFeatures: (token) => apiCall('/v1/admin/features/enabled', 'GET', null, token),
+    isFeatureEnabled: (featureName, token) => apiCall(`/v1/admin/features/${featureName}/enabled`, 'GET', null, token),
+    enableFeature: (featureName, token) => apiCall(`/v1/admin/features/${featureName}/enable`, 'POST', null, token),
+    disableFeature: (featureName, token) => apiCall(`/v1/admin/features/${featureName}/disable`, 'POST', null, token),
+};

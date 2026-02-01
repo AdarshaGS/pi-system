@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import com.loan.data.Loan;
+import com.loan.data.LoanPayment;
+import com.loan.dto.*;
 import com.loan.service.LoanService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,5 +76,79 @@ public class LoanController {
             @RequestParam BigDecimal amount) {
         Map<String, Object> simulation = loanService.simulatePrepayment(id, amount);
         return new ResponseEntity<>(simulation, HttpStatus.OK);
+    }
+
+    // ==================== Advanced Calculations ====================
+
+    @GetMapping("/{id}/amortization-schedule")
+    @Operation(summary = "Get Amortization Schedule", description = "Generate complete amortization schedule with interest vs principal breakdown")
+    @ApiResponse(responseCode = "200", description = "Amortization schedule retrieved")
+    public ResponseEntity<AmortizationScheduleResponse> getAmortizationSchedule(@PathVariable("id") Long id) {
+        AmortizationScheduleResponse schedule = loanService.generateAmortizationSchedule(id);
+        return new ResponseEntity<>(schedule, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/analysis")
+    @Operation(summary = "Loan Analysis", description = "Get comprehensive loan analysis including total interest, ratios, and completion percentage")
+    @ApiResponse(responseCode = "200", description = "Loan analysis retrieved")
+    public ResponseEntity<LoanAnalysisResponse> analyzeLoan(@PathVariable("id") Long id) {
+        LoanAnalysisResponse analysis = loanService.analyzeLoan(id);
+        return new ResponseEntity<>(analysis, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/total-interest")
+    @Operation(summary = "Calculate Total Interest", description = "Calculate total interest payable over the loan tenure")
+    @ApiResponse(responseCode = "200", description = "Total interest calculated")
+    public ResponseEntity<BigDecimal> getTotalInterest(@PathVariable("id") Long id) {
+        BigDecimal totalInterest = loanService.calculateTotalInterest(id);
+        return new ResponseEntity<>(totalInterest, HttpStatus.OK);
+    }
+
+    // ==================== Payment Tracking ====================
+
+    @PostMapping("/payments")
+    @Operation(summary = "Record Payment", description = "Record an EMI or prepayment for a loan")
+    @ApiResponse(responseCode = "201", description = "Payment recorded successfully")
+    public ResponseEntity<LoanPayment> recordPayment(@Valid @RequestBody RecordPaymentRequest request) {
+        LoanPayment payment = loanService.recordPayment(request);
+        return new ResponseEntity<>(payment, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}/payments")
+    @Operation(summary = "Get Payment History", description = "Get complete payment history for a loan")
+    @ApiResponse(responseCode = "200", description = "Payment history retrieved")
+    public ResponseEntity<PaymentHistoryResponse> getPaymentHistory(@PathVariable("id") Long id) {
+        PaymentHistoryResponse history = loanService.getPaymentHistory(id);
+        return new ResponseEntity<>(history, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/missed-payments")
+    @Operation(summary = "Get Missed Payments", description = "Get all missed payments for a loan")
+    @ApiResponse(responseCode = "200", description = "Missed payments retrieved")
+    public ResponseEntity<List<LoanPayment>> getMissedPayments(@PathVariable("id") Long id) {
+        List<LoanPayment> missedPayments = loanService.getMissedPayments(id);
+        return new ResponseEntity<>(missedPayments, HttpStatus.OK);
+    }
+
+    // ==================== Foreclosure ====================
+
+    @GetMapping("/{id}/foreclosure-calculation")
+    @Operation(summary = "Calculate Foreclosure Amount", description = "Calculate the total amount required to foreclose the loan")
+    @ApiResponse(responseCode = "200", description = "Foreclosure calculation completed")
+    public ResponseEntity<ForeclosureCalculationResponse> calculateForeclosure(
+            @PathVariable("id") Long id,
+            @RequestParam(required = false, defaultValue = "0") BigDecimal foreclosureChargesPercentage) {
+        ForeclosureCalculationResponse calculation = loanService.calculateForeclosure(id, foreclosureChargesPercentage);
+        return new ResponseEntity<>(calculation, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/foreclose")
+    @Operation(summary = "Process Foreclosure", description = "Process loan foreclosure and record the foreclosure payment")
+    @ApiResponse(responseCode = "200", description = "Loan foreclosed successfully")
+    public ResponseEntity<LoanPayment> processForeclosure(
+            @PathVariable("id") Long id,
+            @RequestParam(required = false, defaultValue = "0") BigDecimal foreclosureChargesPercentage) {
+        LoanPayment foreclosurePayment = loanService.processForeclosure(id, foreclosureChargesPercentage);
+        return new ResponseEntity<>(foreclosurePayment, HttpStatus.OK);
     }
 }

@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.common.features.FeatureFlag;
+import com.common.features.RequiresFeature;
 import com.common.security.AuthenticationHelper;
 import com.investments.stocks.networth.data.AssetLiabilityTemplateDTO;
 import com.investments.stocks.networth.data.NetWorthDTO;
@@ -16,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/net-worth")
+@RequiresFeature(FeatureFlag.NET_WORTH)
 @Tag(name = "Net Worth Management", description = "APIs for calculating user net worth")
 public class NetWorthController {
 

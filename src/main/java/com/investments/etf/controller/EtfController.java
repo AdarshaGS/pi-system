@@ -1,5 +1,7 @@
 package com.investments.etf.controller;
 
+import com.common.features.FeatureFlag;
+import com.common.features.RequiresFeature;
 import com.investments.etf.data.Etf;
 import com.investments.etf.service.EtfService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/etf")
+@RequiresFeature(FeatureFlag.ETF)
 @RequiredArgsConstructor
 @Tag(name = "ETF Module", description = "APIs for managing ETFs")
 public class EtfController {

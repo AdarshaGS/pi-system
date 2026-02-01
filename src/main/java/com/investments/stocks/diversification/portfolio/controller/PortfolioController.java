@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import com.common.features.FeatureFlag;
+import com.common.features.RequiresFeature;
 import com.common.security.AuthenticationHelper;
 import com.investments.stocks.diversification.portfolio.data.Portfolio;
 import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
@@ -21,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/portfolio")
+@RequiresFeature(FeatureFlag.PORTFOLIO)
 @Tag(name = "Portfolio Management", description = "APIs for managing and analyzing portfolios")
 public class PortfolioController {
 

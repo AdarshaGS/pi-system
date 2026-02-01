@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import com.common.features.FeatureFlag;
+import com.common.features.RequiresFeature;
 import com.investments.stocks.data.StockResponse;
 import com.investments.stocks.service.StockReadService;
 
@@ -15,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/stocks")
+@RequiresFeature(FeatureFlag.STOCKS)
 @Tag(name = "Stock Management", description = "APIs for fetching stock details")
 public class StockController {
 

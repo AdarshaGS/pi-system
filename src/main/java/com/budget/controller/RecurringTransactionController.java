@@ -3,6 +3,8 @@ package com.budget.controller;
 import com.budget.data.RecurringTemplate;
 import com.budget.dto.RecurringTemplateDTO;
 import com.budget.service.RecurringTransactionService;
+import com.common.features.FeatureFlag;
+import com.common.features.RequiresFeature;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/budget/recurring")
+@RequiresFeature(FeatureFlag.RECURRING_TRANSACTIONS)
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Recurring Transactions", description = "APIs for managing recurring transaction templates")

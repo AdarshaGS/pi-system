@@ -12,9 +12,11 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useFeatures } from '../contexts/FeatureContext';
 
 const Layout = () => {
     const [isAdmin, setIsAdmin] = useState(false);
+    const { isFeatureEnabled } = useFeatures();
 
     useEffect(() => {
         // Check if user has admin role
@@ -52,22 +54,30 @@ const Layout = () => {
                         <LayoutDashboard />
                         Dashboard
                     </NavLink>
-                    <NavLink to="/budget" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Wallet />
-                        Budget
-                    </NavLink>
-                    <NavLink to="/cashflow" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <TrendingUp />
-                        Cash Flow
-                    </NavLink>
-                    <NavLink to="/recurring" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <RefreshCw />
-                        Recurring
-                    </NavLink>
-                    <NavLink to="/portfolio" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Briefcase />
-                        Portfolio
-                    </NavLink>
+                    {isFeatureEnabled('BUDGET_MODULE') && (
+                        <>
+                            <NavLink to="/budget" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                                <Wallet />
+                                Budget
+                            </NavLink>
+                            <NavLink to="/cashflow" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                                <TrendingUp />
+                                Cash Flow
+                            </NavLink>
+                        </>
+                    )}
+                    {isFeatureEnabled('RECURRING_TRANSACTIONS') && (
+                        <NavLink to="/recurring" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                            <RefreshCw />
+                            Recurring
+                        </NavLink>
+                    )}
+                    {isFeatureEnabled('PORTFOLIO') && (
+                        <NavLink to="/portfolio" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                            <Briefcase />
+                            Portfolio
+                        </NavLink>
+                    )}
                     <NavLink to="/insights" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                         <Lightbulb />
                         Insights

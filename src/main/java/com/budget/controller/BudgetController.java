@@ -12,6 +12,8 @@ import com.budget.dto.EmailReportRequest;
 import com.budget.service.BudgetService;
 import com.budget.service.ExportService;
 import com.budget.service.ReportGenerationService;
+import com.common.features.FeatureFlag;
+import com.common.features.RequiresFeature;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/budget")
 @RequiredArgsConstructor
+@RequiresFeature(FeatureFlag.BUDGET_MODULE)
 @Tag(name = "Budget Management", description = "APIs for managing income, expenses, and budgets")
 public class BudgetController {
 

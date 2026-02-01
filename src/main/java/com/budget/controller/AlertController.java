@@ -3,6 +3,8 @@ package com.budget.controller;
 import com.budget.dto.AlertResponse;
 import com.budget.dto.AlertSummary;
 import com.budget.service.AlertService;
+import com.common.features.FeatureFlag;
+import com.common.features.RequiresFeature;
 import com.common.security.AuthenticationHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/alerts")
+@RequiresFeature(FeatureFlag.ALERTS)
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Alert Management", description = "APIs for budget alerts and notifications")
