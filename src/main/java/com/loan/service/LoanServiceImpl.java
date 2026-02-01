@@ -97,14 +97,23 @@ public class LoanServiceImpl implements LoanService {
             return BigDecimal.ZERO;
         }
 
+        // Handle zero interest rate (0% loan)
+        if (rate.compareTo(BigDecimal.ZERO) == 0) {
+            return principal.divide(BigDecimal.valueOf(tenureMonths), 2, RoundingMode.HALF_UP);
+        }
+
         // r = rate / 12 / 100
         BigDecimal monthlyRate = rate.divide(TWELVE_HUNDRED, MC);
 
-        // (1+r)^n
-        BigDecimal onePlusRToN = monthlyRate.add(BigDecimal.ONE).pow(tenureMonths, MC);
+        // Calculate (1+r)^n using manual calculation to avoid precision loss
+        BigDecimal onePlusR = monthlyRate.add(BigDecimal.ONE);
+        BigDecimal onePlusRToN = BigDecimal.ONE;
+        for (int i = 0; i < tenureMonths; i++) {
+            onePlusRToN = onePlusRToN.multiply(onePlusR, MC);
+        }
 
         // Numerator: P * r * (1+r)^n
-        BigDecimal numerator = principal.multiply(monthlyRate).multiply(onePlusRToN);
+        BigDecimal numerator = principal.multiply(monthlyRate, MC).multiply(onePlusRToN, MC);
 
         // Denominator: (1+r)^n - 1
         BigDecimal denominator = onePlusRToN.subtract(BigDecimal.ONE);
@@ -130,16 +139,28 @@ public class LoanServiceImpl implements LoanService {
             Map<String, Object> result = new HashMap<>();
             result.put("message", "Loan fully paid off!");
             result.put("newTenureMonths", 0);
+            result.put("savedInterest", currentOutstanding.subtract(prepaymentAmount).abs());
             return result;
         }
 
         // Calculate new tenure keeping EMI same
-        // n = -log(1 - (P*r/EMI)) / log(1+r)
         // Formula: n = log(EMI / (EMI - P*r)) / log(1+r)
 
         BigDecimal emi = loan.getEmiAmount();
-        BigDecimal monthlyRate = loan.getInterestRate().divide(BigDecimal.valueOf(1200), MC);
-
+        BigDecimal interestRate = loan.getInterestRate();
+        
+        // Handle zero interest rate
+        if (interestRate.compareTo(BigDecimal.ZERO) == 0) {
+            int newTenureMonths = newPrincipal.divide(emi, 0, RoundingMode.UP).intValue();
+            Map<String, Object> result = new HashMap<>();
+            result.put("originalTenureMonths", loan.getTenureMonths());
+            result.put("remainingTenureMonths", currentOutstanding.divide(emi, 0, RoundingMode.UP).intValue());
+            result.put("newTenureMonths", newTenureMonths);
+            result.put("savedInterest", BigDecimal.ZERO);
+            return result;
+        }
+        
+        BigDecimal monthlyRate = interestRate.divide(TWELVE_HUNDRED, MC);
         BigDecimal pTimesR = newPrincipal.multiply(monthlyRate); // P*r
 
         // If P*r >= EMI, unlimited tenure (debt trap). Should check.
@@ -339,16 +360,26 @@ public class LoanServiceImpl implements LoanService {
 
         BigDecimal paymentAmount = request.getPaymentAmount();
         BigDecimal outstandingBalance = loan.getOutstandingAmount();
-        BigDecimal monthlyRate = loan.getInterestRate().divide(TWELVE_HUNDRED, MC);
+        
+        BigDecimal interestPaid;
+        BigDecimal principalPaid;
 
-        // Calculate interest and principal components
-        BigDecimal interestPaid = outstandingBalance.multiply(monthlyRate).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal principalPaid = paymentAmount.subtract(interestPaid).setScale(2, RoundingMode.HALF_UP);
-
-        // For prepayment, entire amount goes to principal (no interest on prepayment)
-        if (request.getPaymentType() == PaymentType.PREPAYMENT) {
+        // For prepayment or foreclosure, entire amount goes to principal (no interest)
+        if (request.getPaymentType() == PaymentType.PREPAYMENT || 
+            request.getPaymentType() == PaymentType.FORECLOSURE) {
             principalPaid = paymentAmount;
             interestPaid = BigDecimal.ZERO;
+        } else {
+            // For regular EMI payment, calculate interest and principal components
+            BigDecimal monthlyRate = loan.getInterestRate().divide(TWELVE_HUNDRED, MC);
+            interestPaid = outstandingBalance.multiply(monthlyRate).setScale(2, RoundingMode.HALF_UP);
+            principalPaid = paymentAmount.subtract(interestPaid).setScale(2, RoundingMode.HALF_UP);
+            
+            // Ensure principal paid doesn't exceed outstanding
+            if (principalPaid.compareTo(outstandingBalance) > 0) {
+                principalPaid = outstandingBalance;
+                interestPaid = paymentAmount.subtract(principalPaid).setScale(2, RoundingMode.HALF_UP);
+            }
         }
 
         // Update outstanding balance

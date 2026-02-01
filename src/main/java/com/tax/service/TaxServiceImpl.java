@@ -102,11 +102,11 @@ public class TaxServiceImpl implements TaxService {
         // Get tax saving investments
         List<TaxSavingInvestment> investments = taxSavingRepository.findByUserIdAndFinancialYear(userId, financialYear);
         BigDecimal total80C = investments.stream()
-                .filter(inv -> inv.getSection() == TaxSavingSection.SECTION_80C)
+                .filter(inv -> "80C".equals(inv.getSection()))
                 .map(TaxSavingInvestment::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal total80D = investments.stream()
-                .filter(inv -> inv.getSection() == TaxSavingSection.SECTION_80D)
+                .filter(inv -> "80D".equals(inv.getSection()))
                 .map(TaxSavingInvestment::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
@@ -196,7 +196,7 @@ public class TaxServiceImpl implements TaxService {
                     .taxRate(txn.getTaxAmount().divide(txn.getCapitalGain(), 4, RoundingMode.HALF_UP).multiply(new BigDecimal("100")))
                     .build();
             
-            if (txn.getGainType() == CapitalGainType.SHORT_TERM) {
+            if ("STCG".equals(txn.getGainType())) {
                 totalSTCG = totalSTCG.add(txn.getCapitalGain());
                 totalSTCGTax = totalSTCGTax.add(txn.getTaxAmount());
                 stcgDetails.add(detail);
@@ -244,37 +244,38 @@ public class TaxServiceImpl implements TaxService {
         transaction.setCapitalGain(capitalGain);
         
         // Determine gain type based on asset type and holding period
-        CapitalGainType gainType;
+        String gainType;
         BigDecimal taxRate;
         
-        if (transaction.getAssetType() == AssetType.LISTED_EQUITY || 
-            transaction.getAssetType() == AssetType.EQUITY_MUTUAL_FUND ||
-            transaction.getAssetType() == AssetType.ETF) {
+        String assetType = transaction.getAssetType();
+        if ("EQUITY".equals(assetType) || 
+            "MUTUAL_FUND_EQUITY".equals(assetType) ||
+            "ETF".equals(assetType)) {
             // Equity: LTCG if held > 12 months
             if (holdingDays > 365) {
-                gainType = CapitalGainType.LONG_TERM;
+                gainType = "LTCG";
                 taxRate = new BigDecimal("0.10"); // 10% LTCG
             } else {
-                gainType = CapitalGainType.SHORT_TERM;
+                gainType = "STCG";
                 taxRate = new BigDecimal("0.15"); // 15% STCG
             }
-        } else if (transaction.getAssetType() == AssetType.DEBT_MUTUAL_FUND ||
-                   transaction.getAssetType() == AssetType.BONDS) {
+        } else if ("MUTUAL_FUND_DEBT".equals(assetType) ||
+                   "BONDS".equals(assetType)) {
             // Debt: LTCG if held > 36 months (with indexation)
             if (holdingDays > 1095) {
-                gainType = CapitalGainType.LONG_TERM;
+                gainType = "LTCG";
                 taxRate = new BigDecimal("0.20"); // 20% LTCG with indexation
             } else {
-                gainType = CapitalGainType.SHORT_TERM;
+                gainType = "STCG";
                 taxRate = new BigDecimal("0.30"); // At slab rates (assumed 30%)
             }
         } else {
             // Other assets: LTCG if held > 24 months
             if (holdingDays > 730) {
-                gainType = CapitalGainType.LONG_TERM;
+                gainType = "LTCG";
                 taxRate = new BigDecimal("0.20"); // 20% LTCG
             } else {
-                gainType = CapitalGainType.SHORT_TERM;
+                gainType = "STCG";
                 taxRate = new BigDecimal("0.30"); // At slab rates
             }
         }
@@ -285,9 +286,9 @@ public class TaxServiceImpl implements TaxService {
         BigDecimal taxableGain = capitalGain;
         
         // Apply LTCG exemption for equity (₹1 lakh)
-        if (gainType == CapitalGainType.LONG_TERM && 
-            (transaction.getAssetType() == AssetType.LISTED_EQUITY || 
-             transaction.getAssetType() == AssetType.EQUITY_MUTUAL_FUND)) {
+        if ("LTCG".equals(gainType) && 
+            ("EQUITY".equals(assetType) || 
+             "MUTUAL_FUND_EQUITY".equals(assetType))) {
             taxableGain = capitalGain.subtract(new BigDecimal("100000")).max(BigDecimal.ZERO);
         }
         
@@ -324,7 +325,7 @@ public class TaxServiceImpl implements TaxService {
         
         // Get existing investments
         List<TaxSavingInvestment> investments = taxSavingRepository.findByUserIdAndFinancialYear(userId, financialYear);
-        Map<TaxSavingSection, BigDecimal> currentInvestments = investments.stream()
+        Map<String, BigDecimal> currentInvestments = investments.stream()
                 .collect(Collectors.groupingBy(
                         TaxSavingInvestment::getSection,
                         Collectors.reducing(BigDecimal.ZERO, TaxSavingInvestment::getAmount, BigDecimal::add)
@@ -429,7 +430,7 @@ public class TaxServiceImpl implements TaxService {
         }
         tdsEntry.setUpdatedDate(LocalDate.now());
         if (tdsEntry.getStatus() == null) {
-            tdsEntry.setStatus(TDSStatus.PENDING);
+            tdsEntry.setStatus("PENDING");
         }
         return tdsRepository.save(tdsEntry);
     }
@@ -445,12 +446,12 @@ public class TaxServiceImpl implements TaxService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
         BigDecimal totalVerified = entries.stream()
-                .filter(e -> e.getStatus() == TDSStatus.VERIFIED || e.getStatus() == TDSStatus.CLAIMED)
+                .filter(e -> "VERIFIED".equals(e.getStatus()) || "CLAIMED".equals(e.getStatus()))
                 .map(TDSEntry::getTdsAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
         BigDecimal totalClaimed = entries.stream()
-                .filter(e -> e.getStatus() == TDSStatus.CLAIMED)
+                .filter(e -> "CLAIMED".equals(e.getStatus()))
                 .map(TDSEntry::getTdsAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
@@ -478,7 +479,7 @@ public class TaxServiceImpl implements TaxService {
             recommendations.add("You have unclaimed TDS of ₹" + balance.setScale(0, RoundingMode.HALF_UP) + ". Ensure to claim it in your ITR.");
         }
         
-        long pendingCount = entries.stream().filter(e -> e.getStatus() == TDSStatus.PENDING).count();
+        long pendingCount = entries.stream().filter(e -> "PENDING".equals(e.getStatus())).count();
         if (pendingCount > 0) {
             recommendations.add(pendingCount + " TDS entries are pending verification. Verify them against Form 26AS.");
         }
@@ -505,7 +506,7 @@ public class TaxServiceImpl implements TaxService {
 
     @Override
     @Transactional
-    public TDSEntry updateTDSStatus(Long tdsId, TDSStatus status) {
+    public TDSEntry updateTDSStatus(Long tdsId, String status) {
         TDSEntry entry = tdsRepository.findById(tdsId)
                 .orElseThrow(() -> new RuntimeException("TDS Entry not found"));
         authenticationHelper.validateUserAccess(entry.getUserId());
@@ -615,11 +616,11 @@ public class TaxServiceImpl implements TaxService {
         // Get capital gains
         List<CapitalGainsTransaction> cgTransactions = capitalGainsRepository.findByUserIdAndFinancialYear(userId, financialYear);
         BigDecimal stcg = cgTransactions.stream()
-                .filter(t -> t.getGainType() == CapitalGainType.SHORT_TERM)
+                .filter(t -> "STCG".equals(t.getGainType()))
                 .map(CapitalGainsTransaction::getCapitalGain)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal ltcg = cgTransactions.stream()
-                .filter(t -> t.getGainType() == CapitalGainType.LONG_TERM)
+                .filter(t -> "LTCG".equals(t.getGainType()))
                 .map(CapitalGainsTransaction::getCapitalGain)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
@@ -631,7 +632,7 @@ public class TaxServiceImpl implements TaxService {
                         .costOfAcquisition(t.getTotalPurchaseValue())
                         .saleConsideration(t.getTotalSaleValue())
                         .capitalGain(t.getCapitalGain())
-                        .gainType(t.getGainType().name())
+                        .gainType(t.getGainType())
                         .build())
                 .collect(Collectors.toList());
         
@@ -655,7 +656,7 @@ public class TaxServiceImpl implements TaxService {
         // Get tax saving investments
         List<TaxSavingInvestment> investments = taxSavingRepository.findByUserIdAndFinancialYear(userId, financialYear);
         Map<String, BigDecimal> deductions80C = investments.stream()
-                .filter(inv -> inv.getSection() == TaxSavingSection.SECTION_80C)
+                .filter(inv -> "80C".equals(inv.getSection()))
                 .collect(Collectors.groupingBy(
                         TaxSavingInvestment::getInvestmentName,
                         Collectors.reducing(BigDecimal.ZERO, TaxSavingInvestment::getAmount, BigDecimal::add)
@@ -663,9 +664,9 @@ public class TaxServiceImpl implements TaxService {
         BigDecimal total80C = deductions80C.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         
         Map<String, BigDecimal> otherDed = investments.stream()
-                .filter(inv -> inv.getSection() != TaxSavingSection.SECTION_80C)
+                .filter(inv -> !"80C".equals(inv.getSection()))
                 .collect(Collectors.groupingBy(
-                        inv -> inv.getSection().getCode(),
+                        TaxSavingInvestment::getSection,
                         Collectors.reducing(BigDecimal.ZERO, TaxSavingInvestment::getAmount, BigDecimal::add)
                 ));
         

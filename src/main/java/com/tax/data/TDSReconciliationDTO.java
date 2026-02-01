@@ -36,7 +36,7 @@ public class TDSReconciliationDTO {
         private String tdsSection;
         private String deductionDate;
         private String certificateNumber;
-        private TDSStatus status;
+        private String status;
         private String remarks;
     }
 }

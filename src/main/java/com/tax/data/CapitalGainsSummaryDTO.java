@@ -35,7 +35,7 @@ public class CapitalGainsSummaryDTO {
     @Builder
     public static class CapitalGainsDetail {
         private Long transactionId;
-        private AssetType assetType;
+        private String assetType;
         private String assetName;
         private String saleDate;
         private String purchaseDate;
@@ -43,7 +43,7 @@ public class CapitalGainsSummaryDTO {
         private BigDecimal purchaseValue;
         private BigDecimal saleValue;
         private BigDecimal capitalGain;
-        private CapitalGainType gainType;
+        private String gainType;
         private BigDecimal taxAmount;
         private BigDecimal taxRate;
     }

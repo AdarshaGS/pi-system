@@ -15,6 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import com.protection.insurance.data.Insurance;
+import com.protection.insurance.data.InsuranceClaim;
+import com.protection.insurance.data.InsurancePremium;
+import com.protection.insurance.dto.ClaimHistoryResponse;
+import com.protection.insurance.dto.CoverageAnalysisResponse;
+import com.protection.insurance.dto.FileClaimRequest;
+import com.protection.insurance.dto.PremiumHistoryResponse;
+import com.protection.insurance.dto.RecordPremiumRequest;
 import com.protection.insurance.service.InsuranceService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,5 +76,55 @@ public class InsuranceController {
     public ResponseEntity<Void> deleteInsurancePolicy(@PathVariable("id") Long id) {
         insuranceService.deleteInsurancePolicy(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // ==================== Premium Management ====================
+
+    @PostMapping("/{id}/premium")
+    @Operation(summary = "Record premium payment", description = "Record a premium payment for an insurance policy")
+    @ApiResponse(responseCode = "201", description = "Premium recorded successfully")
+    public ResponseEntity<InsurancePremium> recordPremium(
+            @PathVariable("id") Long insuranceId,
+            @Valid @RequestBody RecordPremiumRequest request) {
+        InsurancePremium premium = insuranceService.recordPremium(insuranceId, request);
+        return new ResponseEntity<>(premium, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}/premiums")
+    @Operation(summary = "Get premium history", description = "Get complete premium payment history for an insurance policy")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
+    public ResponseEntity<PremiumHistoryResponse> getPremiumHistory(@PathVariable("id") Long insuranceId) {
+        PremiumHistoryResponse response = insuranceService.getPremiumHistory(insuranceId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // ==================== Claims Management ====================
+
+    @PostMapping("/{id}/claim")
+    @Operation(summary = "File insurance claim", description = "File a new insurance claim")
+    @ApiResponse(responseCode = "201", description = "Claim filed successfully")
+    public ResponseEntity<InsuranceClaim> fileClaim(
+            @PathVariable("id") Long insuranceId,
+            @Valid @RequestBody FileClaimRequest request) {
+        InsuranceClaim claim = insuranceService.fileClaim(insuranceId, request);
+        return new ResponseEntity<>(claim, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}/claims")
+    @Operation(summary = "Get claim history", description = "Get complete claim history for an insurance policy")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
+    public ResponseEntity<ClaimHistoryResponse> getClaimHistory(@PathVariable("id") Long insuranceId) {
+        ClaimHistoryResponse response = insuranceService.getClaimHistory(insuranceId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // ==================== Coverage Analysis ====================
+
+    @GetMapping("/user/{userId}/analysis")
+    @Operation(summary = "Analyze insurance coverage", description = "Get comprehensive coverage analysis for a user")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved")
+    public ResponseEntity<CoverageAnalysisResponse> analyzeCoverage(@PathVariable("userId") Long userId) {
+        CoverageAnalysisResponse response = insuranceService.analyzeCoverage(userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -30,7 +30,7 @@ public interface TaxService {
     TDSEntry recordTDSEntry(TDSEntry tdsEntry);
     TDSReconciliationDTO getTDSReconciliation(Long userId, String financialYear);
     List<TDSEntry> getTDSEntries(Long userId, String financialYear);
-    TDSEntry updateTDSStatus(Long tdsId, TDSStatus status);
+    TDSEntry updateTDSStatus(Long tdsId, String status);
     
     // Tax Projections
     TaxProjectionDTO getTaxProjection(Long userId, String financialYear);

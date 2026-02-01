@@ -180,7 +180,7 @@ public class TaxController {
     )
     public ResponseEntity<TDSEntry> updateTDSStatus(
             @PathVariable("tdsId") Long tdsId,
-            @RequestParam TDSStatus status) {
+            @RequestParam String status) {
         return ResponseEntity.ok(taxService.updateTDSStatus(tdsId, status));
     }
 

@@ -67,7 +67,7 @@ public class MutualFundController {
     })
     public ResponseEntity<List<MFSchemeSearchResult>> searchSchemes(
             @Parameter(description = "Search query (e.g., 'HDFC', 'SBI', 'Axis')", required = true, example = "HDFC")
-            @RequestParam String query) {
+            @RequestParam("arg0") String query) {
         
         if (query == null || query.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
