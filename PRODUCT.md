@@ -117,8 +117,18 @@ This document provides a comprehensive overview of features currently implemente
 | **Outstanding Tracking** | ✅ | Monitor outstanding principal, interest rates, EMI |
 | **Loan Details by User** | ✅ | Fetch user-specific loan portfolio |
 | **Admin Loan View** | ✅ | Admin endpoint to view all loans |
+| **Amortization Schedule** | ✅ | Generate EMI-wise principal/interest breakdown for entire tenure |
+| **Payment Tracking** | ✅ | Record payments with automatic principal/interest split |
+| **Payment History** | ✅ | Complete payment history with summaries and missed payment tracking |
+| **Loan Analytics** | ✅ | Total interest, interest-to-principal ratio, completion percentage, remaining tenure |
+| **Prepayment Simulation** | ✅ | Calculate impact of prepayment on tenure and total interest |
+| **Foreclosure Calculation** | ✅ | Calculate foreclosure amount with charges and outstanding balance |
+| **Foreclosure Processing** | ✅ | Process foreclosure and close loan with final payment record |
+| **Missed Payment Alerts** | ✅ | Track and flag missed payments |
 
-**API Endpoints**: `/api/v1/loans/*` (LoanApiResource)
+**API Endpoints**: `/api/v1/loans/*` (LoanController - 15 endpoints across calculations, payments, foreclosure)
+
+**Feature Completion**: 90% (backend + frontend implemented, advanced features like refinancing and document management pending)
 
 #### 4.2 Lending (Money Lent to Others)
 | Feature | Status | Implementation Details |
@@ -301,7 +311,7 @@ This document provides a comprehensive overview of features currently implemente
 | **ETFs** | 1 | ✅ | Complete CRUD |
 | **Account Aggregator** | 1 | ✅ | Mock implementation complete |
 | **Savings** | 3 | ✅ | Savings, FD, RD all covered |
-| **Loans** | 1 | ✅ | Complete CRUD |
+| **Loans** | 1 | ✅ | Complete CRUD + Amortization + Payment Tracking + Foreclosure (15 endpoints)
 | **Lending** | 1 | ✅ | Complete CRUD |
 | **Insurance** | 1 | ✅ | Complete CRUD |
 | **Budget** | 1 | ✅ | Expense tracking complete |
@@ -319,6 +329,7 @@ This document provides a comprehensive overview of features currently implemente
 | **Portfolio** | ✅ | Stock holdings and performance |
 | **NetWorth** | ✅ | Aggregate wealth tracker |
 | **Budget** | ✅ | Expense logging and monitoring |
+| **Loans** | ✅ | Loan management with amortization, payments, and foreclosure |
 | **Insights** | 🛠 | Structure ready; AI insights not connected |
 | **Settings** | ✅ | User profile management |
 

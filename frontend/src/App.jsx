@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Budget from './pages/Budget';
 import CashFlow from './pages/CashFlow';
 import Portfolio from './pages/Portfolio';
+import Loans from './pages/Loans';
 import Insights from './pages/Insights';
 import Settings from './pages/Settings';
 import RecurringTransactions from './pages/RecurringTransactions';
@@ -63,6 +64,11 @@ function App() {
             <Route path="portfolio" element={
               <FeatureGate feature="PORTFOLIO" showDisabledMessage>
                 <Portfolio />
+              </FeatureGate>
+            } />
+            <Route path="loans" element={
+              <FeatureGate feature="LOANS" showDisabledMessage>
+                <Loans />
               </FeatureGate>
             } />
             <Route path="insights" element={<Insights />} />

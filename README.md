@@ -13,6 +13,7 @@ PI SYSTEM is a comprehensive Spring Boot-based financial intelligence platform d
 - **📊 Portfolio Management**: Track stocks, ETFs, and mutual funds with real-time price updates.
 - **📈 Performance Analytics**: Automated XIRR calculation and sector-based diversification scoring.
 - **💸 Wealth Tracking**: Integrated management of Savings Accounts, FD/RD, Loans, and Insurance.
+- **💰 Loans Management**: Complete loan lifecycle management with amortization, payment tracking, prepayment simulation, foreclosure calculation, and comprehensive analytics.
 - **🏦 Account Aggregator (AA)**: Mock AA implementation for simulating bank data consent and fetching financial information.
 - **📅 Budgeting & Expenses**: Track monthly limits, categorize expenses, and monitor income streams.
 - **🛡️ Security**: JWT-based authentication with BCrypt encryption and role-based access.
@@ -54,7 +55,7 @@ Located in the `/frontend` directory, the UI is built for a premium, high-perfor
 
 - **Tech Stack**: React 18, Vite, Vanilla CSS, Recharts, Lucide Icons.
 - **Rich Aesthetics**: Dark mode, glassmorphism, and smooth transitions.
-- **Modules**: Portfolio Dashboard, Budget Tracker, AA Consent Manager, Net Worth Overview.
+- **Modules**: Portfolio Dashboard, Budget Tracker, Loans Manager, AA Consent Manager, Net Worth Overview.
 
 **Quick Start UI:**
 ```bash

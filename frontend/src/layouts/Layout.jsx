@@ -4,6 +4,7 @@ import {
     Wallet,
     TrendingUp,
     Briefcase,
+    CreditCard,
     Lightbulb,
     Settings as SettingsIcon,
     LogOut,
@@ -76,6 +77,12 @@ const Layout = () => {
                         <NavLink to="/portfolio" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                             <Briefcase />
                             Portfolio
+                        </NavLink>
+                    )}
+                    {isFeatureEnabled('LOANS') && (
+                        <NavLink to="/loans" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                            <CreditCard />
+                            Loans
                         </NavLink>
                     )}
                     <NavLink to="/insights" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>

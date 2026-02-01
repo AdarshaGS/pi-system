@@ -167,3 +167,29 @@ export const featureApi = {
     enableFeature: (featureName, token) => apiCall(`/v1/admin/features/${featureName}/enable`, 'POST', null, token),
     disableFeature: (featureName, token) => apiCall(`/v1/admin/features/${featureName}/disable`, 'POST', null, token),
 };
+
+export const loansApi = {
+    // CRUD Operations
+    createLoan: (loanData, token) => apiCall('/v1/loans/create', 'POST', loanData, token),
+    getAllLoans: (token) => apiCall('/v1/loans/all', 'GET', null, token),
+    getUserLoans: (userId, token) => apiCall(`/v1/loans/user/${userId}`, 'GET', null, token),
+    getLoanById: (loanId, token) => apiCall(`/v1/loans/${loanId}`, 'GET', null, token),
+    deleteLoan: (loanId, token) => apiCall(`/v1/loans/${loanId}`, 'DELETE', null, token),
+    
+    // Advanced Calculations
+    getAmortizationSchedule: (loanId, token) => apiCall(`/v1/loans/${loanId}/amortization-schedule`, 'GET', null, token),
+    analyzeLoan: (loanId, token) => apiCall(`/v1/loans/${loanId}/analysis`, 'GET', null, token),
+    getTotalInterest: (loanId, token) => apiCall(`/v1/loans/${loanId}/total-interest`, 'GET', null, token),
+    simulatePrepayment: (loanId, amount, token) => apiCall(`/v1/loans/${loanId}/simulate-prepayment?amount=${amount}`, 'POST', null, token),
+    
+    // Payment Tracking
+    recordPayment: (paymentData, token) => apiCall('/v1/loans/payments', 'POST', paymentData, token),
+    getPaymentHistory: (loanId, token) => apiCall(`/v1/loans/${loanId}/payments`, 'GET', null, token),
+    getMissedPayments: (loanId, token) => apiCall(`/v1/loans/${loanId}/missed-payments`, 'GET', null, token),
+    
+    // Foreclosure
+    calculateForeclosure: (loanId, chargesPercentage, token) => 
+        apiCall(`/v1/loans/${loanId}/foreclosure-calculation?foreclosureChargesPercentage=${chargesPercentage}`, 'GET', null, token),
+    processForeclosure: (loanId, chargesPercentage, token) => 
+        apiCall(`/v1/loans/${loanId}/foreclose?foreclosureChargesPercentage=${chargesPercentage}`, 'POST', null, token),
+};
