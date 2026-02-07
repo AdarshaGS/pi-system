@@ -1,0 +1,166 @@
+/* DocumentCard Component Styles */
+
+.document-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.document-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* File Icon */
+.document-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80px;
+}
+
+.file-icon {
+    font-size: 4rem;
+}
+
+.file-icon.pdf {
+    color: #ef4444;
+}
+
+.file-icon.word {
+    color: #2563eb;
+}
+
+.file-icon.excel {
+    color: #10b981;
+}
+
+.file-icon.image {
+    color: #8b5cf6;
+}
+
+.file-icon.default {
+    color: #6b7280;
+}
+
+/* Document Info */
+.document-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.document-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.document-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.category-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.file-size {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.document-description {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.document-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.document-date svg {
+    color: #6366f1;
+}
+
+/* Actions */
+.document-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-download {
+    background: #6366f1;
+    color: white;
+}
+
+.btn-download:hover {
+    background: #4f46e5;
+}
+
+.btn-delete {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .document-card {
+        padding: 15px;
+    }
+
+    .document-icon-container {
+        height: 60px;
+    }
+
+    .file-icon {
+        font-size: 3rem;
+    }
+}

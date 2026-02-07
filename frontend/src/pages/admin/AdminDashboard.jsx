@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Users, Activity, Shield, Wrench, Database, UserCheck, ToggleRight } from 'lucide-react';
+import { Users, Activity, Shield, Wrench, Database, UserCheck, ToggleRight, Clock } from 'lucide-react';
 import '../../App.css';
 
 const AdminDashboard = () => {
@@ -199,6 +199,21 @@ const AdminDashboard = () => {
                         <ToggleRight size={32} style={{ color: '#4caf50', marginBottom: '15px' }} />
                         <h3 style={{ fontSize: '18px', marginBottom: '10px', color: '#333' }}>Feature Management</h3>
                         <p style={{ color: '#666', fontSize: '14px' }}>Enable or disable application features</p>
+                    </div>
+                </Link>
+
+                <Link to="/admin/jobs" style={{ textDecoration: 'none' }}>
+                    <div style={{
+                        padding: '25px',
+                        backgroundColor: '#fff',
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s'
+                    }}>
+                        <Clock size={32} style={{ color: '#ff9800', marginBottom: '15px' }} />
+                        <h3 style={{ fontSize: '18px', marginBottom: '10px', color: '#333' }}>Scheduled Jobs</h3>
+                        <p style={{ color: '#666', fontSize: '14px' }}>Manage and execute scheduled tasks</p>
                     </div>
                 </Link>
             </div>

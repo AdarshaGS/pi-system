@@ -11,4 +11,10 @@ public interface ExternalService {
 
     List<ExternalServicePropertiesEntity> getExternalServicePropertiesByServiceName(String serviceName);
 
+    ExternalServiceEntity createService(String serviceName);
+
+    ExternalServicePropertiesEntity createServiceProperty(Long serviceId, String propertyName, String propertyValue);
+
+    ExternalServicePropertiesEntity updateServiceProperty(Long propertyId, String newValue);
+
 }

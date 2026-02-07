@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.alerts.entity.AlertChannel;
+import com.alerts.entity.NotificationType;
+import com.alerts.service.NotificationService;
 import com.lending.data.LendingRecord;
 import com.lending.data.LendingStatus;
 import com.lending.repo.LendingRepository;
@@ -21,6 +24,7 @@ public class LendingDueDateScheduler {
     private static final Logger logger = LoggerFactory.getLogger(LendingDueDateScheduler.class);
 
     private final LendingRepository lendingRepository;
+    private final NotificationService notificationService;
 
     // Run every day at 10:00 AM
     @Scheduled(cron = "0 0 10 * * ?")
@@ -49,13 +53,34 @@ public class LendingDueDateScheduler {
 
         logger.warn("Found {} overdue lending records:", records.size());
         for (LendingRecord record : records) {
-            // In a real application, triggering an email or push notification would happen
-            // here
             logger.warn("OVERDUE: Borrower '{}' owes {} (Outstanding: {}). Due Date was: {}",
                     record.getBorrowerName(),
                     record.getAmountLent(),
                     record.getOutstandingAmount(),
                     record.getDueDate());
+
+            // Send notification to the lender
+            String title = "Lending Overdue: " + record.getBorrowerName();
+            String message = String.format(
+                "Your lending to %s is overdue! Amount: ₹%.2f, Outstanding: ₹%.2f. Due date was: %s. " +
+                "Please follow up with the borrower.",
+                record.getBorrowerName(),
+                record.getAmountLent(),
+                record.getOutstandingAmount(),
+                record.getDueDate()
+            );
+
+            try {
+                notificationService.sendNotification(
+                    record.getUserId(),
+                    title,
+                    message,
+                    NotificationType.LENDING_OVERDUE,
+                    AlertChannel.IN_APP
+                );
+            } catch (Exception e) {
+                logger.error("Failed to send overdue notification for lending ID: {}", record.getId(), e);
+            }
         }
     }
 
@@ -67,11 +92,32 @@ public class LendingDueDateScheduler {
 
         logger.info("Found {} lending records due today:", records.size());
         for (LendingRecord record : records) {
-            // Trigger notification
             logger.info("DUE TODAY: Borrower '{}' owes {} (Outstanding: {}).",
                     record.getBorrowerName(),
                     record.getAmountLent(),
                     record.getOutstandingAmount());
+
+            // Send notification to the lender
+            String title = "Lending Due Today: " + record.getBorrowerName();
+            String message = String.format(
+                "Your lending to %s is due today! Amount: ₹%.2f, Outstanding: ₹%.2f. " +
+                "Please remind the borrower about the payment.",
+                record.getBorrowerName(),
+                record.getAmountLent(),
+                record.getOutstandingAmount()
+            );
+
+            try {
+                notificationService.sendNotification(
+                    record.getUserId(),
+                    title,
+                    message,
+                    NotificationType.LENDING_DUE,
+                    AlertChannel.IN_APP
+                );
+            } catch (Exception e) {
+                logger.error("Failed to send due today notification for lending ID: {}", record.getId(), e);
+            }
         }
     }
 }

@@ -55,9 +55,23 @@ public class LendingController {
         return ResponseEntity.ok(lendingService.addRepayment(id, repaymentDTO));
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Update lending record details")
+    public ResponseEntity<LendingDTO> updateLending(@PathVariable("id") Long id,
+            @Valid @RequestBody LendingDTO lendingDTO) {
+        return ResponseEntity.ok(lendingService.updateLending(id, lendingDTO));
+    }
+
     @PutMapping("/{id}/close")
     @Operation(summary = "Mark a lending record as fully paid")
     public ResponseEntity<LendingDTO> closeLending(@PathVariable("id") Long id) {
         return ResponseEntity.ok(lendingService.closeLending(id));
+    }
+
+    @PostMapping("/{id}/send-reminder")
+    @Operation(summary = "Send payment reminder notification to yourself about this lending")
+    public ResponseEntity<String> sendPaymentReminder(@PathVariable("id") Long id) {
+        lendingService.sendPaymentReminder(id);
+        return ResponseEntity.ok("Reminder notification sent successfully");
     }
 }

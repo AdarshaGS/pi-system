@@ -1,5 +1,11 @@
 package com.budget;
 
+import com.alerts.service.EmailService;
+import com.alerts.service.NotificationService;
+import com.alerts.entity.AlertChannel;
+import com.alerts.entity.NotificationType;
+import com.users.data.Users;
+import com.users.repo.UsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Scheduled job for subscription renewal reminders
@@ -17,6 +24,15 @@ import java.util.List;
 public class SubscriptionReminderScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionReminderScheduler.class);
+    
+    @Autowired
+    private EmailService emailService;
+    
+    @Autowired
+    private NotificationService notificationService;
+    
+    @Autowired
+    private UsersRepository usersRepository;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
@@ -143,19 +159,17 @@ public class SubscriptionReminderScheduler {
     }
 
     /**
-     * Send renewal reminder (stub for now)
-     * In production, this would integrate with email/notification service
+     * Send renewal reminder via email and in-app notification
      */
     private void sendRenewalReminder(Subscription subscription) {
-        // TODO: Integrate with email service or notification service
-        logger.info("Renewal reminder for subscription: ID={}, Service={}, User={}, Renewal Date={}, Amount={}",
+        logger.info("Sending renewal reminder for subscription: ID={}, Service={}, User={}, Renewal Date={}, Amount={}",
                 subscription.getId(),
                 subscription.getServiceName(),
                 subscription.getUserId(),
                 subscription.getNextRenewalDate(),
                 subscription.getAmount());
 
-        // Example of what the reminder message would look like:
+        String subject = "Subscription Renewal Reminder";
         String message = String.format(
                 "Reminder: Your %s subscription (₹%.2f) will renew on %s",
                 subscription.getServiceName(),
@@ -163,10 +177,36 @@ public class SubscriptionReminderScheduler {
                 subscription.getNextRenewalDate()
         );
 
-        logger.debug("Reminder message: {}", message);
-
-        // TODO: Send email/push notification with this message
-        // emailService.sendEmail(user.getEmail(), "Subscription Renewal Reminder", message);
-        // notificationService.sendPushNotification(user.getId(), message);
+        try {
+            // Get user details for email
+            Users user = usersRepository.findById(subscription.getUserId()).orElse(null);
+            
+            if (user != null) {
+                // Send email notification
+                emailService.sendEmail(user.getEmail(), subject, message);
+                logger.info("Email sent to {} for subscription renewal", user.getEmail());
+            }
+            
+            // Send in-app notification
+            notificationService.sendNotification(
+                subscription.getUserId(),
+                subject,
+                message,
+                NotificationType.REMINDER,
+                AlertChannel.IN_APP,
+                Map.of(
+                    "subscriptionId", subscription.getId().toString(),
+                    "serviceName", subscription.getServiceName(),
+                    "renewalDate", subscription.getNextRenewalDate().toString(),
+                    "amount", subscription.getAmount().toString()
+                ),
+                null
+            );
+            logger.info("In-app notification sent for subscription renewal");
+            
+        } catch (Exception e) {
+            logger.error("Failed to send renewal reminder for subscription {}: {}", 
+                subscription.getId(), e.getMessage());
+        }
     }
 }

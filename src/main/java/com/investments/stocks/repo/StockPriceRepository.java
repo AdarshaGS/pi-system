@@ -25,4 +25,10 @@ public interface StockPriceRepository extends JpaRepository<StockPrice, Long> {
 
     @Query("SELECT sp FROM StockPrice sp WHERE sp.symbol = :symbol ORDER BY sp.priceDate DESC LIMIT 1")
     Optional<StockPrice> findLatestBySymbol(@Param("symbol") String symbol);
+
+    /**
+     * Find the most recent stock price entry for a symbol.
+     * Used for getting previous close price.
+     */
+    Optional<StockPrice> findTopBySymbolOrderByPriceDateDesc(String symbol);
 }

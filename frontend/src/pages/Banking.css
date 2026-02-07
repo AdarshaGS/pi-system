@@ -1,0 +1,78 @@
+.banking-container {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.banking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.banking-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    color: #111827;
+}
+
+.banking-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-active,
+.tab-inactive {
+    transition: all 0.2s ease;
+}
+
+.tab-inactive:hover {
+    background-color: #f9fafb;
+}
+
+.deposits-list {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .banking-container {
+        padding: 16px;
+    }
+
+    .banking-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .banking-tabs {
+        flex-direction: column;
+        border-bottom: none;
+    }
+
+    .banking-tabs button {
+        border-bottom: none !important;
+        border-left: 3px solid transparent;
+        text-align: left;
+    }
+
+    .banking-tabs button.tab-active {
+        border-left: 3px solid #4f46e5 !important;
+        background-color: #f0f1ff;
+    }
+}

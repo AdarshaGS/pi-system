@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Save, RefreshCw, Database, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Settings, Save, RefreshCw, Database, Eye, EyeOff, ArrowLeft, Plus, Edit, X } from 'lucide-react';
 import { externalServicesApi } from '../../api';
 import '../../App.css';
 
@@ -14,6 +14,10 @@ const AdminExternalServices = () => {
     const [saving, setSaving] = useState(false);
     const [editedProperties, setEditedProperties] = useState({});
     const [showPassword, setShowPassword] = useState({});
+    const [showCreateServiceModal, setShowCreateServiceModal] = useState(false);
+    const [showAddPropertyModal, setShowAddPropertyModal] = useState(false);
+    const [newServiceName, setNewServiceName] = useState('');
+    const [newProperty, setNewProperty] = useState({ name: '', value: '' });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -101,18 +105,13 @@ const AdminExternalServices = () => {
     const handleSaveProperties = async () => {
         const user = JSON.parse(localStorage.getItem('user'));
         setSaving(true);
+        setError(null);
 
         try {
             // Update each modified property
             const updatePromises = properties.map(async (prop) => {
                 if (editedProperties[prop.id] !== prop.value) {
-                    // Since there's no PUT endpoint, we're just showing what would be saved
-                    return {
-                        id: prop.id,
-                        name: prop.name,
-                        oldValue: prop.value,
-                        newValue: editedProperties[prop.id]
-                    };
+                    return await externalServicesApi.updateProperty(prop.id, editedProperties[prop.id], user.token);
                 }
                 return null;
             });
@@ -121,7 +120,7 @@ const AdminExternalServices = () => {
             const changes = results.filter(r => r !== null);
 
             if (changes.length > 0) {
-                alert('Properties updated successfully!\n\nNote: In production, these would be saved to the database via a PUT endpoint.');
+                alert('Properties updated successfully!');
                 // Refresh properties
                 await fetchServiceProperties(selectedService.name);
             } else {
@@ -129,8 +128,46 @@ const AdminExternalServices = () => {
             }
         } catch (err) {
             alert('Failed to save properties: ' + err.message);
+            setError(err.message);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleCreateService = async () => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!newServiceName.trim()) {
+            alert('Please enter a service name');
+            return;
+        }
+
+        try {
+            await externalServicesApi.createService(newServiceName, user.token);
+            setNewServiceName('');
+            setShowCreateServiceModal(false);
+            await fetchServices(user.token);
+            alert('Service created successfully!');
+        } catch (err) {
+            alert('Failed to create service: ' + err.message);
+        }
+    };
+
+    const handleAddProperty = async () => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!newProperty.name.trim() || !newProperty.value.trim()) {
+            alert('Please enter both property name and value');
+            return;
+        }
+
+        try {
+            const serviceEntity = services.find(s => s.name === selectedService.name);
+            await externalServicesApi.createProperty(serviceEntity.id, newProperty.name, newProperty.value, user.token);
+            setNewProperty({ name: '', value: '' });
+            setShowAddPropertyModal(false);
+            await fetchServiceProperties(selectedService.name);
+            alert('Property added successfully!');
+        } catch (err) {
+            alert('Failed to add property: ' + err.message);
         }
     };
 
@@ -187,11 +224,34 @@ const AdminExternalServices = () => {
                     <ArrowLeft size={18} />
                     Back to Admin Dashboard
                 </button>
-                <h1 style={{ fontSize: '28px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Database size={32} />
-                    External Services Configuration
-                </h1>
-                <p style={{ color: '#666' }}>Manage external service API keys and configuration</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1 style={{ fontSize: '28px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Database size={32} />
+                            External Services Configuration
+                        </h1>
+                        <p style={{ color: '#666' }}>Manage external service API keys and configuration</p>
+                    </div>
+                    <button
+                        onClick={() => setShowCreateServiceModal(true)}
+                        style={{
+                            padding: '10px 20px',
+                            backgroundColor: '#4caf50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600'
+                        }}
+                    >
+                        <Plus size={18} />
+                        Add New Service
+                    </button>
+                </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
@@ -289,26 +349,47 @@ const AdminExternalServices = () => {
                                         {selectedService.description}
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => fetchServiceProperties(selectedService.name)}
-                                    disabled={loadingProperties}
-                                    style={{
-                                        padding: '8px 16px',
-                                        backgroundColor: '#2196f3',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        cursor: loadingProperties ? 'not-allowed' : 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '6px',
-                                        fontSize: '13px',
-                                        fontWeight: '500'
-                                    }}
-                                >
-                                    <RefreshCw size={14} />
-                                    Refresh
-                                </button>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button
+                                        onClick={() => setShowAddPropertyModal(true)}
+                                        style={{
+                                            padding: '8px 16px',
+                                            backgroundColor: '#4caf50',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            fontSize: '13px',
+                                            fontWeight: '500'
+                                        }}
+                                    >
+                                        <Plus size={14} />
+                                        Add Property
+                                    </button>
+                                    <button
+                                        onClick={() => fetchServiceProperties(selectedService.name)}
+                                        disabled={loadingProperties}
+                                        style={{
+                                            padding: '8px 16px',
+                                            backgroundColor: '#2196f3',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            cursor: loadingProperties ? 'not-allowed' : 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            fontSize: '13px',
+                                            fontWeight: '500'
+                                        }}
+                                    >
+                                        <RefreshCw size={14} />
+                                        Refresh
+                                    </button>
+                                </div>
                             </div>
 
                             {loadingProperties ? (
@@ -420,18 +501,220 @@ const AdminExternalServices = () => {
                 </div>
             </div>
 
-            <div style={{
-                marginTop: '20px',
-                padding: '15px',
-                backgroundColor: '#fff3cd',
-                border: '1px solid #ffc107',
-                borderRadius: '6px',
-                fontSize: '13px',
-                color: '#856404'
-            }}>
-                <strong>⚠️ Note:</strong> This is a read-only view using existing GET APIs. To enable full editing capabilities,
-                a PUT endpoint needs to be implemented in the backend: <code>PUT /api/v1/external-services/properties/:id</code>
-            </div>
+            {/* Create Service Modal */}
+            {showCreateServiceModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        padding: '30px',
+                        width: '90%',
+                        maxWidth: '500px',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h2 style={{ margin: 0, fontSize: '22px' }}>Create New Service</h2>
+                            <button
+                                onClick={() => {
+                                    setShowCreateServiceModal(false);
+                                    setNewServiceName('');
+                                }}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '5px'
+                                }}
+                            >
+                                <X size={24} color="#666" />
+                            </button>
+                        </div>
+                        
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+                                Service Name
+                            </label>
+                            <input
+                                type="text"
+                                value={newServiceName}
+                                onChange={(e) => setNewServiceName(e.target.value)}
+                                placeholder="e.g., INDIAN_API, ALPHA_VANTAGE"
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '6px',
+                                    fontSize: '14px'
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={() => {
+                                    setShowCreateServiceModal(false);
+                                    setNewServiceName('');
+                                }}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#f5f5f5',
+                                    color: '#666',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleCreateService}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#4caf50',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Create Service
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Property Modal */}
+            {showAddPropertyModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        padding: '30px',
+                        width: '90%',
+                        maxWidth: '500px',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h2 style={{ margin: 0, fontSize: '22px' }}>Add Property to {selectedService?.displayName}</h2>
+                            <button
+                                onClick={() => {
+                                    setShowAddPropertyModal(false);
+                                    setNewProperty({ name: '', value: '' });
+                                }}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '5px'
+                                }}
+                            >
+                                <X size={24} color="#666" />
+                            </button>
+                        </div>
+                        
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+                                Property Name
+                            </label>
+                            <input
+                                type="text"
+                                value={newProperty.name}
+                                onChange={(e) => setNewProperty({ ...newProperty, name: e.target.value })}
+                                placeholder="e.g., API_KEY, BASE_URL"
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '6px',
+                                    fontSize: '14px'
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+                                Property Value
+                            </label>
+                            <input
+                                type="text"
+                                value={newProperty.value}
+                                onChange={(e) => setNewProperty({ ...newProperty, value: e.target.value })}
+                                placeholder="Enter property value"
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '6px',
+                                    fontSize: '14px'
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={() => {
+                                    setShowAddPropertyModal(false);
+                                    setNewProperty({ name: '', value: '' });
+                                }}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#f5f5f5',
+                                    color: '#666',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAddProperty}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#2196f3',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Add Property
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

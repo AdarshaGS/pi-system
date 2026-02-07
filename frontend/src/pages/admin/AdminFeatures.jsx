@@ -8,7 +8,8 @@ import {
     AlertCircle,
     CheckCircle,
     Loader,
-    RefreshCw
+    RefreshCw,
+    ArrowLeft
 } from 'lucide-react';
 import { useFeatures } from '../../contexts/FeatureContext';
 import '../../App.css';
@@ -163,6 +164,35 @@ const AdminFeatures = () => {
         <div style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
             {/* Header */}
             <div style={{ marginBottom: '30px' }}>
+                <button
+                    onClick={() => navigate('/admin')}
+                    style={{
+                        marginBottom: '20px',
+                        padding: '10px 16px',
+                        backgroundColor: 'white',
+                        color: '#666',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f5f5f5';
+                        e.currentTarget.style.borderColor = '#2196f3';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'white';
+                        e.currentTarget.style.borderColor = '#e0e0e0';
+                    }}
+                >
+                    <ArrowLeft size={18} />
+                    Back to Admin Dashboard
+                </button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                     <h1 style={{ fontSize: '28px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <ToggleRight size={32} />

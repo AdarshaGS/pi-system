@@ -1,0 +1,80 @@
+.tier-limit-indicator {
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.tier-limit-indicator.near-limit {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+}
+
+.tier-limit-indicator.at-limit {
+  background: #f8d7da;
+  border: 1px solid #dc3545;
+}
+
+.limit-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.limit-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.near-limit .limit-icon {
+  color: #ffc107;
+}
+
+.at-limit .limit-icon {
+  color: #dc3545;
+}
+
+.limit-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.limit-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.limit-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+.near-limit .limit-progress-fill {
+  background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+}
+
+.at-limit .limit-progress-fill {
+  background: linear-gradient(90deg, #dc3545 0%, #c82333 100%);
+}
+
+.limit-message,
+.limit-warning {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.limit-message {
+  color: #dc3545;
+}
+
+.limit-warning {
+  color: #856404;
+}

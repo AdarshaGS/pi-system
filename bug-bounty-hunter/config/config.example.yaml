@@ -1,0 +1,134 @@
+# Bug Bounty Hunter Configuration
+
+# Master Node Settings
+master:
+  host: "0.0.0.0"
+  port: 8000
+  secret_key: "change-this-secret-key"
+  
+# Redis Settings (for task queue)
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: null
+
+# Database Settings
+database:
+  postgres:
+    host: "localhost"
+    port: 5432
+    database: "bugbounty"
+    username: "admin"
+    password: "changeme"
+  mongodb:
+    uri: "mongodb://localhost:27017"
+    database: "bugbounty_data"
+
+# Bug Bounty Platform API Keys
+platforms:
+  hackerone:
+    enabled: true
+    api_key: "your_hackerone_api_key"
+    username: "your_username"
+    
+  bugcrowd:
+    enabled: true
+    api_key: "your_bugcrowd_api_key"
+    
+  intigriti:
+    enabled: false
+    api_key: "your_intigriti_api_key"
+    
+  yeswehack:
+    enabled: false
+    api_key: "your_yeswehack_api_key"
+
+# AI Analyzer Settings
+ai:
+  model_path: "models/bounty_analyzer.pth"
+  min_confidence: 0.7
+  
+  # Factors for bounty scoring
+  scoring_weights:
+    reward_amount: 0.3
+    skill_match: 0.25
+    time_available: 0.15
+    program_maturity: 0.15
+    scope_size: 0.15
+
+# Scanning Tools Configuration
+scanning:
+  tools_path: "/opt/tools"
+  
+  nuclei:
+    enabled: true
+    templates_path: "/opt/nuclei-templates"
+    rate_limit: 150
+    
+  subfinder:
+    enabled: true
+    
+  httpx:
+    enabled: true
+    threads: 50
+    
+  ffuf:
+    enabled: true
+    wordlist: "/usr/share/wordlists/common.txt"
+
+# Monitoring Schedule
+monitoring:
+  check_interval: 3600  # seconds (1 hour)
+  max_concurrent_programs: 10
+  retry_failed_after: 7200  # 2 hours
+
+# Worker Node Settings
+worker:
+  max_tasks: 5  # Maximum concurrent tasks per worker
+  heartbeat_interval: 30  # seconds
+  
+# Notification Settings
+notifications:
+  telegram:
+    enabled: false
+    bot_token: "your_telegram_bot_token"
+    chat_id: "your_chat_id"
+    
+  discord:
+    enabled: false
+    webhook_url: "your_discord_webhook_url"
+    
+  email:
+    enabled: false
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    username: "your_email@gmail.com"
+    password: "your_app_password"
+
+# User Profile (for AI analysis)
+user_profile:
+  skills:
+    - "XSS"
+    - "SQLi"
+    - "IDOR"
+    - "SSRF"
+    - "Authentication bypass"
+  
+  experience_level: "intermediate"  # beginner, intermediate, advanced
+  
+  time_available_per_day: 4  # hours
+  
+  preferred_reward_min: 500  # USD
+
+# Security & Rate Limiting
+security:
+  rate_limit_per_minute: 60
+  max_workers: 10
+  
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "logs/bounty_hunter.log"
+  max_size: "100MB"
+  backup_count: 5

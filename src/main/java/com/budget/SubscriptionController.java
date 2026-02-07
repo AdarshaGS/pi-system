@@ -29,7 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/subscriptions")
 @Tag(name = "Subscription Management", description = "APIs for managing recurring subscriptions (Netflix, Spotify, etc.)")
-@RequiresFeature(FeatureFlag.SUBSCRIPTIONS)
+@RequiresFeature(FeatureFlag.BUDGET_MODULE)
 public class SubscriptionController {
 
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionController.class);

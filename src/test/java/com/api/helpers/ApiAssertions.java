@@ -28,6 +28,20 @@ public class ApiAssertions {
     }
 
     /**
+     * Assert one of multiple acceptable status codes
+     */
+    public static void assertStatusCode(Response response, int... expectedCodes) {
+        int actualCode = response.statusCode();
+        for (int expectedCode : expectedCodes) {
+            if (actualCode == expectedCode) {
+                return;
+            }
+        }
+        fail("Expected one of " + java.util.Arrays.toString(expectedCodes) + 
+             " but got: " + actualCode);
+    }
+
+    /**
      * Assert response time
      */
     public static void assertResponseTime(Response response, long maxMillis) {

@@ -24,9 +24,14 @@
 ### 📦 Module Documentation
 | Module | Document | Status | Progress |
 |--------|----------|--------|----------|
-| **Budget & Expenses** | [BUDGET_MODULE.md](BUDGET_MODULE.md) | ✅ Production | 52% Complete |
-| **Investments** | Coming Soon | 🚧 Planning | - |
-| **Admin Portal** | [ADMIN_PORTAL.md](ADMIN_PORTAL.md) | ✅ Production | - |
+| **Budget & Expenses** | [BUDGET_MODULE.md](BUDGET_MODULE.md) | ✅ Production | 90% Complete |
+| **Admin Portal** | [ADMIN_PORTAL.md](ADMIN_PORTAL.md) | ✅ Production | 100% Complete |
+| **Tax Management** | [TAX_API_QUICK_REFERENCE.md](TAX_API_QUICK_REFERENCE.md) | 🚧 In Progress | 38% Complete |
+| **Loans** | [LOANS_MODULE_DEVELOPER_GUIDE.md](../devtools/LOANS_MODULE_DEVELOPER_GUIDE.md) | ✅ Fixed Bugs | 40% Complete |
+| **Feature Flags** | [FEATURE_TOGGLE_SYSTEM.md](FEATURE_TOGGLE_SYSTEM.md) | ✅ Production | 100% Complete |
+| **Mutual Funds** | [MUTUAL_FUND_API_QUICK_START.md](MUTUAL_FUND_API_QUICK_START.md) | ✅ Production | - |
+| **Investments** | Coming Soon | 🚧 Planning | 83% Complete |
+| **Pending Features** | [../MODULE_PENDING_FEATURES.md](../MODULE_PENDING_FEATURES.md) | ✅ Complete | All Modules |
 
 ### 🔄 API Documentation
 | Document | Purpose | Type |

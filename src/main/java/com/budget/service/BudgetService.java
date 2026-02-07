@@ -7,8 +7,10 @@ import com.budget.repo.CustomCategoryRepository;
 import com.budget.repo.ExpenseRepository;
 import com.budget.repo.IncomeRepository;
 import com.common.security.AuthenticationHelper;
+import com.common.subscription.SubscriptionTierService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -31,6 +33,9 @@ public class BudgetService {
     private final IncomeRepository incomeRepository;
     private final CustomCategoryRepository customCategoryRepository;
     private final AuthenticationHelper authenticationHelper;
+    
+    @Autowired
+    private SubscriptionTierService subscriptionTierService;
 
     @Transactional
     public Expense addExpense(Expense expense) {
@@ -660,6 +665,11 @@ public class BudgetService {
     @Transactional
     public CustomCategory createCustomCategory(CustomCategory customCategory) {
         authenticationHelper.validateUserAccess(customCategory.getUserId());
+        
+        // Check tier limit before creating (FREE users limited to 5 total categories)
+        int currentCount = customCategoryRepository.findByUserIdAndIsActive(
+                customCategory.getUserId(), true).size();
+        subscriptionTierService.checkBudgetCategoryLimit(customCategory.getUserId(), currentCount);
         
         // Validate category name is not empty
         if (customCategory.getCategoryName() == null || customCategory.getCategoryName().trim().isEmpty()) {

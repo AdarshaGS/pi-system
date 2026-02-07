@@ -1,5 +1,6 @@
 package com.budget.controller;
 
+import com.alerts.service.EmailService;
 import com.budget.data.Budget;
 import com.budget.data.BudgetReportDTO;
 import com.budget.data.BudgetVsActualReport;
@@ -14,6 +15,8 @@ import com.budget.service.ExportService;
 import com.budget.service.ReportGenerationService;
 import com.common.features.FeatureFlag;
 import com.common.features.RequiresFeature;
+import com.users.data.Users;
+import com.users.repo.UsersRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,8 @@ public class BudgetController {
     private final BudgetService budgetService;
     private final ExportService exportService;
     private final ReportGenerationService reportGenerationService;
+    private final EmailService emailService;
+    private final UsersRepository usersRepository;
 
     // Expense endpoints
     @PostMapping("/expense")
@@ -311,11 +316,70 @@ public class BudgetController {
     public ResponseEntity<Map<String, String>> emailReport(
             @PathVariable("userId") Long userId,
             @RequestBody EmailReportRequest request) {
-        // TODO: Implement email service
-        return ResponseEntity.ok(Map.of(
-            "status", "success",
-            "message", "Email feature will be implemented in future update"
-        ));
+        try {
+            // Get user details
+            Users user = usersRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+            
+            // Generate report based on type
+            String reportContent;
+            String subject;
+            
+            // Construct monthYear string in format "MONTH_YEAR" (e.g., "FEBRUARY_2026")
+            String monthYear = request.getMonth() + "_" + request.getYear();
+            
+            if ("MONTHLY".equals(request.getReportType())) {
+                BudgetReportDTO report = budgetService.getMonthlyReport(userId, monthYear);
+                subject = String.format("Monthly Budget Report - %s %d", 
+                    request.getMonth(), request.getYear());
+                reportContent = formatMonthlyReport(report);
+            } else {
+                BudgetVsActualReport report = budgetService.getBudgetVsActualReport(userId, monthYear);
+                subject = String.format("Budget vs Actual Report - %s %d", 
+                    request.getMonth(), request.getYear());
+                reportContent = formatBudgetVsActualReport(report);
+            }
+            
+            // Send email
+            emailService.sendEmail(user.getEmail(), subject, reportContent);
+            
+            return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Report sent to " + user.getEmail()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                    "status", "error",
+                    "message", "Failed to send email: " + e.getMessage()
+                ));
+        }
+    }
+    
+    private String formatMonthlyReport(BudgetReportDTO report) {
+        StringBuilder content = new StringBuilder();
+        content.append("Monthly Budget Report\n\n");
+        content.append(String.format("Total Income: ₹%.2f\n", report.getTotalIncome()));
+        content.append(String.format("Total Expenses: ₹%.2f\n", report.getTotalExpenses()));
+        content.append(String.format("Net Savings: ₹%.2f\n\n", 
+            report.getTotalIncome().subtract(report.getTotalExpenses())));
+        content.append("\nExpense Breakdown:\n");
+        if (report.getCategoryBreakdown() != null) {
+            report.getCategoryBreakdown().forEach((category, summary) -> 
+                content.append(String.format("  %s: ₹%.2f\n", category.name(), summary.getSpent())));
+        }
+        return content.toString();
+    }
+    
+    private String formatBudgetVsActualReport(BudgetVsActualReport report) {
+        StringBuilder content = new StringBuilder();
+        content.append("Budget vs Actual Report\n\n");
+        content.append(String.format("Total Budget: ₹%.2f\n", report.getTotalBudget()));
+        content.append(String.format("Total Spent: ₹%.2f\n", report.getTotalSpent()));
+        content.append(String.format("Variance: ₹%.2f\n", report.getTotalVariance()));
+        content.append(String.format("Variance Percentage: %.1f%%\n", report.getVariancePercentage()));
+        content.append(String.format("Overall Status: %s\n", report.getOverallStatus()));
+        return content.toString();
     }
 
     // Bulk operations endpoints

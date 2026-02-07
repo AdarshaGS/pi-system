@@ -18,6 +18,19 @@ spring:
     out-of-order: false
     baseline-on-migrate: false
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+
+  task:
+    scheduling:
+      enabled: true
+      pool:
+        size: 5
+
   data:
     redis:
       host: ${REDIS_HOST}
@@ -46,6 +59,25 @@ external:
     mfapi:
       base-url: https://api.mfapi.in
 
+# Email configuration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    from-email: ${MAIL_FROM:noreply@pi-system.com}
+    enabled: ${MAIL_ENABLED:true}
+
 server:
   port: ${PORT}
 
@@ -59,3 +91,17 @@ springdoc:
     default-models-expand-depth: -1
   api-docs:
     path: /v3/api-docs
+
+# Advanced Features Configuration
+document:
+  upload:
+    dir: ${DOCUMENT_UPLOAD_DIR:./uploads/documents}
+  max:
+    size: ${DOCUMENT_MAX_SIZE:10485760}  # 10MB in bytes
+
+# Logging Configuration
+logging:
+  level:
+    com.investments.stocks: INFO
+    com.investments.stocks.scheduler: DEBUG
+    org.springframework.scheduling: INFO

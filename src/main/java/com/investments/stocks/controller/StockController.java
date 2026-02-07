@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/stocks")
-@RequiresFeature(FeatureFlag.STOCKS)
+@RequiresFeature(FeatureFlag.INVESTMENTS_MODULE)
 @Tag(name = "Stock Management", description = "APIs for stock management, price tracking, watchlist and alerts")
 @RequiredArgsConstructor
 public class StockController {

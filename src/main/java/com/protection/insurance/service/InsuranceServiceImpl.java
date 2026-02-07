@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.common.security.AuthenticationHelper;
+import com.common.subscription.SubscriptionTierService;
 import com.protection.insurance.data.ClaimStatus;
 import com.protection.insurance.data.Insurance;
 import com.protection.insurance.data.InsuranceClaim;
@@ -34,11 +36,19 @@ public class InsuranceServiceImpl implements InsuranceService {
     private final InsurancePremiumRepository premiumRepository;
     private final InsuranceClaimRepository claimRepository;
     private final AuthenticationHelper authenticationHelper;
+    
+    @Autowired
+    private SubscriptionTierService subscriptionTierService;
 
     @Override
     @Transactional
     public Insurance createInsurancePolicy(Insurance insurance) {
         authenticationHelper.validateUserAccess(insurance.getUserId());
+        
+        // Check tier limit before creating
+        int currentCount = insuranceRepository.findByUserId(insurance.getUserId()).size();
+        subscriptionTierService.checkInsurancePolicyLimit(insurance.getUserId(), currentCount);
+        
         return insuranceRepository.save(insurance);
     }
 

@@ -55,6 +55,13 @@ dependencies {
 	implementation 'com.itextpdf:itextpdf:5.5.13.3'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	
+	// Monitoring & Metrics
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	
+	// WebSocket for Real-Time Updates
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	
 	// Testing Dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

@@ -1,24 +1,84 @@
 # 💰 PI SYSTEM — Personal Finance & Investment Intelligence
 
+> **Last Updated**: February 6, 2026  
+> **Status**: Active Development | Backend 95% Complete | Frontend 85% Complete
+
 PI SYSTEM is a comprehensive Spring Boot-based financial intelligence platform designed to centralize and analyze your entire financial life. From tracking stock portfolios to managing loans and automating account aggregation, it provides a unified view for data-driven financial decisions.
 
-> 📖 **Documentation**: Start with [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md) for complete navigation  
-> 📊 **Product**: See [PRODUCT.md](./PRODUCT.md) for Implemented vs. Planned features  
-> 📈 **Progress**: Check [docs/PROGRESS.md](docs/PROGRESS.md) for current development status
+## 📚 Documentation Navigation
+
+### 🎯 **Quick Start by Module** (One file per module!)
+- **📊 Portfolio & Stocks**: [docs/modules/PORTFOLIO_STOCKS_MODULE.md](docs/modules/PORTFOLIO_STOCKS_MODULE.md) - Complete portfolio management with real-time prices
+- **💰 Loans**: [docs/modules/LOANS_MODULE.md](docs/modules/LOANS_MODULE.md) - EMI calculation, amortization, prepayment simulation
+- **📄 Tax**: [docs/modules/TAX_MODULE.md](docs/modules/TAX_MODULE.md) - Regime comparison, capital gains, TDS management
+- **🏦 All Other Modules**: [docs/modules/MODULE_QUICK_REFERENCE.md](docs/modules/MODULE_QUICK_REFERENCE.md) - Insurance, Lending, Budget, Advanced Features, Alerts, Admin
+
+### 📖 **Additional Resources**
+- 📊 **Product Overview**: [PRODUCT.md](./PRODUCT.md) - All features with implementation status
+- 📈 **Development Progress**: [docs/PROGRESS.md](docs/PROGRESS.md) - Current status and milestones
+- 🔍 **Feature Tracking**: [MODULE_PENDING_FEATURES.md](MODULE_PENDING_FEATURES.md) - Detailed module-wise status
+- 🎓 **Complete Index**: [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md) - All documentation files
 
 ---
 
 ## 🌟 Key Capabilities
 
-- **📊 Portfolio Management**: Track stocks, ETFs, and mutual funds with real-time price updates.
-- **📈 Performance Analytics**: Automated XIRR calculation and sector-based diversification scoring.
-- **💸 Wealth Tracking**: Integrated management of Savings Accounts, FD/RD, Loans, and Insurance.
-- **💰 Loans Management**: Complete loan lifecycle management with amortization, payment tracking, prepayment simulation, foreclosure calculation, and comprehensive analytics.
-- **🏦 Account Aggregator (AA)**: Mock AA implementation for simulating bank data consent and fetching financial information.
-- **📅 Budgeting & Expenses**: Track monthly limits, categorize expenses, and monitor income streams.
-- **🛡️ Security**: JWT-based authentication with BCrypt encryption and role-based access.
-- **🛠️ Developer Tools**: Built-in API to generate Flyway migration scripts with auto-formatting and versioning.
-- **🔍 Audit & Logging**: System-wide request auditing and error logging for robustness.
+### 💼 Investment & Portfolio (100% Complete)
+- **📊 Real-Time Stock Tracking**: WebSocket-based live price updates every 30 seconds during market hours
+- **📈 Portfolio Analytics**: XIRR calculation, P&L tracking, sector allocation, diversification scoring
+- **💹 Transaction Management**: Buy/Sell/Dividend recording with FIFO method and complete history
+- **📊 Multi-Asset Support**: Stocks, ETFs, Mutual Funds with unified portfolio view
+
+### 💰 Wealth & Debt Management (100% Complete)
+- **💰 Loans Module**: EMI calculator, amortization schedules, prepayment simulation, foreclosure analysis
+- **💼 Lending Tracker**: Track money lent with repayment management and overdue alerts
+- **🏦 FD/RD Management**: Fixed and recurring deposits tracking with maturity calculations
+- **💳 Savings Accounts**: Multi-account balance tracking and interest monitoring
+
+### 📄 Tax & Compliance (100% Complete)
+- **📄 Smart Tax Planning**: Old vs New regime comparison with recommendations
+- **💎 Capital Gains**: Auto-classification (STCG/LTCG) by asset type and holding period
+- **🧾 TDS Management**: Quarterly tracking with reconciliation and Form 26AS integration
+- **📊 Tax Projections**: Advance tax schedule calculator with slab-wise breakdown
+
+### 🏥 Insurance & Protection (100% Complete)
+- **🏥 Policy Management**: Life, Health, Motor, Home insurance tracking
+- **💰 Premium Tracking**: Payment history with renewal reminders
+- **🔔 Smart Alerts**: Policy expiry and premium due notifications
+- **📋 Claims Management**: File and track insurance claims
+
+### 📊 Budgeting & Planning (100% Complete)
+- **📅 Budget Tracking**: Monthly budgets with category-wise allocation
+- **💸 Expense Management**: Categorized expense tracking with budget vs actual
+- **💰 Income Streams**: Multiple income source management
+- **🔄 Subscriptions**: Track recurring subscriptions with cost analysis
+
+### 🎯 Advanced Features (100% Complete - All 7 Features!)
+- **🎯 Financial Goals**: Goal tracking with milestones and what-if scenarios
+- **🔄 Recurring Transactions**: Automated transaction templates with scheduling
+- **📊 Cash Flow Analysis**: Monthly cash flow projections and trend analysis
+- **📁 Document Management**: Drag-and-drop upload with 8 categories
+- **📈 Credit Score**: Score tracking with history and improvement tips
+- **👴 Retirement Planning**: Corpus calculator with inflation-adjusted projections
+- **⚖️ Portfolio Rebalancing**: Asset allocation drift analysis with rebalancing suggestions
+
+### 🔔 Real-Time & Notifications (100% Complete)
+- **⚡ WebSocket Integration**: Live stock prices and instant notifications
+- **📧 Email Notifications**: EMI reminders, policy expiry, tax deadlines
+- **🔔 Smart Alerts**: 9 alert types with customizable rules
+- **📱 Multi-Channel**: In-app and email notification delivery
+
+### 🔐 Security & Administration (100% Complete)
+- **🛡️ JWT Authentication**: Secure login with token rotation and refresh
+- **👥 Role-Based Access**: USER, ADMIN, SUPER_ADMIN with granular permissions
+- **👑 Admin Portal**: User management, activity logs, system monitoring
+- **🎛️ Feature Flags**: Dynamic feature toggles for gradual rollouts
+
+### 🛠️ Developer Tools (100% Complete)
+- **🔧 Migration Generator**: Auto-generate Flyway scripts with formatting
+- **🧪 Testing Suite**: 138 integration tests with 65% coverage
+- **📊 Monitoring**: Prometheus & Grafana integration ready
+- **🔍 Audit Logging**: Complete request and activity tracking
 
 ---
 

@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/etf")
-@RequiresFeature(FeatureFlag.ETF)
+@RequiresFeature(FeatureFlag.INVESTMENTS_MODULE)
 @RequiredArgsConstructor
 @Tag(name = "ETF Module", description = "APIs for managing ETFs")
 public class EtfController {

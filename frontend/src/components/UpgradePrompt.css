@@ -1,0 +1,208 @@
+.upgrade-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.upgrade-modal {
+  background: white;
+  border-radius: 16px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.4s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.upgrade-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.3s;
+}
+
+.upgrade-close:hover {
+  color: #333;
+}
+
+.upgrade-header {
+  text-align: center;
+  padding: 40px 32px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px 16px 0 0;
+}
+
+.upgrade-crown {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.upgrade-header h2 {
+  margin: 0 0 12px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.upgrade-message {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+.upgrade-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 32px;
+}
+
+@media (max-width: 768px) {
+  .upgrade-comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
+.upgrade-plan {
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s;
+}
+
+.upgrade-plan h3 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.plan-subtitle {
+  margin: 0 0 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.current-plan {
+  background: #f5f5f5;
+}
+
+.premium-plan {
+  background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%);
+  border-color: #f5576c;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(245, 87, 108, 0.2);
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.price {
+  font-size: 42px;
+  font-weight: 700;
+  color: #f5576c;
+}
+
+.period {
+  font-size: 16px;
+  color: #666;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.check-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.check-icon.free {
+  color: #764ba2;
+}
+
+.check-icon.premium {
+  color: #f5576c;
+}
+
+.upgrade-button {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+}
+
+.upgrade-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+.upgrade-footer {
+  text-align: center;
+  padding: 24px 32px;
+  background: #f9f9f9;
+  border-radius: 0 0 16px 16px;
+}
+
+.upgrade-footer p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}

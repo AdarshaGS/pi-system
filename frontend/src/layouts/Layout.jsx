@@ -5,18 +5,24 @@ import {
     TrendingUp,
     Briefcase,
     CreditCard,
+    Shield,
     Lightbulb,
     Settings as SettingsIcon,
     LogOut,
-    Shield,
     Users,
-    RefreshCw
+    RefreshCw,
+    Calculator,
+    DollarSign,
+    Landmark,
+    Menu,
+    X
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useFeatures } from '../contexts/FeatureContext';
 
 const Layout = () => {
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const { isFeatureEnabled } = useFeatures();
 
     useEffect(() => {
@@ -46,11 +52,46 @@ const Layout = () => {
 
     return (
         <div className="app-layout">
-            <aside className="sidebar">
+            {/* Hamburger Menu Button */}
+            <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                style={{
+                    position: 'fixed',
+                    top: '20px',
+                    left: isSidebarOpen ? '270px' : '20px',
+                    zIndex: 1001,
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    transition: 'left 0.3s ease'
+                }}
+            >
+                {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
+            <aside className="sidebar" style={{
+                transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+                transition: 'transform 0.3s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100vh',
+                overflow: 'hidden'
+            }}>
                 <div className="sidebar-header">
                     PI SYSTEM
                 </div>
-                <nav className="sidebar-nav">
+                <nav className="sidebar-nav" style={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    overflowX: 'hidden'
+                }}>
                     <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                         <LayoutDashboard />
                         Dashboard
@@ -67,24 +108,46 @@ const Layout = () => {
                             </NavLink>
                         </>
                     )}
-                    {isFeatureEnabled('RECURRING_TRANSACTIONS') && (
+                    {isFeatureEnabled('BUDGET_MODULE') && (
                         <NavLink to="/recurring" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                             <RefreshCw />
                             Recurring
                         </NavLink>
                     )}
-                    {isFeatureEnabled('PORTFOLIO') && (
+                    {isFeatureEnabled('INVESTMENTS_MODULE') && (
                         <NavLink to="/portfolio" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                             <Briefcase />
                             Portfolio
                         </NavLink>
                     )}
-                    {isFeatureEnabled('LOANS') && (
-                        <NavLink to="/loans" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                            <CreditCard />
-                            Loans
+                    {isFeatureEnabled('BANKING_MODULE') && (
+                        <>
+                            <NavLink to="/banking" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                                <Landmark />
+                                Banking (FD/RD)
+                            </NavLink>
+                            <NavLink to="/loans" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                                <CreditCard />
+                                Loans
+                            </NavLink>
+                        </>
+                    )}
+                    {isFeatureEnabled('INSURANCE_MODULE') && (
+                        <NavLink to="/insurance" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                            <Shield />
+                            Insurance
                         </NavLink>
                     )}
+                    {/* {isFeatureEnabled('TAX_MANAGEMENT') && ( */}
+                    <NavLink to="/tax" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <Calculator />
+                        Tax Management
+                    </NavLink>
+                    {/* )} */}
+                    <NavLink to="/lending" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <DollarSign />
+                        Lending
+                    </NavLink>
                     <NavLink to="/insights" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                         <Lightbulb />
                         Insights
@@ -110,11 +173,7 @@ const Layout = () => {
                             </div>
                             <NavLink to="/admin" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                                 <Shield />
-                                Admin Dashboard
-                            </NavLink>
-                            <NavLink to="/admin/users" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                                <Users />
-                                User Management
+                                Admin
                             </NavLink>
                         </>
                     )}
@@ -126,7 +185,11 @@ const Layout = () => {
                     </NavLink>
                 </div>
             </aside>
-            <main className="main-content">
+            <main className="main-content" style={{
+                marginLeft: isSidebarOpen ? '280px' : '0',
+                transition: 'margin-left 0.3s ease',
+                width: isSidebarOpen ? 'calc(100% - 280px)' : '100%'
+            }}>
                 <Outlet />
             </main>
         </div>

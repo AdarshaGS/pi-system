@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.HashSet;
 import java.util.Set;
 import com.auth.data.Role;
+import com.common.subscription.SubscriptionTier;
 
 @Table(name = "users")
 @Entity
@@ -32,6 +33,11 @@ public class Users {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscription_tier")
+    @Builder.Default
+    private SubscriptionTier subscriptionTier = SubscriptionTier.FREE;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))

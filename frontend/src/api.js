@@ -158,6 +158,9 @@ export const adminApi = {
 export const externalServicesApi = {
     getAllServices: (token) => apiCall('/v1/external-services', 'GET', null, token),
     getServiceProperties: (serviceName, token) => apiCall(`/v1/external-services/${serviceName}`, 'GET', null, token),
+    createService: (serviceName, token) => apiCall('/v1/external-services', 'POST', { serviceName }, token),
+    createProperty: (serviceId, name, value, token) => apiCall('/v1/external-services/properties', 'POST', { serviceId, name, value }, token),
+    updateProperty: (propertyId, value, token) => apiCall(`/v1/external-services/properties/${propertyId}`, 'PUT', { value }, token),
 };
 
 export const featureApi = {
@@ -193,3 +196,75 @@ export const loansApi = {
     processForeclosure: (loanId, chargesPercentage, token) => 
         apiCall(`/v1/loans/${loanId}/foreclose?foreclosureChargesPercentage=${chargesPercentage}`, 'POST', null, token),
 };
+
+export const insuranceApi = {
+    // Policy Management
+    getAllPolicies: (token) => apiCall('/v1/insurance/policies', 'GET', null, token),
+    createPolicy: (policyData, token) => apiCall('/v1/insurance/policies', 'POST', policyData, token),
+    updatePolicy: (policyId, policyData, token) => apiCall(`/v1/insurance/policies/${policyId}`, 'PUT', policyData, token),
+    deletePolicy: (policyId, token) => apiCall(`/v1/insurance/policies/${policyId}`, 'DELETE', null, token),
+    getPolicyById: (policyId, token) => apiCall(`/v1/insurance/policies/${policyId}`, 'GET', null, token),
+    
+    // Policy Filtering
+    getPoliciesByType: (type, token) => apiCall(`/v1/insurance/policies/type/${type}`, 'GET', null, token),
+    getPoliciesByStatus: (status, token) => apiCall(`/v1/insurance/policies/status/${status}`, 'GET', null, token),
+    getPoliciesMaturingSoon: (days, token) => apiCall(`/v1/insurance/policies/maturing-soon?days=${days}`, 'GET', null, token),
+    
+    // Analytics
+    getSummary: (token) => apiCall('/v1/insurance/policies/summary', 'GET', null, token),
+    getAnalytics: (token) => apiCall('/v1/insurance/policies/analytics', 'GET', null, token),
+    
+    // Premium Payments
+    recordPremiumPayment: (paymentData, token) => apiCall('/v1/insurance/premiums', 'POST', paymentData, token),
+    getAllPremiumPayments: (token) => apiCall('/v1/insurance/premiums', 'GET', null, token),
+    getPremiumPaymentsByPolicy: (policyId, token) => apiCall(`/v1/insurance/premiums/policy/${policyId}`, 'GET', null, token),
+    updatePremiumPayment: (paymentId, paymentData, token) => apiCall(`/v1/insurance/premiums/${paymentId}`, 'PUT', paymentData, token),
+    deletePremiumPayment: (paymentId, token) => apiCall(`/v1/insurance/premiums/${paymentId}`, 'DELETE', null, token),
+    getUpcomingPremiums: (days, token) => apiCall(`/v1/insurance/premiums/upcoming?days=${days}`, 'GET', null, token),
+    
+    // Claims Management
+    fileClaim: (claimData, token) => apiCall('/v1/insurance/claims', 'POST', claimData, token),
+    getAllClaims: (token) => apiCall('/v1/insurance/claims', 'GET', null, token),
+    getClaimsByPolicy: (policyId, token) => apiCall(`/v1/insurance/claims/policy/${policyId}`, 'GET', null, token),
+    getClaimsByStatus: (status, token) => apiCall(`/v1/insurance/claims/status/${status}`, 'GET', null, token),
+    updateClaim: (claimId, claimData, token) => apiCall(`/v1/insurance/claims/${claimId}`, 'PUT', claimData, token),
+    deleteClaim: (claimId, token) => apiCall(`/v1/insurance/claims/${claimId}`, 'DELETE', null, token),
+};
+
+// API Client wrapper for axios-like interface
+const apiClient = {
+    get: (url, config = {}) => {
+        const token = JSON.parse(localStorage.getItem('user'))?.token;
+        const params = config.params || {};
+        const queryString = Object.keys(params).length 
+            ? '?' + new URLSearchParams(params).toString() 
+            : '';
+        return apiCall(`${url}${queryString}`, 'GET', null, token);
+    },
+    post: (url, data, config = {}) => {
+        const token = JSON.parse(localStorage.getItem('user'))?.token;
+        const params = config.params || {};
+        const queryString = Object.keys(params).length 
+            ? '?' + new URLSearchParams(params).toString() 
+            : '';
+        return apiCall(`${url}${queryString}`, 'POST', data, token);
+    },
+    put: (url, data, config = {}) => {
+        const token = JSON.parse(localStorage.getItem('user'))?.token;
+        const params = config.params || {};
+        const queryString = Object.keys(params).length 
+            ? '?' + new URLSearchParams(params).toString() 
+            : '';
+        return apiCall(`${url}${queryString}`, 'PUT', data, token);
+    },
+    delete: (url, config = {}) => {
+        const token = JSON.parse(localStorage.getItem('user'))?.token;
+        const params = config.params || {};
+        const queryString = Object.keys(params).length 
+            ? '?' + new URLSearchParams(params).toString() 
+            : '';
+        return apiCall(`${url}${queryString}`, 'DELETE', null, token);
+    }
+};
+
+export default apiClient;

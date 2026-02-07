@@ -1,0 +1,55 @@
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.tier-badge.free {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.tier-badge.premium {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.tier-badge-icon {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.tier-badge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tier-name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.tier-limits {
+  font-size: 10px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.tier-badge.loading {
+  background: #e0e0e0;
+  color: #757575;
+}
+
+.tier-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}

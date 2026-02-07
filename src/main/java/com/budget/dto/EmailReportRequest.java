@@ -10,7 +10,10 @@ import java.util.List;
 @Data
 public class EmailReportRequest {
     private String email;
+    private String month; // e.g., "FEBRUARY", "MARCH"
+    private Integer year; // e.g., 2026
     private String monthYear; // Format: "2026-01" or "January 2026"
+    private String reportType; // "MONTHLY" or "BUDGET_VS_ACTUAL"
     private LocalDate startDate;
     private LocalDate endDate;
     private List<String> categories;

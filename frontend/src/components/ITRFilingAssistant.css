@@ -1,0 +1,546 @@
+.itr-filing-assistant {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.filing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.filing-header .header-left h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+/* Filing Status Banner */
+.filing-status-banner {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
+}
+
+.status-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.status-icon {
+  flex-shrink: 0;
+}
+
+.status-icon .success {
+  color: #059669;
+}
+
+.status-icon .warning {
+  color: #f59e0b;
+}
+
+.status-info {
+  flex: 1;
+}
+
+.status-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.status-info p {
+  margin: 0 0 1rem 0;
+  color: #666;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+  transition: width 0.3s ease;
+}
+
+/* Tabs */
+.filing-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  overflow-x: auto;
+}
+
+.filing-tabs button {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filing-tabs button:hover {
+  color: #2563eb;
+}
+
+.filing-tabs button.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+/* Filing Content */
+.filing-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Checklist */
+.checklist-container h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.checklist-desc {
+  margin: 0 0 2rem 0;
+  color: #666;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.checklist-item {
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.checklist-item:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.checklist-item.completed {
+  background: #d1fae5;
+  border-color: #10b981;
+}
+
+.checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #10b981;
+}
+
+.checklist-item.completed .checkbox {
+  border-color: #10b981;
+  background: white;
+}
+
+.item-content h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  color: #1a1a1a;
+}
+
+.item-content p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.import-actions {
+  padding: 2rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+}
+
+.import-actions h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 2px solid #2563eb;
+  color: #2563eb;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #2563eb;
+  color: white;
+}
+
+/* Form Selection */
+.form-selection h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.selection-desc {
+  margin: 0 0 2rem 0;
+  color: #666;
+}
+
+.form-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form-card {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border: 3px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-card:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.form-card.selected {
+  border-color: #10b981;
+  background: #d1fae5;
+}
+
+.form-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.form-card h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: #1a1a1a;
+}
+
+.form-criteria h5 {
+  margin: 1rem 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.form-criteria ul {
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.form-criteria li {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.form-criteria .not-eligible li {
+  color: #dc2626;
+}
+
+.form-recommendation {
+  padding: 1rem 1.5rem;
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  color: #92400e;
+}
+
+/* Data Review */
+.data-review h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.review-desc {
+  margin: 0 0 2rem 0;
+  color: #666;
+}
+
+.data-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.data-section {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.data-section h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.data-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+}
+
+.data-label {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.data-value {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.data-value.success {
+  color: #059669;
+}
+
+.data-value.danger {
+  color: #dc2626;
+}
+
+.no-data {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #666;
+}
+
+.no-data svg {
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.no-data p {
+  margin: 0 0 0.5rem 0;
+}
+
+.no-data .small {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+/* Download Section */
+.download-section h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.download-desc {
+  margin: 0 0 2rem 0;
+  color: #666;
+}
+
+.download-cards {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.download-card {
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 3px solid #2563eb;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 400px;
+}
+
+.download-card svg {
+  color: #2563eb;
+  margin-bottom: 1rem;
+}
+
+.download-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.download-card p {
+  margin: 0 0 2rem 0;
+  color: #666;
+}
+
+.filing-steps h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+}
+
+.filing-steps ol {
+  margin: 0 0 2rem 0;
+  padding-left: 1.5rem;
+}
+
+.filing-steps li {
+  margin-bottom: 1rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.filing-steps strong {
+  color: #1a1a1a;
+}
+
+.filing-steps a {
+  color: #2563eb;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.filing-steps a:hover {
+  text-decoration: underline;
+}
+
+.important-dates {
+  padding: 2rem;
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+}
+
+.important-dates h4 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+  color: #1a1a1a;
+}
+
+.dates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.date-card {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.date-card svg {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.date-info strong {
+  font-size: 1.1rem;
+  color: #1a1a1a;
+}
+
+.date-info span {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .itr-filing-assistant {
+    padding: 1rem;
+  }
+  
+  .filing-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .status-content {
+    flex-direction: column;
+  }
+  
+  .form-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .data-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

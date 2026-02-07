@@ -77,6 +77,14 @@ public class IndianAPIServiceImpl implements IndianAPIService {
 
             statusCode = httpResponse.statusCode();
             response = httpResponse.body();
+
+            // Validate successful HTTP response
+            if (statusCode != null && (statusCode < 200 || statusCode >= 300)) {
+                log.error("API returned error status {} for symbol: {}. Response: {}", 
+                    statusCode, symbol, response);
+                throw new SymbolNotFoundException(
+                    String.format("API returned error status %d for symbol: %s", statusCode, symbol));
+            }
         } catch (Exception e) {
             exceptionMessage = e.getMessage();
             throw e;
@@ -96,14 +104,25 @@ public class IndianAPIServiceImpl implements IndianAPIService {
             auditService.logOnly(audit);
         }
 
+        // Validate response is not null or empty
+        if (response == null || response.trim().isEmpty()) {
+            log.error("Empty or null response received for symbol: {}", symbol);
+            throw new SymbolNotFoundException("No data received from third-party API for symbol: " + symbol);
+        }
+
+        // Log the raw response for debugging
+        log.info("Raw API response for symbol {}: {}", symbol, response);
+
         ThirdPartyResponse thirdPartyResponse = null;
         try {
             thirdPartyResponse = objectMapper.readValue(response, ThirdPartyResponse.class);
         } catch (JsonMappingException e) {
-            log.error("Failed to map JSON response for symbol: {}. Error: {}", symbol, e.getMessage(), e);
+            log.error("Failed to map JSON response for symbol: {}. Response body: {}. Error: {}", 
+                symbol, response, e.getMessage(), e);
             throw new SymbolNotFoundException("Invalid response format from third-party API for symbol: " + symbol);
         } catch (JsonProcessingException e) {
-            log.error("Failed to process JSON response for symbol: {}. Error: {}", symbol, e.getMessage(), e);
+            log.error("Failed to process JSON response for symbol: {}. Response body: {}. Error: {}", 
+                symbol, response, e.getMessage(), e);
             throw new SymbolNotFoundException("Failed to parse response from third-party API for symbol: " + symbol);
         }
         if (thirdPartyResponse == null) {

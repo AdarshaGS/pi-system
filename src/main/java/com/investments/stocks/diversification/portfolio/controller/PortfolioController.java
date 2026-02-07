@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/portfolio")
-@RequiresFeature(FeatureFlag.PORTFOLIO)
+@RequiresFeature(FeatureFlag.INVESTMENTS_MODULE)
 @Tag(name = "Portfolio Management", description = "APIs for managing and analyzing portfolios")
 public class PortfolioController {
 

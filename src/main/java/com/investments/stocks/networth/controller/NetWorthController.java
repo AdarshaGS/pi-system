@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/net-worth")
-@RequiresFeature(FeatureFlag.NET_WORTH)
+@RequiresFeature(FeatureFlag.NET_WORTH_MODULE)
 @Tag(name = "Net Worth Management", description = "APIs for calculating user net worth")
 public class NetWorthController {
 

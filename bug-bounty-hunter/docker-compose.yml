@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Redis - Task queue
+  redis:
+    image: redis:7-alpine
+    container_name: bugbounty-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  # PostgreSQL - Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bugbounty-postgres
+    environment:
+      POSTGRES_DB: bugbounty
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: changeme
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # MongoDB - Document storage for scan results
+  mongodb:
+    image: mongo:7
+    container_name: bugbounty-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  # Master Node
+  master:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bugbounty-master
+    depends_on:
+      - redis
+      - postgres
+      - mongodb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./models:/app/models
+    environment:
+      - REDIS_HOST=redis
+      - POSTGRES_HOST=postgres
+      - MONGODB_HOST=mongodb
+    command: python master/app.py
+    restart: unless-stopped
+
+  # Worker Node (can scale)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - master
+      - redis
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - MASTER_URL=http://master:8000
+    command: python worker/start.py --master-url http://master:8000
+    restart: unless-stopped
+    deploy:
+      replicas: 2  # Run 2 workers by default
+
+volumes:
+  redis-data:
+  postgres-data:
+  mongo-data:

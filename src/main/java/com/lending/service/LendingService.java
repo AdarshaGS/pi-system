@@ -14,5 +14,9 @@ public interface LendingService {
 
     LendingDTO addRepayment(Long lendingId, RepaymentDTO repaymentDTO);
 
+    LendingDTO updateLending(Long id, LendingDTO lendingDTO);
+
     LendingDTO closeLending(Long id);
+
+    void sendPaymentReminder(Long lendingId);
 }

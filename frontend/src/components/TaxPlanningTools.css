@@ -1,0 +1,624 @@
+.tax-planning-tools {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.planning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.planning-header .header-left h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+/* Tabs */
+.planning-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  overflow-x: auto;
+}
+
+.planning-tabs button {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.planning-tabs button:hover {
+  color: #2563eb;
+}
+
+.planning-tabs button.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+/* Planning Content */
+.planning-content {
+  margin-bottom: 2rem;
+}
+
+.projection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.projection-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.projection-card h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+  color: #1a1a1a;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.projection-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.stat-item.highlight {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.stat-value.success {
+  color: #059669;
+}
+
+.stat-value.danger {
+  color: #dc2626;
+}
+
+/* Investment Planning */
+.investment-planning {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.planning-alert {
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.planning-alert.info {
+  background: #dbeafe;
+  border: 2px solid #2563eb;
+  color: #1e40af;
+}
+
+.planning-alert strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.planning-alert p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.gap-analysis h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.gap-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gap-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gap-item > span:first-child {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+  transition: width 0.3s ease;
+}
+
+.gap-value {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* Regime Comparison */
+.regime-comparison-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.regime-comparison-card h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+}
+
+.comparison-boxes {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.regime-box {
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.regime-box.old {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 2px solid #f59e0b;
+}
+
+.regime-box.new {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid #2563eb;
+}
+
+.regime-box h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #666;
+}
+
+.regime-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.regime-rate {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.comparison-arrow {
+  color: #2563eb;
+}
+
+.recommendation-banner {
+  padding: 1rem 1.5rem;
+  background: #d1fae5;
+  border: 2px solid #10b981;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #047857;
+}
+
+/* Recommendations List */
+.recommendations-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.recommendation-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid;
+}
+
+.recommendation-card.high {
+  border-left-color: #dc2626;
+}
+
+.recommendation-card.medium {
+  border-left-color: #f59e0b;
+}
+
+.recommendation-card.low {
+  border-left-color: #10b981;
+}
+
+.reco-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reco-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(37, 99, 235, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.reco-title {
+  flex: 1;
+}
+
+.reco-title h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.priority-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.priority-badge.high {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.priority-badge.medium {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.priority-badge.low {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.reco-description {
+  margin: 0 0 1rem 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+.reco-savings {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+/* Advance Tax Calendar */
+.advance-tax-calendar {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.advance-tax-calendar h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.calendar-desc {
+  margin: 0 0 2rem 0;
+  color: #666;
+}
+
+.tax-installments {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.installment-card {
+  padding: 1.5rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.installment-card.upcoming {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.installment-card.past {
+  background: #f9fafb;
+  opacity: 0.7;
+}
+
+.installment-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.installment-date {
+  display: flex;
+  flex-direction: column;
+}
+
+.installment-date strong {
+  font-size: 1.25rem;
+  color: #1a1a1a;
+}
+
+.installment-date span {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.installment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.installment-label {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.installment-percentage {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.installment-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.installment-status {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.past-status {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.calendar-notes {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.calendar-notes h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+}
+
+.calendar-notes ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.calendar-notes li {
+  margin-bottom: 0.5rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Scenario Calculator */
+.scenario-calculator {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.scenario-calculator h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.scenario-desc {
+  margin: 0 0 2rem 0;
+  color: #666;
+}
+
+.scenario-form {
+  margin-bottom: 2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-field input {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.scenario-result {
+  padding: 2rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.scenario-result h4 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+}
+
+.result-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.result-box {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+}
+
+.result-box.savings {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #10b981;
+}
+
+.result-box h5 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.result-box .result-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #1a1a1a;
+}
+
+.result-box .result-detail {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.scenario-recommendation {
+  padding: 1rem 1.5rem;
+  background: white;
+  border: 2px solid #10b981;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #047857;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .projection-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .comparison-boxes {
+    grid-template-columns: 1fr;
+  }
+  
+  .comparison-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .tax-planning-tools {
+    padding: 1rem;
+  }
+  
+  .planning-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

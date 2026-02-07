@@ -2,6 +2,7 @@ package com.investments.stocks.diversification.portfolio.service;
 
 import java.math.BigDecimal;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import com.investments.stocks.exception.SymbolNotFoundException;
 import com.investments.stocks.repo.StockRepository;
 import com.investments.stocks.service.StockReadService;
 import com.common.data.EntityType;
+import com.common.subscription.SubscriptionTierService;
 
 @Service
 public class PortfolioWriteServiceImpl implements PortfolioWriteService {
@@ -18,6 +20,9 @@ public class PortfolioWriteServiceImpl implements PortfolioWriteService {
     private final PortfolioRepository portfolioRepository;
     // private final StockRepository stockRepository;
     private final StockReadService stockReadService;
+    
+    @Autowired
+    private SubscriptionTierService subscriptionTierService;
 
     public PortfolioWriteServiceImpl(PortfolioRepository portfolioRepository, StockRepository stockRepository,
             StockReadService stockReadService) {
@@ -29,6 +34,10 @@ public class PortfolioWriteServiceImpl implements PortfolioWriteService {
     @Override
     @Transactional
     public Portfolio addPortfolio(Portfolio portfolio) {
+
+        // Check tier limit before adding
+        int currentCount = portfolioRepository.findByUserId(portfolio.getUserId()).size();
+        subscriptionTierService.checkStockLimit(portfolio.getUserId(), currentCount);
 
         Long stockId = this.stockReadService.getStockBySymbol(portfolio.getEntityName()).getId();
         if (stockId == null) {

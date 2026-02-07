@@ -1,10 +1,14 @@
 package com.common.security;
 
+import java.util.Optional;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.users.data.Users;
+import com.users.exception.UserNotFoundException;
 import com.users.repo.UsersRepository;
 
 /**
@@ -92,6 +96,16 @@ public class AuthenticationHelper {
     public void validateAdminAccess() {
         if (!isAdmin()) {
             throw new AccessDeniedException("Access denied. Admin role required.");
+        }
+    }
+
+    // get USERS object
+    public Users getUser(final Long id) {
+        final Optional<Users> user = usersRepository.findById(id);
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new UserNotFoundException();
         }
     }
 }
