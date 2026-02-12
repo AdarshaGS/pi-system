@@ -3,20 +3,145 @@ logging:
     root: INFO
     com.stocks: INFO
     org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
 
 spring:
+
+  # -----------------------------
+  # DATASOURCE (RDS / MySQL)
+  # -----------------------------
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      pool-name: pi-system-hikari
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000        # 5 minutes
+      max-lifetime: 1200000      # 20 minutes (must be < RDS wait_timeout)
+      connection-timeout: 30000  # 30 seconds
+      validation-timeout: 5000
+      leak-detection-threshold: 60000
+
+  # -----------------------------
+  # JPA / HIBERNATE
+  # -----------------------------
   jpa:
+    open-in-view: false
     show-sql: false
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: false
+        jdbc:
+          time_zone: UTC
+        connection:
+          provider_disables_autocommit: true
 
-  datasource:
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 300000
-      max-lifetime: 1200000
-      connection-timeout: 30000
+  # -----------------------------
+  # FLYWAY (SAFE FOR PROD)
+  # -----------------------------
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    out-of-order: false
+    locations: classpath:db/migration
+
+  # -----------------------------
+  # REDIS (DISABLED BY DEFAULT)
+  # Prevents startup failure if env vars missing
+  # -----------------------------
+  data:
+    redis:
+      enabled: false
+
+  # -----------------------------
+  # FILE UPLOADS
+  # -----------------------------
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+
+  # -----------------------------
+  # TASK SCHEDULING
+  # -----------------------------
+  task:
+    scheduling:
+      enabled: true
+      pool:
+        size: 5
+
+  # -----------------------------
+  # MAIL (OPTIONAL – SAFE DEFAULTS)
+  # -----------------------------
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    from-email: ${MAIL_FROM:noreply@pi-system.com}
+    enabled: ${MAIL_ENABLED:false}
+
+# -----------------------------
+# SERVER
+# -----------------------------
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+
+# -----------------------------
+# JWT (REQUIRED)
+# -----------------------------
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+  refresh-token:
+    expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+# -----------------------------
+# ACCOUNT AGGREGATOR MODE
+# -----------------------------
+aa:
+  mode: ${AA_MODE:prod}
+
+# -----------------------------
+# DOCUMENT UPLOADS
+# -----------------------------
+document:
+  upload:
+    dir: ${DOCUMENT_UPLOAD_DIR:/tmp/uploads/documents}
+  max:
+    size: ${DOCUMENT_MAX_SIZE:10485760}
+
+# -----------------------------
+# SWAGGER (DISABLED IN PROD)
+# -----------------------------
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

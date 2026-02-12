@@ -6,7 +6,7 @@ FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
 # Copy build configuration first (better cache)
-COPY build.gradle settings.gradle gradlew ./
+COPY build.gradle settings.gradle gradlew test-report-config.gradle ./
 COPY gradle ./gradle
 
 # Download dependencies

@@ -6,9 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import com.auth.data.Role;
 import com.common.subscription.SubscriptionTier;
+import com.upi.model.BankAccount;
+import com.upi.model.UpiId;
 
 @Table(name = "users")
 @Entity
@@ -43,4 +46,10 @@ public class Users {
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<UpiId> upiIds;
+
+    @OneToMany(mappedBy = "user")
+    private List<BankAccount> bankAccounts;
 }
