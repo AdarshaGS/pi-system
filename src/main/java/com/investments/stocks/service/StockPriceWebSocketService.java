@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -37,6 +38,7 @@ public class StockPriceWebSocketService {
      * Fetch latest prices for all stocks in the database.
      * This method is called by the scheduled broadcaster.
      */
+    @Transactional(readOnly = true)
     public List<StockPriceUpdate> fetchLatestPrices() {
         List<StockPriceUpdate> updates = new ArrayList<>();
         List<Stock> allStocks = stockRepository.findAll();

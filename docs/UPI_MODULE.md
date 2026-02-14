@@ -20,19 +20,19 @@ This module enables UPI-based payments within the application. It supports payme
 - **Repositories**: All repositories with necessary query methods
 
 ### Endpoints (✅ Complete)
-- `POST /api/upi/transactions/send`: Send money to UPI ID
-- `POST /api/upi/transactions/request`: Request money from UPI ID
-- `POST /api/upi/transactions/requests/{id}/accept`: Accept payment request
-- `POST /api/upi/transactions/requests/{id}/reject`: Reject payment request
-- `GET /api/upi/transactions/history`: Get transaction history
-- `GET /api/upi/transactions/status/{transactionId}`: Check payment status
-- `GET /api/upi/transactions/receipt/{transactionId}`: Get transaction receipt
-- `GET /api/upi/transactions/requests/pending`: Get pending payment requests
-- `POST /api/upi/ids`: Create UPI ID
-- `POST /api/upi/bank/link`: Link bank account
-- `GET /api/upi/bank/balance`: Check account balance
-- `POST /api/upi/qr/generate`: Generate payment QR code
-- `POST /api/upi/qr/scan`: Scan and process QR code
+- `POST /api/v1/upi/transactions/send`: Send money to UPI ID
+- `POST /api/v1/upi/transactions/request`: Request money from UPI ID
+- `POST /api/v1/upi/transactions/requests/{id}/accept`: Accept payment request
+- `POST /api/v1/upi/transactions/requests/{id}/reject`: Reject payment request
+- `GET /api/v1/upi/transactions/history`: Get transaction history
+- `GET /api/v1/upi/transactions/status/{transactionId}`: Check payment status
+- `GET /api/v1/upi/transactions/receipt/{transactionId}`: Get transaction receipt
+- `GET /api/v1/upi/transactions/requests/pending`: Get pending payment requests
+- `POST /api/v1/v1/upi/ids`: Create UPI ID
+- `POST /api/v1/upi/bank/link`: Link bank account
+- `GET /api/v1/upi/bank/balance`: Check account balance
+- `POST /api/v1/upi/qr/generate`: Generate payment QR code
+- `POST /api/v1/upi/qr/scan`: Scan and process QR code
 
 ### Frontend (✅ Complete)
 - `UPIDashboard.jsx`: Comprehensive React component with tabs for:

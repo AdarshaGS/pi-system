@@ -32,9 +32,10 @@ public class BankAccount {
     private String accountNumber;
     private String ifscCode;
     private String bankName;
-    private Boolean isPrimary;
+    
+    @Builder.Default
+    private Boolean isPrimary = false;
 
+    @Builder.Default
     private Double balance = 0.0;
-
-    // getters and setters
 }

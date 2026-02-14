@@ -26,6 +26,7 @@ spring:
       connection-timeout: 30000  # 30 seconds
       validation-timeout: 5000
       leak-detection-threshold: 60000
+      auto-commit: false         # Required for Hibernate transaction management
 
   # -----------------------------
   # JPA / HIBERNATE
@@ -41,8 +42,8 @@ spring:
         format_sql: false
         jdbc:
           time_zone: UTC
-        connection:
-          provider_disables_autocommit: true
+        # connection:
+        #   provider_disables_autocommit: false
 
   # -----------------------------
   # FLYWAY (SAFE FOR PROD)
@@ -142,6 +143,6 @@ document:
 # -----------------------------
 springdoc:
   api-docs:
-    enabled: false
+    enabled: true
   swagger-ui:
-    enabled: false
+    enabled: true

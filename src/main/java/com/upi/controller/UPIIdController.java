@@ -1,12 +1,15 @@
 package com.upi.controller;
 
+import com.common.security.AuthenticationHelper;
+import com.upi.dto.UPIIdRequest;
 import com.upi.service.UPIIdService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.users.data.Users;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/upi/ids")
 public class UPIIdController {
@@ -14,11 +17,13 @@ public class UPIIdController {
     @Autowired
     private UPIIdService upiIdService;
 
+    @Autowired
+    private AuthenticationHelper authenticationHelper;
+
     @PostMapping
-    public ResponseEntity<?> createUpiId(@RequestBody Map<String, Object> payload) {
-        String userId = (String) payload.get("userId");
-        String upiId = (String) payload.get("upiId");
-        Map<String, Object> result = upiIdService.createUpiId(userId, upiId);
+    public ResponseEntity<?> createUpiId(@RequestBody UPIIdRequest request) {
+        Users currentUser = authenticationHelper.getUser(authenticationHelper.getCurrentUserId());
+        Map<String, Object> result = upiIdService.createUpiId(String.valueOf(currentUser.getId()), request);
         return ResponseEntity.ok(result);
     }
 }

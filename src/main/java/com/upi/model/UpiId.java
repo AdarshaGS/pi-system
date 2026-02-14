@@ -33,5 +33,9 @@ public class UpiId {
     @Column(unique = true)
     private String upiId;
 
-    // getters and setters
+    @Column(name = "is_merchant")
+    private boolean isMerchant;
+
+    
+
 }

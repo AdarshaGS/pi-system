@@ -1,13 +1,14 @@
 package com.upi.controller;
 
+import com.upi.dto.PinRequest;
+import com.upi.dto.UPICollectRequest;
+import com.upi.dto.UPITransactionRequest;
 import com.upi.service.UPITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.Map;
-
 @RestController
 @RequestMapping("/api/upi/transactions")
 public class UPITransactionController {
@@ -15,26 +16,27 @@ public class UPITransactionController {
     @Autowired
     private UPITransactionService upiTransactionService;
 
-    @PostMapping("/send")
-    public ResponseEntity<?> sendMoney(@RequestBody Map<String, Object> payload) {
-        String senderUpiId = (String) payload.get("senderUpiId");
-        String receiverUpiId = (String) payload.get("receiverUpiId");
-        BigDecimal amount = new BigDecimal(payload.get("amount").toString());
-        String pin = (String) payload.get("pin");
-        String remarks = (String) payload.getOrDefault("remarks", "");
-
-        Map<String, Object> result = upiTransactionService.sendMoney(senderUpiId, receiverUpiId, amount, pin, remarks);
+    @PostMapping("/p2p/send")
+    public ResponseEntity<?> sendMoneyP2P(@RequestBody UPITransactionRequest request) {
+        Map<String, Object> result = upiTransactionService.sendMoney(request, "P2P");
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/request")
-    public ResponseEntity<?> requestMoney(@RequestBody Map<String, Object> payload) {
-        String requesterUpiId = (String) payload.get("requesterUpiId");
-        String payerUpiId = (String) payload.get("payerUpiId");
-        BigDecimal amount = new BigDecimal(payload.get("amount").toString());
-        String remarks = (String) payload.getOrDefault("remarks", "");
+    @PostMapping("/p2m/send")
+    public ResponseEntity<?> sendMoneyP2M(@RequestBody UPITransactionRequest request) {
+        Map<String, Object> result = upiTransactionService.sendMoney(request, "P2M");
+        return ResponseEntity.ok(result);
+    }
 
-        Map<String, Object> result = upiTransactionService.requestMoney(requesterUpiId, payerUpiId, amount, remarks);
+    @PostMapping("/p2p/request")
+    public ResponseEntity<?> requestMoneyP2P(@RequestBody UPICollectRequest request) {
+        Map<String, Object> result = upiTransactionService.requestMoney(request, "P2P");
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/p2m/request")
+    public ResponseEntity<?> requestMoneyP2M(@RequestBody UPICollectRequest request) {
+        Map<String, Object> result = upiTransactionService.requestMoney(request, "P2M");
         return ResponseEntity.ok(result);
     }
 
@@ -54,9 +56,8 @@ public class UPITransactionController {
     }
 
     @PostMapping("/requests/{requestId}/accept")
-    public ResponseEntity<?> acceptRequest(@PathVariable Long requestId, @RequestBody Map<String, Object> payload) {
-        String pin = (String) payload.get("pin");
-        Map<String, Object> result = upiTransactionService.acceptRequest(requestId, pin);
+    public ResponseEntity<?> acceptRequest(@PathVariable Long requestId, @RequestBody PinRequest request) {
+        Map<String, Object> result = upiTransactionService.acceptRequest(requestId, request);
         return ResponseEntity.ok(result);
     }
 

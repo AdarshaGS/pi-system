@@ -11,9 +11,15 @@ public class UPIController {
     @Autowired
     private UPIService upiService;
 
-    @PostMapping("/initiate")
-    public ResponseEntity<String> initiatePayment(@RequestBody UPIRequest request) {
-        String txnId = upiService.initiatePayment(request);
+    @PostMapping("/p2p/initiate")
+    public ResponseEntity<String> initiatePaymentP2P(@RequestBody UPIRequest request) {
+        String txnId = upiService.initiatePayment(request, "P2P");
+        return ResponseEntity.ok("P2P UPI payment initiated. Transaction ID: " + txnId);
+    }
+
+    @PostMapping("/p2m/initiate")
+    public ResponseEntity<String> initiatePaymentP2M(@RequestBody UPIRequest request) {
+        String txnId = upiService.initiatePayment(request, "P2M");
         return ResponseEntity.ok("UPI payment initiated. Transaction ID: " + txnId);
     }
 

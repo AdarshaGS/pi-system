@@ -16,7 +16,6 @@ import com.common.exception.repo.CriticalLogRepository;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -54,7 +53,7 @@ public class GlobalExceptionHandler {
         return sb.toString();
     }
 
-    @ExceptionHandler({ AccessDeniedException.class, AuthorizationDeniedException.class })
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAccessDenied(Exception ex, HttpServletRequest request) {
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .timestamp(LocalDateTime.now())

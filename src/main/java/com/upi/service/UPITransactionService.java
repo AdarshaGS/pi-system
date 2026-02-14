@@ -5,6 +5,9 @@ import com.upi.model.Transaction;
 import com.upi.model.UpiId;
 import com.upi.model.UpiPin;
 import com.upi.model.BankAccount;
+import com.upi.dto.UPITransactionRequest;
+import com.upi.dto.UPICollectRequest;
+import com.upi.dto.PinRequest;
 import com.upi.repository.UpiIdRepository;
 import com.upi.repository.UpiPinRepository;
 import com.upi.repository.BankAccountRepository;
@@ -20,16 +23,26 @@ import java.util.Map;
 @Service
 public class UPITransactionService {
 
+    private static final BigDecimal P2M_FEE_RATE = new BigDecimal("0.015"); // 1.5% MDR
+
     @Autowired
     private UpiIdRepository upiIdRepository;
+    @Autowired
     private UpiPinRepository upiPinRepository;
+    @Autowired
     private BankAccountRepository bankAccountRepository;
+    @Autowired
     private TransactionRepository transactionRepository;
 
     @Transactional
-    public Map<String, Object> sendMoney(String senderUpiId, String receiverUpiId, BigDecimal amount, String pin,
-            String remarks) {
+    public Map<String, Object> sendMoney(UPITransactionRequest request, String type) {
         Map<String, Object> response = new HashMap<>();
+        String senderUpiId = request.getSenderUpiId();
+        String receiverUpiId = request.getReceiverUpiId();
+        BigDecimal amount = request.getAmount();
+        String pin = request.getPin();
+        String remarks = request.getRemarks();
+
         // Validate sender UPI ID
         UpiId sender = upiIdRepository.findByUpiId(senderUpiId);
         if (sender == null) {
@@ -44,6 +57,14 @@ public class UPITransactionService {
             response.put("message", "Receiver UPI ID not found");
             return response;
         }
+
+        // Validate receiver is a merchant for P2M transactions
+        if ("P2M".equals(type) && !receiver.isMerchant()) {
+            response.put("status", "failed");
+            response.put("message", "Receiver is not a registered merchant");
+            return response;
+        }
+
         // Validate PIN
         UpiPin upiPin = upiPinRepository.findByUserId(sender.getUser().getId());
         if (upiPin == null || !org.springframework.security.crypto.bcrypt.BCrypt.checkpw(pin, upiPin.getPinHash())) {
@@ -59,21 +80,39 @@ public class UPITransactionService {
             response.put("message", "No primary bank account linked");
             return response;
         }
-        if (senderAccount.getBalance() < amount.doubleValue()) {
+
+        // Validate receiver's primary bank account BEFORE deducting funds
+        BankAccount receiverAccount = receiver.getUser().getBankAccounts().stream()
+                .filter(BankAccount::getIsPrimary)
+                .findFirst().orElse(null);
+        if (receiverAccount == null) {
+            response.put("status", "failed");
+            response.put("message", "Receiver has no primary bank account linked");
+            return response;
+        }
+
+        BigDecimal senderBalance = BigDecimal.valueOf(senderAccount.getBalance());
+        if (senderBalance.compareTo(amount) < 0) {
             response.put("status", "failed");
             response.put("message", "Insufficient balance");
             return response;
         }
+
         // Deduct sender balance
-        senderAccount.setBalance(senderAccount.getBalance() - amount.doubleValue());
+        senderAccount.setBalance(senderBalance.subtract(amount).doubleValue());
         bankAccountRepository.save(senderAccount);
-        // Credit receiver balance
-        BankAccount receiverAccount = receiver.getUser().getBankAccounts().stream().filter(BankAccount::getIsPrimary)
-                .findFirst().orElse(null);
-        if (receiverAccount != null) {
-            receiverAccount.setBalance(receiverAccount.getBalance() + amount.doubleValue());
-            bankAccountRepository.save(receiverAccount);
+
+        // Calculate fee for P2M (MDR)
+        BigDecimal fee = BigDecimal.ZERO;
+        if ("P2M".equals(type)) {
+            fee = amount.multiply(P2M_FEE_RATE);
         }
+
+        // Credit receiver balance
+        BigDecimal receiverBalance = BigDecimal.valueOf(receiverAccount.getBalance());
+        receiverAccount.setBalance(receiverBalance.add(amount.subtract(fee)).doubleValue());
+        bankAccountRepository.save(receiverAccount);
+
         // Create transaction record
         Transaction tx = new Transaction();
         tx.setSenderUpiId(senderUpiId);
@@ -90,9 +129,13 @@ public class UPITransactionService {
     }
 
     @Transactional
-    public Map<String, Object> requestMoney(String requesterUpiId, String payerUpiId, BigDecimal amount,
-            String remarks) {
+    public Map<String, Object> requestMoney(UPICollectRequest request, String type) {
         Map<String, Object> response = new HashMap<>();
+        String requesterUpiId = request.getRequesterUpiId();
+        String payerUpiId = request.getPayerUpiId();
+        BigDecimal amount = request.getAmount();
+        String remarks = request.getRemarks();
+
         UpiId requester = upiIdRepository.findByUpiId(requesterUpiId);
         UpiId payer = upiIdRepository.findByUpiId(payerUpiId);
         if (requester == null || payer == null) {
@@ -100,6 +143,14 @@ public class UPITransactionService {
             response.put("message", "UPI ID not found");
             return response;
         }
+
+        // Validate requester is a merchant for P2M transactions
+        if ("P2M".equals(type) && !requester.isMerchant()) {
+            response.put("status", "failed");
+            response.put("message", "Requester is not a registered merchant");
+            return response;
+        }
+
         Transaction tx = new Transaction();
         tx.setSenderUpiId(payerUpiId);
         tx.setReceiverUpiId(requesterUpiId);
@@ -163,8 +214,10 @@ public class UPITransactionService {
     }
 
     @Transactional
-    public Map<String, Object> acceptRequest(Long requestId, String pin) {
+    public Map<String, Object> acceptRequest(Long requestId, PinRequest request) {
         Map<String, Object> response = new HashMap<>();
+        String pin = request.getPin();
+
         Transaction tx = transactionRepository.findById(requestId).orElse(null);
         if (tx == null || !"pending".equals(tx.getStatus())) {
             response.put("status", "failed");
@@ -177,6 +230,12 @@ public class UPITransactionService {
             response.put("message", "Payer UPI ID not found");
             return response;
         }
+
+        // Check if the transaction is P2M based on receiver's merchant status
+        // (In a real system, the type would be stored in the Transaction entity)
+        UpiId receiver = upiIdRepository.findByUpiId(tx.getReceiverUpiId());
+        boolean isP2M = receiver != null && receiver.isMerchant();
+
         UpiPin upiPin = upiPinRepository.findByUserId(payer.getUser().getId());
         if (upiPin == null || !org.springframework.security.crypto.bcrypt.BCrypt.checkpw(pin, upiPin.getPinHash())) {
             response.put("status", "failed");
@@ -190,22 +249,38 @@ public class UPITransactionService {
             response.put("message", "No primary bank account linked");
             return response;
         }
-        if (payerAccount.getBalance() < tx.getAmount().doubleValue()) {
+
+        // Credit receiver balance - check existence first
+        BankAccount receiverAccount = receiver.getUser().getBankAccounts().stream()
+                .filter(BankAccount::getIsPrimary)
+                .findFirst().orElse(null);
+        if (receiverAccount == null) {
+            response.put("status", "failed");
+            response.put("message", "Receiver has no primary bank account linked");
+            return response;
+        }
+
+        BigDecimal payerBalance = BigDecimal.valueOf(payerAccount.getBalance());
+        if (payerBalance.compareTo(tx.getAmount()) < 0) {
             response.put("status", "failed");
             response.put("message", "Insufficient balance");
             return response;
         }
+
         // Deduct payer balance
-        payerAccount.setBalance(payerAccount.getBalance() - tx.getAmount().doubleValue());
+        payerAccount.setBalance(payerBalance.subtract(tx.getAmount()).doubleValue());
         bankAccountRepository.save(payerAccount);
-        // Credit receiver balance
-        UpiId receiver = upiIdRepository.findByUpiId(tx.getReceiverUpiId());
-        BankAccount receiverAccount = receiver.getUser().getBankAccounts().stream().filter(BankAccount::getIsPrimary)
-                .findFirst().orElse(null);
-        if (receiverAccount != null) {
-            receiverAccount.setBalance(receiverAccount.getBalance() + tx.getAmount().doubleValue());
-            bankAccountRepository.save(receiverAccount);
+
+        // Calculate fee for P2M
+        BigDecimal fee = BigDecimal.ZERO;
+        if (isP2M) {
+            fee = tx.getAmount().multiply(P2M_FEE_RATE);
         }
+
+        BigDecimal receiverBalance = BigDecimal.valueOf(receiverAccount.getBalance());
+        receiverAccount.setBalance(receiverBalance.add(tx.getAmount().subtract(fee)).doubleValue());
+        bankAccountRepository.save(receiverAccount);
+
         tx.setStatus("success");
         transactionRepository.save(tx);
         response.put("status", "success");

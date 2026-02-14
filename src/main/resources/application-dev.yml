@@ -6,6 +6,9 @@ logging:
     org.hibernate.SQL: DEBUG
 
 spring:
+  datasource:
+    hikari:
+      auto-commit: false  # Required for Hibernate transaction management
   jpa:
     show-sql: false
     hibernate:

@@ -1,5 +1,7 @@
 package com.upi.service;
 
+import com.upi.dto.QRGenerateRequest;
+import com.upi.dto.QRScanRequest;
 import com.upi.model.UpiId;
 import com.upi.repository.UpiIdRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,10 @@ public class QRCodeService {
     @Autowired
     private UpiIdRepository upiIdRepository;
 
-    public Map<String, Object> scanQr(String qrData) {
+    public Map<String, Object> scanQr(QRScanRequest request) {
         Map<String, Object> response = new HashMap<>();
         // For demo, assume qrData is UPI ID
+        String qrData = request.getQrData();
         UpiId upiId = upiIdRepository.findByUpiId(qrData);
         if (upiId == null) {
             response.put("status", "failed");
@@ -29,8 +32,12 @@ public class QRCodeService {
         return response;
     }
 
-    public Map<String, Object> generateQR(String upiId, Double amount, String merchantName, String remarks) {
+    public Map<String, Object> generateQR(QRGenerateRequest request) {
         Map<String, Object> response = new HashMap<>();
+        String upiId = request.getUpiId();
+        Double amount = request.getAmount();
+        String merchantName = request.getMerchantName();
+        String remarks = request.getRemarks();
 
         // Validate UPI ID exists
         UpiId upi = upiIdRepository.findByUpiId(upiId);

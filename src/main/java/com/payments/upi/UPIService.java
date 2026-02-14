@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UPIService {
-    public String initiatePayment(UPIRequest request) {
+    public String initiatePayment(UPIRequest request, String type) {
         // Simulate payment initiation
         // In real implementation, integrate with UPI provider
         return "TXN" + System.currentTimeMillis();

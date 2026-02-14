@@ -6,9 +6,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.upi.dto.BankAccountLinkRequest;
 import com.upi.model.BankAccount;
 import com.upi.repository.BankAccountRepository;
 import com.users.data.Users;
+import com.users.exception.UserNotFoundException;
 import com.users.repo.UsersRepository;
 
 @Service
@@ -18,20 +20,24 @@ public class BankAccountService {
     @Autowired
     private UsersRepository userRepository;
 
-    public Map<String, Object> linkBankAccount(String userId, String accountNumber, String ifscCode, String bankName) {
+    public Map<String, Object> linkBankAccount(BankAccountLinkRequest request) {
         Map<String, Object> response = new HashMap<>();
+        String userId = request.getUserId();
+        String accountNumber = request.getAccountNumber();
+        String ifscCode = request.getIfscCode();
+        String bankName = request.getBankName();
+
         Users user = userRepository.findById(Long.parseLong(userId)).orElse(null);
         if (user == null) {
-            response.put("status", "failed");
-            response.put("message", "User not found");
-            return response;
+            throw new UserNotFoundException();
         }
-        BankAccount account = new BankAccount();
-        account.setUser(user);
-        account.setAccountNumber(accountNumber);
-        account.setIfscCode(ifscCode);
-        account.setBankName(bankName);
-        account.setIsPrimary(false);
+        BankAccount account = BankAccount.builder()
+                .user(user)
+                .accountNumber(accountNumber)
+                .ifscCode(ifscCode)
+                .bankName(bankName)
+                .build();
+
         bankAccountRepository.save(account);
         response.put("bankAccountId", account.getId());
         response.put("status", "linked");
@@ -42,13 +48,9 @@ public class BankAccountService {
         Map<String, Object> response = new HashMap<>();
         BankAccount account = bankAccountRepository.findById(Long.parseLong(accountId)).orElse(null);
         if (account == null) {
-            response.put("status", "failed");
-            response.put("message", "Account not found");
-            return response;
+            throw new UserNotFoundException();
         }
-        // For demo, return static balance
-        response.put("accountId", accountId);
-        response.put("balance", 10000.00);
+        response.put("balance", account.getBalance());
         return response;
     }
 }
