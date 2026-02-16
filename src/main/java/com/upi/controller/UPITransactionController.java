@@ -3,6 +3,7 @@ package com.upi.controller;
 import com.upi.dto.PinRequest;
 import com.upi.dto.UPICollectRequest;
 import com.upi.dto.UPITransactionRequest;
+import com.upi.dto.UPITransactionResponse;
 import com.upi.service.UPITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,25 +19,25 @@ public class UPITransactionController {
 
     @PostMapping("/p2p/send")
     public ResponseEntity<?> sendMoneyP2P(@RequestBody UPITransactionRequest request) {
-        Map<String, Object> result = upiTransactionService.sendMoney(request, "P2P");
+        UPITransactionResponse result = upiTransactionService.sendMoney(request, "P2P");
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/p2m/send")
     public ResponseEntity<?> sendMoneyP2M(@RequestBody UPITransactionRequest request) {
-        Map<String, Object> result = upiTransactionService.sendMoney(request, "P2M");
+        UPITransactionResponse result = upiTransactionService.sendMoney(request, "P2M");
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/p2p/request")
     public ResponseEntity<?> requestMoneyP2P(@RequestBody UPICollectRequest request) {
-        Map<String, Object> result = upiTransactionService.requestMoney(request, "P2P");
+        UPITransactionResponse result = upiTransactionService.requestMoney(request, "P2P");
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/p2m/request")
     public ResponseEntity<?> requestMoneyP2M(@RequestBody UPICollectRequest request) {
-        Map<String, Object> result = upiTransactionService.requestMoney(request, "P2M");
+        UPITransactionResponse result = upiTransactionService.requestMoney(request, "P2M");
         return ResponseEntity.ok(result);
     }
 
@@ -57,13 +58,13 @@ public class UPITransactionController {
 
     @PostMapping("/requests/{requestId}/accept")
     public ResponseEntity<?> acceptRequest(@PathVariable Long requestId, @RequestBody PinRequest request) {
-        Map<String, Object> result = upiTransactionService.acceptRequest(requestId, request);
+        UPITransactionResponse result = upiTransactionService.acceptRequest(requestId, request);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/requests/{requestId}/reject")
     public ResponseEntity<?> rejectRequest(@PathVariable Long requestId) {
-        Map<String, Object> result = upiTransactionService.rejectRequest(requestId);
+        UPITransactionResponse result = upiTransactionService.rejectRequest(requestId);
         return ResponseEntity.ok(result);
     }
 

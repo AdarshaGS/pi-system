@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS sip_configurations (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert some sample mutual funds
-INSERT INTO mutual_funds (scheme_code, scheme_name, fund_house, scheme_type, scheme_category, nav, nav_date, expense_ratio, min_investment) VALUES
+INSERT IGNORE INTO mutual_funds (scheme_code, scheme_name, fund_house, scheme_type, scheme_category, nav, nav_date, expense_ratio, min_investment) VALUES
 ('120503', 'HDFC Balanced Advantage Fund - Direct Plan - Growth', 'HDFC Mutual Fund', 'Hybrid', 'Balanced Advantage', 350.50, '2026-02-01', 0.85, 5000),
 ('120716', 'HDFC Top 100 Fund - Direct Plan - Growth', 'HDFC Mutual Fund', 'Equity', 'Large Cap', 825.75, '2026-02-01', 0.75, 5000),
 ('118989', 'ICICI Prudential Bluechip Fund - Direct Plan - Growth', 'ICICI Prudential Mutual Fund', 'Equity', 'Large Cap', 95.50, '2026-02-01', 0.80, 5000),

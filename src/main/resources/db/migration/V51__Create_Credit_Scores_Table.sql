@@ -28,14 +28,3 @@ CREATE INDEX idx_credit_scores_user_date ON credit_scores(user_id, record_date D
 CREATE INDEX idx_credit_scores_rating ON credit_scores(score_rating);
 
 -- Note: Score rating should be calculated in application code
--- MySQL triggers and views have different syntax than PostgreSQL
-    provider,
-    record_date,
-    score_rating,
-    change_from_previous,
-    factors,
-    recommendations
-FROM credit_scores
-ORDER BY user_id, provider, record_date DESC;
-
-COMMENT ON VIEW latest_credit_scores IS 'Shows the most recent credit score for each user from each provider';

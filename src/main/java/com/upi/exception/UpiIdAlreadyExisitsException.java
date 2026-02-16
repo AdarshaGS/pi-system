@@ -11,7 +11,7 @@ public class UpiIdAlreadyExisitsException extends BusinessException {
     }
 
     public UpiIdAlreadyExisitsException(String message) {
-        super(org.springframework.http.HttpStatus.CONFLICT, message, "UPI_ID_ALREADY_EXISTS");
+        super(org.springframework.http.HttpStatus.FORBIDDEN, message, "UPI_ID_ALREADY_EXISTS");
         this.message = message;
     }
 

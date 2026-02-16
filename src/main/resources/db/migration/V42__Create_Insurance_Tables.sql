@@ -6,7 +6,7 @@
 -- =====================================================
 
 -- Insurance Policies Master Table
-CREATE TABLE insurance_policies (
+CREATE TABLE IF NOT EXISTS insurance_policies (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     policy_number VARCHAR(100) NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE insurance_policies (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Insurance policy master data';
 
 -- Premium Payment History Table
-CREATE TABLE insurance_premium_payments (
+CREATE TABLE IF NOT EXISTS insurance_premium_payments (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     policy_id BIGINT NOT NULL,
@@ -108,7 +108,7 @@ CREATE TABLE insurance_premium_payments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Insurance premium payment history';
 
 -- Insurance Claims Table
-CREATE TABLE insurance_claims (
+CREATE TABLE IF NOT EXISTS insurance_claims (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     policy_id BIGINT NOT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE insurance_claims (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Insurance claim tracking';
 
 -- Policy Riders Table (Additional Benefits)
-CREATE TABLE insurance_policy_riders (
+CREATE TABLE IF NOT EXISTS insurance_policy_riders (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     policy_id BIGINT NOT NULL,
     

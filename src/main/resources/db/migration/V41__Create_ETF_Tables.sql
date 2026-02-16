@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS etf_price_history (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert sample ETFs
-INSERT INTO etfs (symbol, name, isin, exchange, etf_type, underlying_index, fund_house, expense_ratio, nav, market_price, price_date, lot_size) VALUES
+INSERT IGNORE INTO etfs (symbol, name, isin, exchange, etf_type, underlying_index, fund_house, expense_ratio, nav, market_price, price_date, lot_size) VALUES
 ('NIFTYBEES', 'Nippon India ETF Nifty BeES', 'INF204KB14I2', 'NSE', 'INDEX', 'NIFTY 50', 'Nippon India Mutual Fund', 0.05, 240.50, 240.75, '2026-02-01', 1),
 ('GOLDBEES', 'Nippon India ETF Gold BeES', 'INF204KB13I4', 'NSE', 'GOLD', 'Gold Price', 'Nippon India Mutual Fund', 0.50, 62.30, 62.35, '2026-02-01', 1),
 ('LIQUIDBEES', 'Nippon India ETF Liquid BeES', 'INF204KB11I8', 'NSE', 'LIQUID', 'Liquid Fund', 'Nippon India Mutual Fund', 0.15, 1000.10, 1000.12, '2026-02-01', 1),
