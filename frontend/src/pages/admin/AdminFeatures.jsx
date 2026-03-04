@@ -46,7 +46,7 @@ const AdminFeatures = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_BASE}/api/v1/admin/features`, {
+            const response = await fetch(`${API_BASE}/api/v1/features`, {
                 headers: {
                     'Authorization': `Bearer ${user.token}`
                 }
@@ -99,7 +99,7 @@ const AdminFeatures = () => {
         try {
             const action = currentEnabled ? 'disable' : 'enable';
             const response = await fetch(
-                `${API_BASE}/api/v1/admin/features/${featureName}/${action}`,
+                `${API_BASE}/api/v1/features/${featureName}/${action}`,
                 {
                     method: 'POST',
                     headers: {

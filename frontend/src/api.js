@@ -24,7 +24,7 @@ export const apiCall = async (endpoint, method = 'GET', body = null, token = nul
             const errorData = await response.json();
             throw new Error(errorData.message || 'Something went wrong');
         }
-        
+
         // Handle different response types
         if (responseType === 'blob') {
             return await response.blob();
@@ -83,7 +83,7 @@ export const budgetApi = {
     updateCustomCategory: (id, data, token) => apiCall(`/v1/budget/category/custom/${id}`, 'PUT', data, token),
     deleteCustomCategory: (id, token) => apiCall(`/v1/budget/category/custom/${id}`, 'DELETE', null, token),
     hardDeleteCustomCategory: (id, token) => apiCall(`/v1/budget/category/custom/${id}/hard`, 'DELETE', null, token),
-    
+
     // Export endpoints
     exportExpensesCSV: (userId, token, params = {}) => {
         const queryParams = new URLSearchParams(params).toString();
@@ -106,7 +106,7 @@ export const budgetApi = {
         return apiCall(`/v1/budget/report/${userId}/pdf${params}`, 'GET', null, token, 'blob');
     },
     emailReport: (userId, token, data) => apiCall(`/v1/budget/report/${userId}/email`, 'POST', data, token),
-    
+
     // Recurring transactions endpoints
     getRecurringTemplates: (userId, token) => apiCall(`/v1/budget/recurring/${userId}`, 'GET', null, token),
     getActiveRecurringTemplates: (userId, token) => apiCall(`/v1/budget/recurring/${userId}/active`, 'GET', null, token),
@@ -116,14 +116,14 @@ export const budgetApi = {
     toggleRecurringTemplate: (id, token) => apiCall(`/v1/budget/recurring/${id}/toggle`, 'POST', null, token),
     getUpcomingDates: (id, token, months = 6) => apiCall(`/v1/budget/recurring/${id}/upcoming?months=${months}`, 'GET', null, token),
     manuallyGenerateRecurring: (token) => apiCall('/v1/budget/recurring/generate', 'POST', null, token),
-    
+
     // Tags endpoints
     getUserTags: (userId, token) => apiCall(`/v1/budget/tags/${userId}`, 'GET', null, token),
     getTagById: (tagId, token) => apiCall(`/v1/budget/tags/detail/${tagId}`, 'GET', null, token),
     createTag: (data, token) => apiCall('/v1/budget/tags', 'POST', data, token),
     updateTag: (tagId, data, token) => apiCall(`/v1/budget/tags/${tagId}`, 'PUT', data, token),
     deleteTag: (tagId, token) => apiCall(`/v1/budget/tags/${tagId}`, 'DELETE', null, token),
-    
+
     // Bulk operations
     bulkDeleteExpenses: (userId, expenseIds, token) => {
         const params = new URLSearchParams({ userId }).toString();
@@ -164,11 +164,11 @@ export const externalServicesApi = {
 };
 
 export const featureApi = {
-    getAllFeatures: (token) => apiCall('/v1/admin/features', 'GET', null, token),
-    getEnabledFeatures: (token) => apiCall('/v1/admin/features/enabled', 'GET', null, token),
-    isFeatureEnabled: (featureName, token) => apiCall(`/v1/admin/features/${featureName}/enabled`, 'GET', null, token),
-    enableFeature: (featureName, token) => apiCall(`/v1/admin/features/${featureName}/enable`, 'POST', null, token),
-    disableFeature: (featureName, token) => apiCall(`/v1/admin/features/${featureName}/disable`, 'POST', null, token),
+    getAllFeatures: (token) => apiCall('/v1/features', 'GET', null, token),
+    getEnabledFeatures: (token) => apiCall('/v1/features/enabled', 'GET', null, token),
+    isFeatureEnabled: (featureName, token) => apiCall(`/v1/features/${featureName}/enabled`, 'GET', null, token),
+    enableFeature: (featureName, token) => apiCall(`/v1/features/${featureName}/enable`, 'POST', null, token),
+    disableFeature: (featureName, token) => apiCall(`/v1/features/${featureName}/disable`, 'POST', null, token),
 };
 
 export const loansApi = {
@@ -178,22 +178,22 @@ export const loansApi = {
     getUserLoans: (userId, token) => apiCall(`/v1/loans/user/${userId}`, 'GET', null, token),
     getLoanById: (loanId, token) => apiCall(`/v1/loans/${loanId}`, 'GET', null, token),
     deleteLoan: (loanId, token) => apiCall(`/v1/loans/${loanId}`, 'DELETE', null, token),
-    
+
     // Advanced Calculations
     getAmortizationSchedule: (loanId, token) => apiCall(`/v1/loans/${loanId}/amortization-schedule`, 'GET', null, token),
     analyzeLoan: (loanId, token) => apiCall(`/v1/loans/${loanId}/analysis`, 'GET', null, token),
     getTotalInterest: (loanId, token) => apiCall(`/v1/loans/${loanId}/total-interest`, 'GET', null, token),
     simulatePrepayment: (loanId, amount, token) => apiCall(`/v1/loans/${loanId}/simulate-prepayment?amount=${amount}`, 'POST', null, token),
-    
+
     // Payment Tracking
     recordPayment: (paymentData, token) => apiCall('/v1/loans/payments', 'POST', paymentData, token),
     getPaymentHistory: (loanId, token) => apiCall(`/v1/loans/${loanId}/payments`, 'GET', null, token),
     getMissedPayments: (loanId, token) => apiCall(`/v1/loans/${loanId}/missed-payments`, 'GET', null, token),
-    
+
     // Foreclosure
-    calculateForeclosure: (loanId, chargesPercentage, token) => 
+    calculateForeclosure: (loanId, chargesPercentage, token) =>
         apiCall(`/v1/loans/${loanId}/foreclosure-calculation?foreclosureChargesPercentage=${chargesPercentage}`, 'GET', null, token),
-    processForeclosure: (loanId, chargesPercentage, token) => 
+    processForeclosure: (loanId, chargesPercentage, token) =>
         apiCall(`/v1/loans/${loanId}/foreclose?foreclosureChargesPercentage=${chargesPercentage}`, 'POST', null, token),
 };
 
@@ -204,16 +204,16 @@ export const insuranceApi = {
     updatePolicy: (policyId, policyData, token) => apiCall(`/v1/insurance/policies/${policyId}`, 'PUT', policyData, token),
     deletePolicy: (policyId, token) => apiCall(`/v1/insurance/policies/${policyId}`, 'DELETE', null, token),
     getPolicyById: (policyId, token) => apiCall(`/v1/insurance/policies/${policyId}`, 'GET', null, token),
-    
+
     // Policy Filtering
     getPoliciesByType: (type, token) => apiCall(`/v1/insurance/policies/type/${type}`, 'GET', null, token),
     getPoliciesByStatus: (status, token) => apiCall(`/v1/insurance/policies/status/${status}`, 'GET', null, token),
     getPoliciesMaturingSoon: (days, token) => apiCall(`/v1/insurance/policies/maturing-soon?days=${days}`, 'GET', null, token),
-    
+
     // Analytics
     getSummary: (token) => apiCall('/v1/insurance/policies/summary', 'GET', null, token),
     getAnalytics: (token) => apiCall('/v1/insurance/policies/analytics', 'GET', null, token),
-    
+
     // Premium Payments
     recordPremiumPayment: (paymentData, token) => apiCall('/v1/insurance/premiums', 'POST', paymentData, token),
     getAllPremiumPayments: (token) => apiCall('/v1/insurance/premiums', 'GET', null, token),
@@ -221,7 +221,7 @@ export const insuranceApi = {
     updatePremiumPayment: (paymentId, paymentData, token) => apiCall(`/v1/insurance/premiums/${paymentId}`, 'PUT', paymentData, token),
     deletePremiumPayment: (paymentId, token) => apiCall(`/v1/insurance/premiums/${paymentId}`, 'DELETE', null, token),
     getUpcomingPremiums: (days, token) => apiCall(`/v1/insurance/premiums/upcoming?days=${days}`, 'GET', null, token),
-    
+
     // Claims Management
     fileClaim: (claimData, token) => apiCall('/v1/insurance/claims', 'POST', claimData, token),
     getAllClaims: (token) => apiCall('/v1/insurance/claims', 'GET', null, token),
@@ -236,32 +236,32 @@ const apiClient = {
     get: (url, config = {}) => {
         const token = JSON.parse(localStorage.getItem('user'))?.token;
         const params = config.params || {};
-        const queryString = Object.keys(params).length 
-            ? '?' + new URLSearchParams(params).toString() 
+        const queryString = Object.keys(params).length
+            ? '?' + new URLSearchParams(params).toString()
             : '';
         return apiCall(`${url}${queryString}`, 'GET', null, token);
     },
     post: (url, data, config = {}) => {
         const token = JSON.parse(localStorage.getItem('user'))?.token;
         const params = config.params || {};
-        const queryString = Object.keys(params).length 
-            ? '?' + new URLSearchParams(params).toString() 
+        const queryString = Object.keys(params).length
+            ? '?' + new URLSearchParams(params).toString()
             : '';
         return apiCall(`${url}${queryString}`, 'POST', data, token);
     },
     put: (url, data, config = {}) => {
         const token = JSON.parse(localStorage.getItem('user'))?.token;
         const params = config.params || {};
-        const queryString = Object.keys(params).length 
-            ? '?' + new URLSearchParams(params).toString() 
+        const queryString = Object.keys(params).length
+            ? '?' + new URLSearchParams(params).toString()
             : '';
         return apiCall(`${url}${queryString}`, 'PUT', data, token);
     },
     delete: (url, config = {}) => {
         const token = JSON.parse(localStorage.getItem('user'))?.token;
         const params = config.params || {};
-        const queryString = Object.keys(params).length 
-            ? '?' + new URLSearchParams(params).toString() 
+        const queryString = Object.keys(params).length
+            ? '?' + new URLSearchParams(params).toString()
             : '';
         return apiCall(`${url}${queryString}`, 'DELETE', null, token);
     }

@@ -4,6 +4,9 @@ import com.common.security.AuthenticationHelper;
 import com.investments.stocks.data.*;
 import com.investments.stocks.dto.*;
 import com.investments.stocks.repo.*;
+import com.alerts.service.NotificationService;
+import com.alerts.entity.NotificationType;
+import com.alerts.entity.AlertChannel;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class StockManagementServiceImpl implements StockManagementService {
     private final PriceAlertRepository alertRepository;
     private final CorporateActionRepository corporateActionRepository;
     private final AuthenticationHelper authenticationHelper;
+    private final NotificationService notificationService;
 
     // ==================== Stock CRUD Operations ====================
 
@@ -60,7 +64,8 @@ public class StockManagementServiceImpl implements StockManagementService {
         stock.setPrice(request.getPrice() != null ? request.getPrice().doubleValue() : stock.getPrice());
         stock.setDescription(request.getDescription());
         stock.setSectorId(request.getSectorId());
-        stock.setMarketCap(request.getMarketCap() != null ? request.getMarketCap().doubleValue() : stock.getMarketCap());
+        stock.setMarketCap(
+                request.getMarketCap() != null ? request.getMarketCap().doubleValue() : stock.getMarketCap());
 
         return stockRepository.save(stock);
     }
@@ -88,7 +93,7 @@ public class StockManagementServiceImpl implements StockManagementService {
         // Simple search implementation - can be enhanced with Elasticsearch
         return stockRepository.findAll().stream()
                 .filter(stock -> stock.getSymbol().contains(query.toUpperCase()) ||
-                                stock.getCompanyName().toLowerCase().contains(query.toLowerCase()))
+                        stock.getCompanyName().toLowerCase().contains(query.toLowerCase()))
                 .collect(Collectors.toList());
     }
 
@@ -258,8 +263,8 @@ public class StockManagementServiceImpl implements StockManagementService {
 
             switch (alert.getAlertType()) {
                 case TARGET_PRICE:
-                    if (alert.getTargetPrice() != null && 
-                        currentPrice.compareTo(alert.getTargetPrice()) >= 0) {
+                    if (alert.getTargetPrice() != null &&
+                            currentPrice.compareTo(alert.getTargetPrice()) >= 0) {
                         triggered = true;
                     }
                     break;
@@ -277,7 +282,17 @@ public class StockManagementServiceImpl implements StockManagementService {
                 alert.setIsActive(false);
                 alertRepository.save(alert);
 
-                // TODO: Send notification to user
+                // Send notification to user
+                String title = "Stock Alert: " + symbol;
+                String message = String.format("Alert triggered for %s. Current price is ₹%.2f. Target was ₹%.2f.",
+                        symbol, currentPrice, alert.getTargetPrice());
+
+                notificationService.sendNotification(
+                        alert.getUserId(),
+                        title,
+                        message,
+                        NotificationType.ALERT,
+                        AlertChannel.IN_APP);
             }
         }
     }

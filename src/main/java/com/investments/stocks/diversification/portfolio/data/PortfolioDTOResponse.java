@@ -20,6 +20,9 @@ public class PortfolioDTOResponse {
   private BigDecimal currentValue;
   private BigDecimal totalProfitLoss;
   private BigDecimal totalProfitLossPercentage;
+  private BigDecimal realizedGain;
+  private BigDecimal unrealizedGain;
+  private BigDecimal xirr;
 
   private SectorAllocation sectorAllocation;
 

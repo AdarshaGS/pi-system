@@ -1,20 +1,25 @@
 package com.budget.service;
 
-import com.budget.data.*;
-import com.budget.repo.ExpenseRepository;
-import com.budget.repo.IncomeRepository;
-import com.budget.repo.RecurringTemplateRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import com.admin.service.JobStatusService;
+import com.budget.data.Expense;
+import com.budget.data.Income;
+import com.budget.data.RecurrencePattern;
+import com.budget.data.RecurringTemplate;
+import com.budget.data.TransactionType;
+import com.budget.repo.ExpenseRepository;
+import com.budget.repo.IncomeRepository;
+import com.budget.repo.RecurringTemplateRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service for managing recurring transactions
@@ -27,6 +32,7 @@ public class BudgetRecurringTransactionService {
     private final RecurringTemplateRepository recurringTemplateRepository;
     private final ExpenseRepository expenseRepository;
     private final IncomeRepository incomeRepository;
+    private final JobStatusService jobStatusService;
 
     /**
      * Get all recurring templates for a user
@@ -157,7 +163,13 @@ public class BudgetRecurringTransactionService {
     @Scheduled(cron = "0 0 1 * * ?")
     @Transactional
     public void generateRecurringTransactions() {
+        if (!jobStatusService.isJobEnabled("BUDGET_RECURRING_TRANSACTIONS")) {
+            log.info("Skipping BUDGET_RECURRING_TRANSACTIONS job as it is currently DISABLED.");
+            return;
+        }
+
         log.info("Starting recurring transactions generation job");
+        jobStatusService.updateLastRun("BUDGET_RECURRING_TRANSACTIONS");
         LocalDate today = LocalDate.now();
 
         // Find templates due for execution

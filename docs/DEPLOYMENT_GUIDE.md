@@ -86,7 +86,7 @@ spring:
     username: root
     password: root
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: validate
   flyway:

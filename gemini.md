@@ -1,3 +1,19 @@
+# Pending Features — UPI
+
+The following UPI-related features are pending implementation:
+
+- UPI payment initiation and callback handling
+- UPI transaction status polling and reconciliation
+- UPI virtual address (VPA) registration and validation
+- UPI PIN change and reset flows (with rate-limiting)
+- UPI transaction failure handling and retry logic
+- UPI integration with third-party PSPs (Payment Service Providers)
+- UPI dispute management and audit trail
+- UPI transaction notification and alerting
+- UPI-specific API versioning and documentation
+- UPI security enhancements (anti-fraud, PIN attempt lockout)
+
+These features must follow all core principles, security expectations, and fintech-grade validation outlined above.
 # GEMINI.md — pi-system
 
 ## Project Overview

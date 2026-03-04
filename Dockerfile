@@ -22,7 +22,7 @@ RUN ./gradlew bootJar --no-daemon -x test
 # ================================
 # Stage 2: Runtime image
 # ================================
-FROM bellsoft/liberica-openjdk-alpine:17
+FROM bellsoft/eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 

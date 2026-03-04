@@ -28,6 +28,8 @@ import com.investments.stocks.diversification.portfolio.repo.PortfolioRepository
 import com.investments.stocks.diversification.sectors.data.Sector;
 import com.investments.stocks.diversification.sectors.repo.SectorRepository;
 import com.investments.stocks.repo.StockRepository;
+import com.investments.stocks.repo.PortfolioTransactionRepository;
+import com.investments.stocks.data.PortfolioTransaction;
 
 @Service
 public class PortfolioReadServiceImpl implements PortfolioReadService {
@@ -35,6 +37,7 @@ public class PortfolioReadServiceImpl implements PortfolioReadService {
         private final PortfolioRepository portfolioRepository;
         private final StockRepository stockRepository;
         private final SectorRepository sectorRepository;
+        private final PortfolioTransactionRepository transactionRepository;
 
         private final PortfolioValuationService valuationService;
         private final PortfolioAllocationService allocationService;
@@ -50,7 +53,8 @@ public class PortfolioReadServiceImpl implements PortfolioReadService {
                         PortfolioAllocationService allocationService,
                         PortfolioRiskEvaluationService riskEvaluationService,
                         PortfolioScoringService scoringService,
-                        PortfolioInsightService insightService) {
+                        PortfolioInsightService insightService,
+                        PortfolioTransactionRepository transactionRepository) {
                 this.portfolioRepository = portfolioRepository;
                 this.stockRepository = stockRepository;
                 this.sectorRepository = sectorRepository;
@@ -59,6 +63,7 @@ public class PortfolioReadServiceImpl implements PortfolioReadService {
                 this.riskEvaluationService = riskEvaluationService;
                 this.scoringService = scoringService;
                 this.insightService = insightService;
+                this.transactionRepository = transactionRepository;
         }
 
         public PortfolioDTOResponse getPortfolioSummary(Long userId) {
@@ -72,6 +77,9 @@ public class PortfolioReadServiceImpl implements PortfolioReadService {
                                         .currentValue(BigDecimal.ZERO)
                                         .totalProfitLoss(BigDecimal.ZERO)
                                         .totalProfitLossPercentage(BigDecimal.ZERO)
+                                        .realizedGain(BigDecimal.ZERO)
+                                        .unrealizedGain(BigDecimal.ZERO)
+                                        .xirr(BigDecimal.ZERO)
                                         .sectorAllocation(SectorAllocation.builder().sectors(new HashMap<>())
                                                         .build())
                                         .insights(PortfolioInsightsDTO.builder()
@@ -100,8 +108,13 @@ public class PortfolioReadServiceImpl implements PortfolioReadService {
                 Map<Long, String> sectorNameMap = sectorRepository.findAllById(sectorIds).stream()
                                 .collect(Collectors.toMap(Sector::getId, Sector::getName));
 
-                // 2. Valuation
-                PortfolioValuationResult valuation = valuationService.calculateValuation(userPortfolios, stockMap);
+                // 2. Fetch Transactions for XIRR & Gain Breakdown
+                List<PortfolioTransaction> transactions = transactionRepository
+                                .findByUserIdOrderByTransactionDateDesc(userId);
+
+                // 3. Valuation
+                PortfolioValuationResult valuation = valuationService.calculateValuation(userPortfolios, stockMap,
+                                transactions);
 
                 // 3. Allocation
                 PortfolioAllocationResult allocation = allocationService.calculateAllocation(userPortfolios, stockMap,
@@ -142,6 +155,9 @@ public class PortfolioReadServiceImpl implements PortfolioReadService {
                                 .currentValue(valuation.getCurrentValue())
                                 .totalProfitLoss(valuation.getTotalProfitLoss())
                                 .totalProfitLossPercentage(valuation.getTotalProfitLossPercentage())
+                                .realizedGain(valuation.getRealizedGain())
+                                .unrealizedGain(valuation.getUnrealizedGain())
+                                .xirr(valuation.getXirr())
                                 .sectorAllocation(allocation.getSectorAllocation())
                                 .marketCapAllocation(allocation.getMarketCapAllocation())
                                 .score(scoring.getScore())

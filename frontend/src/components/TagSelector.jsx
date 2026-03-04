@@ -3,18 +3,20 @@ import { X, Plus } from 'lucide-react';
 import { budgetApi } from '../api';
 import './TagSelector.css';
 
-const TagSelector = ({ selectedTags = [], onTagsChange, showManage = true }) => {
+const TagSelector = ({ selectedTags = [], onTagsChange, showManage = true, userId, token }) => {
     const [availableTags, setAvailableTags] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        fetchTags();
-    }, []);
+        if (userId && token) {
+            fetchTags();
+        }
+    }, [userId, token]);
 
     const fetchTags = async () => {
         try {
-            const tags = await budgetApi.getUserTags();
+            const tags = await budgetApi.getUserTags(userId, token);
             setAvailableTags(tags);
         } catch (error) {
             console.error('Failed to fetch tags:', error);
@@ -43,8 +45,9 @@ const TagSelector = ({ selectedTags = [], onTagsChange, showManage = true }) => 
 
             const newTag = await budgetApi.createTag({
                 name: searchTerm.trim(),
-                color: randomColor
-            });
+                color: randomColor,
+                userId
+            }, token);
 
             setAvailableTags([...availableTags, newTag]);
             handleTagSelect(newTag);

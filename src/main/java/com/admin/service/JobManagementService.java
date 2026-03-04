@@ -1,6 +1,7 @@
 package com.admin.service;
 
 import com.admin.dto.ScheduledJobDTO;
+import com.admin.repo.ScheduledJobRepository;
 import com.alerts.service.AlertProcessorService;
 import com.budget.SubscriptionReminderScheduler;
 import com.budget.service.BudgetRecurringTransactionService;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,125 +28,51 @@ public class JobManagementService {
     private final AlertScheduler budgetAlertScheduler;
     private final RecurringTransactionScheduler stockRecurringTransactionScheduler;
     private final LendingDueDateScheduler lendingDueDateScheduler;
+    private final ScheduledJobRepository jobRepository;
+    private final JobStatusService jobStatusService;
 
     /**
-     * Get list of all scheduled jobs
+     * Check if a job is enabled in the database
+     */
+    public boolean isJobEnabled(String jobName) {
+        return jobStatusService.isJobEnabled(jobName);
+    }
+
+    /**
+     * Update the last run time of a job
+     */
+    public void updateLastRun(String jobName) {
+        jobStatusService.updateLastRun(jobName);
+    }
+
+    /**
+     * Get list of all scheduled jobs from the database
      */
     public List<ScheduledJobDTO> getAllJobs() {
-        List<ScheduledJobDTO> jobs = new ArrayList<>();
-
-        // Alert Processing Jobs
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("STOCK_PRICE_ALERTS")
-                .description("Check stock price alerts and send notifications")
-                .schedule("Every 5 minutes")
-                .category("Alerts")
-                .canRunManually(true)
-                .build());
-
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("LOAN_PAYMENT_ALERTS")
-                .description("Check for upcoming loan payments (7 days before)")
-                .schedule("Daily at 8:00 AM")
-                .category("Alerts")
-                .canRunManually(true)
-                .build());
-
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("INSURANCE_EXPIRY_ALERTS")
-                .description("Check for insurance policies expiring soon")
-                .schedule("Daily at 9:00 AM")
-                .category("Alerts")
-                .canRunManually(true)
-                .build());
-
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("BUDGET_THRESHOLD_ALERTS")
-                .description("Check budget threshold alerts (80% spent)")
-                .schedule("Daily at 8:30 AM")
-                .category("Alerts")
-                .canRunManually(true)
-                .build());
-
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("LENDING_DUE_DATE_CHECK")
-                .description("Check for overdue and due today lending records")
-                .schedule("Daily at 10:00 AM")
-                .category("Alerts")
-                .canRunManually(true)
-                .build());
-
-        // Subscription Jobs
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("SUBSCRIPTION_RENEWAL_REMINDERS")
-                .description("Send renewal reminders for active subscriptions")
-                .schedule("Daily at 8:00 AM")
-                .category("Subscriptions")
-                .canRunManually(true)
-                .build());
-
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("SUBSCRIPTION_UNUSED_ALERTS")
-                .description("Alert for unused subscriptions (weekly)")
-                .schedule("Every Monday at 9:00 AM")
-                .category("Subscriptions")
-                .canRunManually(true)
-                .build());
-
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("SUBSCRIPTION_AUTO_RENEWAL")
-                .description("Process automatic subscription renewals")
-                .schedule("Daily at 1:00 AM")
-                .category("Subscriptions")
-                .canRunManually(true)
-                .build());
-
-        // Budget Jobs
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("BUDGET_RECURRING_TRANSACTIONS")
-                .description("Process recurring budget transactions")
-                .schedule("Daily at 1:00 AM")
-                .category("Budget")
-                .canRunManually(true)
-                .build());
-
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("BUDGET_OVERSPENDING_ALERTS")
-                .description("Check for budget overspending and send alerts")
-                .schedule("Daily at 9:00 PM")
-                .category("Budget")
-                .canRunManually(true)
-                .build());
-
-        // Investment Jobs
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("STOCK_RECURRING_TRANSACTIONS")
-                .description("Process recurring stock investment transactions")
-                .schedule("Daily at 1:00 AM")
-                .category("Investments")
-                .canRunManually(true)
-                .build());
-
-        jobs.add(ScheduledJobDTO.builder()
-                .jobName("PORTFOLIO_REBALANCING_ALERTS")
-                .description("Check portfolio rebalancing needs")
-                .schedule("Daily at 10:00 AM")
-                .category("Investments")
-                .canRunManually(true)
-                .build());
-
-        return jobs;
+        return jobRepository.findAll().stream()
+                .map(job -> ScheduledJobDTO.builder()
+                        .jobName(job.getJobName())
+                        .description(job.getJobDescription())
+                        .schedule(job.getCronExpression())
+                        .canRunManually(true)
+                        .lastRunTime(job.getLastRunAt() != null ? job.getLastRunAt().toString() : "Never")
+                        .build())
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * Execute a job manually
      */
+    @org.springframework.transaction.annotation.Transactional
     public void executeJob(String jobName) {
         log.info("Manually executing job: {}", jobName);
+
+        updateLastRun(jobName);
 
         try {
             switch (jobName) {
                 case "STOCK_PRICE_ALERTS":
+                case "ALERT_PROCESSOR":
                     alertProcessorService.processStockPriceAlerts();
                     break;
                 case "LOAN_PAYMENT_ALERTS":
@@ -162,6 +88,7 @@ public class JobManagementService {
                     lendingDueDateScheduler.checkLendingDueDates();
                     break;
                 case "SUBSCRIPTION_RENEWAL_REMINDERS":
+                case "SUBSCRIPTION_REMINDERS":
                     subscriptionReminderScheduler.sendRenewalReminders();
                     break;
                 case "SUBSCRIPTION_UNUSED_ALERTS":
@@ -174,13 +101,18 @@ public class JobManagementService {
                     budgetRecurringTransactionService.generateRecurringTransactions();
                     break;
                 case "BUDGET_OVERSPENDING_ALERTS":
+                case "BUDGET_ALERTS":
                     budgetAlertScheduler.checkBudgetsAndGenerateAlerts();
                     break;
                 case "STOCK_RECURRING_TRANSACTIONS":
+                case "INVESTMENT_RECURRING_TRANSACTIONS":
                     stockRecurringTransactionScheduler.processRecurringTransactions();
                     break;
                 case "PORTFOLIO_REBALANCING_ALERTS":
                     alertProcessorService.processTaxDeadlineAlerts();
+                    break;
+                case "STOCK_PRICE_UPDATE":
+                    // Implementation for price update trigger if needed
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown job: " + jobName);
@@ -190,5 +122,14 @@ public class JobManagementService {
             log.error("Error executing job {}: {}", jobName, e.getMessage(), e);
             throw new RuntimeException("Failed to execute job: " + e.getMessage());
         }
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void toggleJob(String jobName, boolean enabled) {
+        jobRepository.findByJobName(jobName).ifPresent(job -> {
+            job.setEnabled(enabled);
+            jobRepository.save(job);
+            log.info("Job {} has been {}", jobName, enabled ? "ENABLED" : "DISABLED");
+        });
     }
 }

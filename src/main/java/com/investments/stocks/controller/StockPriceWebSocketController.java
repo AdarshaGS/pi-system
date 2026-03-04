@@ -31,7 +31,7 @@ public class StockPriceWebSocketController {
      * Scheduled task to broadcast stock prices every 30 seconds.
      * Adjust the rate based on your external API limits and user needs.
      */
-    @Scheduled(fixedRate = 30000) // Every 30 seconds
+    // @Scheduled(fixedRate = 30000) // Every 30 seconds
     public void broadcastStockPrices() {
         try {
             List<StockPriceUpdate> updates = stockPriceService.fetchLatestPrices();

@@ -31,6 +31,7 @@ import TDSManagement from './components/TDSManagement';
 import TaxPlanningTools from './components/TaxPlanningTools';
 import ITRFilingAssistant from './components/ITRFilingAssistant';
 import Lending from './pages/Lending';
+import AiAssistant from './components/AiAssistant';
 
 const ProtectedRoute = ({ children }) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -46,58 +47,58 @@ function App() {
       <TierProvider>
         <Router>
           <Routes>
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+            {/* Auth Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Protected Routes */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="budget" element={
-              <FeatureGate feature="BUDGET_MODULE" showDisabledMessage>
-                <Budget />
-              </FeatureGate>
-            } />
-            <Route path="cashflow" element={
-              <FeatureGate feature="BUDGET_MODULE" showDisabledMessage>
-                <CashFlow />
-              </FeatureGate>
-            } />
-            <Route path="recurring" element={
-              <FeatureGate feature="BUDGET_MODULE" showDisabledMessage>
-                <RecurringTransactions />
-              </FeatureGate>
-            } />
-            <Route path="portfolio" element={
-              <FeatureGate feature="INVESTMENTS_MODULE" showDisabledMessage>
-                <Portfolio />
-              </FeatureGate>
-            } />
-            <Route path="banking" element={
-              <FeatureGate feature="BANKING_MODULE" showDisabledMessage>
-                <Banking />
-              </FeatureGate>
-            } />
-            <Route path="loans" element={
-              <FeatureGate feature="BANKING_MODULE" showDisabledMessage>
-                <Loans />
-              </FeatureGate>
-            } />
-            <Route path="insurance" element={
-              <FeatureGate feature="INSURANCE_MODULE" showDisabledMessage>
-                <Insurance />
-              </FeatureGate>
-            } />
-            <Route path="insights" element={<Insights />} />
-            <Route path="settings" element={<Settings />} />
-            
-            {/* Tax Routes
+            {/* Protected Routes */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="budget" element={
+                <FeatureGate feature="BUDGET_MODULE" showDisabledMessage>
+                  <Budget />
+                </FeatureGate>
+              } />
+              <Route path="cashflow" element={
+                <FeatureGate feature="BUDGET_MODULE" showDisabledMessage>
+                  <CashFlow />
+                </FeatureGate>
+              } />
+              <Route path="recurring" element={
+                <FeatureGate feature="BUDGET_MODULE" showDisabledMessage>
+                  <RecurringTransactions />
+                </FeatureGate>
+              } />
+              <Route path="portfolio" element={
+                <FeatureGate feature="INVESTMENTS_MODULE" showDisabledMessage>
+                  <Portfolio />
+                </FeatureGate>
+              } />
+              <Route path="banking" element={
+                <FeatureGate feature="BANKING_MODULE" showDisabledMessage>
+                  <Banking />
+                </FeatureGate>
+              } />
+              <Route path="loans" element={
+                <FeatureGate feature="BANKING_MODULE" showDisabledMessage>
+                  <Loans />
+                </FeatureGate>
+              } />
+              <Route path="insurance" element={
+                <FeatureGate feature="INSURANCE_MODULE" showDisabledMessage>
+                  <Insurance />
+                </FeatureGate>
+              } />
+              <Route path="insights" element={<Insights />} />
+              <Route path="settings" element={<Settings />} />
+
+              {/* Tax Routes
             <Route path="tax" element={
               <FeatureGate feature="TAX_MANAGEMENT" showDisabledMessage>
                 <TaxDashboard />
@@ -133,30 +134,31 @@ function App() {
                 <ITRFilingAssistant />
               </FeatureGate>
             } /> */}
-            
-            <Route path="tax" element={<TaxDashboard />} />
-            <Route path="tax/income" element={<IncomeEntryForms />} />
-            <Route path="tax/deductions" element={<DeductionsTracker />} />
-            <Route path="tax/capital-gains" element={<CapitalGainsModule />} />
-            <Route path="tax/tds" element={<TDSManagement />} />
-            <Route path="tax/planning" element={<TaxPlanningTools />} />
-            <Route path="tax/itr" element={<ITRFilingAssistant />} />
-            
-            {/* Lending Routes */}
-            <Route path="lending" element={<Lending />} />
-            
-            {/* Admin Routes */}
-            <Route path="admin" element={<AdminDashboard />} />
-            <Route path="admin/users" element={<AdminUsers />} />
-            <Route path="admin/utilities" element={<AdminCriticalLogs />} />
-            <Route path="admin/external-services" element={<AdminExternalServices />} />
-            <Route path="admin/activity-logs" element={<AdminActivityLogs />} />
-            <Route path="admin/features" element={<AdminFeatures />} />
-            <Route path="admin/jobs" element={<AdminJobs />} />
-            <Route path="admin/jobs" element={<AdminJobs />} />
-          </Route>
-        </Routes>
-      </Router>
+
+              <Route path="tax" element={<TaxDashboard />} />
+              <Route path="tax/income" element={<IncomeEntryForms />} />
+              <Route path="tax/deductions" element={<DeductionsTracker />} />
+              <Route path="tax/capital-gains" element={<CapitalGainsModule />} />
+              <Route path="tax/tds" element={<TDSManagement />} />
+              <Route path="tax/planning" element={<TaxPlanningTools />} />
+              <Route path="tax/itr" element={<ITRFilingAssistant />} />
+
+              {/* Lending Routes */}
+              <Route path="lending" element={<Lending />} />
+
+              {/* Admin Routes */}
+              <Route path="admin" element={<AdminDashboard />} />
+              <Route path="admin/users" element={<AdminUsers />} />
+              <Route path="admin/utilities" element={<AdminCriticalLogs />} />
+              <Route path="admin/external-services" element={<AdminExternalServices />} />
+              <Route path="admin/activity-logs" element={<AdminActivityLogs />} />
+              <Route path="admin/features" element={<AdminFeatures />} />
+              <Route path="admin/jobs" element={<AdminJobs />} />
+              <Route path="admin/jobs" element={<AdminJobs />} />
+            </Route>
+          </Routes>
+          <AiAssistant />
+        </Router>
       </TierProvider>
     </FeatureProvider>
   );

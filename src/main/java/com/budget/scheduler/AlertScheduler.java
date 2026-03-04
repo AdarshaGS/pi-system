@@ -1,6 +1,8 @@
 package com.budget.scheduler;
 
 import com.budget.service.AlertService;
+import com.admin.service.JobStatusService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +16,7 @@ import java.time.YearMonth;
 public class AlertScheduler {
 
     private final AlertService alertService;
+    private final JobStatusService jobStatusService;
 
     /**
      * Check budgets and generate alerts daily at 9:00 PM
@@ -21,22 +24,29 @@ public class AlertScheduler {
      */
     @Scheduled(cron = "0 0 21 * * *") // 9:00 PM daily
     public void checkBudgetsAndGenerateAlerts() {
+        if (!jobStatusService.isJobEnabled("BUDGET_ALERTS")) {
+            log.info("Skipping BUDGET_ALERTS job as it is currently DISABLED.");
+            return;
+        }
+
         log.info("Starting scheduled budget check for alert generation...");
-        
+        jobStatusService.updateLastRun("BUDGET_ALERTS");
+
         String currentMonth = YearMonth.now().toString();
-        
+
         try {
             // Note: In a production environment, you would iterate through all active users
-            // For now, this is a framework - actual user iteration would be implemented based on requirements
+            // For now, this is a framework - actual user iteration would be implemented
+            // based on requirements
             log.info("Scheduled alert check completed for month: {}", currentMonth);
-            
+
             // TODO: Implement user iteration logic when user management system is ready
             // Example:
             // List<User> activeUsers = userService.getAllActiveUsers();
             // for (User user : activeUsers) {
-            //     alertService.checkBudgetsAndGenerateAlerts(user.getId(), currentMonth);
+            // alertService.checkBudgetsAndGenerateAlerts(user.getId(), currentMonth);
             // }
-            
+
         } catch (Exception e) {
             log.error("Error during scheduled alert generation: {}", e.getMessage(), e);
         }
@@ -48,7 +58,7 @@ public class AlertScheduler {
      */
     public void checkBudgetOnExpense(Long userId, String monthYear) {
         log.info("Checking budget for user {} after expense in month {}", userId, monthYear);
-        
+
         try {
             alertService.checkBudgetsAndGenerateAlerts(userId, monthYear);
         } catch (Exception e) {

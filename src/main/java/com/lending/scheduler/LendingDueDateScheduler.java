@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.alerts.entity.AlertChannel;
 import com.alerts.entity.NotificationType;
 import com.alerts.service.NotificationService;
+import com.admin.service.JobStatusService;
 import com.lending.data.LendingRecord;
 import com.lending.data.LendingStatus;
 import com.lending.repo.LendingRepository;
@@ -25,11 +26,18 @@ public class LendingDueDateScheduler {
 
     private final LendingRepository lendingRepository;
     private final NotificationService notificationService;
+    private final JobStatusService jobStatusService;
 
     // Run every day at 10:00 AM
-    @Scheduled(cron = "0 0 10 * * ?")
+    // @Scheduled(cron = "0 0 10 * * ?")
     public void checkLendingDueDates() {
+        if (!jobStatusService.isJobEnabled("LENDING_DUE_DATE_CHECK")) {
+            logger.info("Skipping LENDING_DUE_DATE_CHECK job as it is currently DISABLED.");
+            return;
+        }
+
         logger.info("Starting Lending Due Date Check Job...");
+        jobStatusService.updateLastRun("LENDING_DUE_DATE_CHECK");
 
         LocalDate today = LocalDate.now();
 
@@ -62,22 +70,20 @@ public class LendingDueDateScheduler {
             // Send notification to the lender
             String title = "Lending Overdue: " + record.getBorrowerName();
             String message = String.format(
-                "Your lending to %s is overdue! Amount: ₹%.2f, Outstanding: ₹%.2f. Due date was: %s. " +
-                "Please follow up with the borrower.",
-                record.getBorrowerName(),
-                record.getAmountLent(),
-                record.getOutstandingAmount(),
-                record.getDueDate()
-            );
+                    "Your lending to %s is overdue! Amount: ₹%.2f, Outstanding: ₹%.2f. Due date was: %s. " +
+                            "Please follow up with the borrower.",
+                    record.getBorrowerName(),
+                    record.getAmountLent(),
+                    record.getOutstandingAmount(),
+                    record.getDueDate());
 
             try {
                 notificationService.sendNotification(
-                    record.getUserId(),
-                    title,
-                    message,
-                    NotificationType.LENDING_OVERDUE,
-                    AlertChannel.IN_APP
-                );
+                        record.getUserId(),
+                        title,
+                        message,
+                        NotificationType.LENDING_OVERDUE,
+                        AlertChannel.IN_APP);
             } catch (Exception e) {
                 logger.error("Failed to send overdue notification for lending ID: {}", record.getId(), e);
             }
@@ -100,21 +106,19 @@ public class LendingDueDateScheduler {
             // Send notification to the lender
             String title = "Lending Due Today: " + record.getBorrowerName();
             String message = String.format(
-                "Your lending to %s is due today! Amount: ₹%.2f, Outstanding: ₹%.2f. " +
-                "Please remind the borrower about the payment.",
-                record.getBorrowerName(),
-                record.getAmountLent(),
-                record.getOutstandingAmount()
-            );
+                    "Your lending to %s is due today! Amount: ₹%.2f, Outstanding: ₹%.2f. " +
+                            "Please remind the borrower about the payment.",
+                    record.getBorrowerName(),
+                    record.getAmountLent(),
+                    record.getOutstandingAmount());
 
             try {
                 notificationService.sendNotification(
-                    record.getUserId(),
-                    title,
-                    message,
-                    NotificationType.LENDING_DUE,
-                    AlertChannel.IN_APP
-                );
+                        record.getUserId(),
+                        title,
+                        message,
+                        NotificationType.LENDING_DUE,
+                        AlertChannel.IN_APP);
             } catch (Exception e) {
                 logger.error("Failed to send due today notification for lending ID: {}", record.getId(), e);
             }

@@ -27,6 +27,8 @@ const Budget = () => {
     const [budgetLimits, setBudgetLimits] = useState({});
     const [selectedExpenses, setSelectedExpenses] = useState([]);
     const [bulkCategory, setBulkCategory] = useState('FOOD');
+
+    const currentUser = JSON.parse(localStorage.getItem('user')) || {};
     
     // Pagination and filter states
     const [currentPage, setCurrentPage] = useState(0);
@@ -119,6 +121,20 @@ const Budget = () => {
         fetchData();
     }, [fetchData]);
 
+    // Reset form data when Add modal opens (but not for Edit modal)
+    useEffect(() => {
+        if (showModal && !editingExpense) {
+            setFormData({
+                category: 'FOOD',
+                description: '',
+                amount: '',
+                date: new Date().toISOString().split('T')[0],
+                notes: '',
+                tags: []
+            });
+        }
+    }, [showModal, editingExpense]);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -132,9 +148,12 @@ const Budget = () => {
         setSubmitting(true);
         try {
             await budgetApi.addExpense({
-                ...formData,
-                userId: user.userId,
+                category: formData.category,
+                description: formData.description,
                 amount: parseFloat(formData.amount),
+                expenseDate: formData.date,
+                notes: formData.notes,
+                userId: user.userId,
                 tags: formData.tags.map(t => t.id)
             }, user.token);
 
@@ -177,10 +196,12 @@ const Budget = () => {
         setSubmitting(true);
         try {
             await budgetApi.updateExpense(editingExpense.id, {
-                ...formData,
-                userId: user.userId,
+                category: formData.category,
+                description: formData.description,
                 amount: parseFloat(formData.amount),
                 expenseDate: formData.date,
+                notes: formData.notes,
+                userId: user.userId,
                 tags: formData.tags.map(t => t.id)
             }, user.token);
 
@@ -822,14 +843,18 @@ const Budget = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 1000,
-                    backdropFilter: 'blur(4px)'
+                    backdropFilter: 'blur(4px)',
+                    padding: '16px',
+                    overflowY: 'auto'
                 }}>
                     <div style={{
                         background: 'white',
-                        padding: '32px',
+                        padding: window.innerWidth < 768 ? '20px' : '32px',
                         borderRadius: '16px',
                         width: '100%',
                         maxWidth: '450px',
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
                         boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -843,7 +868,7 @@ const Budget = () => {
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)', fontWeight: '500' }}>Category</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Tag size={16} style={{ position: 'absolute', left: '12px', top: '14px', color: '#adb5bd' }} />
+                                    <TagIcon size={16} style={{ position: 'absolute', left: '12px', top: '14px', color: '#adb5bd' }} />
                                     <select
                                         name="category"
                                         value={formData.category}
@@ -856,7 +881,7 @@ const Budget = () => {
                                         <option value="TRANSPORT">Transport</option>
                                         <option value="BILL">Bills & Utilities</option>
                                         <option value="SHOPPING">Shopping</option>
-                                        <option value="OTHER">Other</option>
+                                        <option value="OTHERS">Other</option>
                                     </select>
                                 </div>
                             </div>
@@ -940,6 +965,8 @@ const Budget = () => {
                                 <TagSelector
                                     selectedTags={formData.tags}
                                     onTagsChange={(tags) => setFormData({ ...formData, tags })}
+                                    userId={currentUser.userId}
+                                    token={currentUser.token}
                                 />
                             </div>
 
@@ -969,14 +996,18 @@ const Budget = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 1000,
-                    backdropFilter: 'blur(4px)'
+                    backdropFilter: 'blur(4px)',
+                    padding: '16px',
+                    overflowY: 'auto'
                 }}>
                     <div style={{
                         background: 'white',
-                        padding: '32px',
+                        padding: window.innerWidth < 768 ? '20px' : '32px',
                         borderRadius: '16px',
                         width: '100%',
                         maxWidth: '450px',
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
                         boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -993,7 +1024,7 @@ const Budget = () => {
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-secondary)', fontWeight: '500' }}>Category</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Tag size={16} style={{ position: 'absolute', left: '12px', top: '14px', color: '#adb5bd' }} />
+                                    <TagIcon size={16} style={{ position: 'absolute', left: '12px', top: '14px', color: '#adb5bd' }} />
                                     <select
                                         name="category"
                                         value={formData.category}
@@ -1090,6 +1121,8 @@ const Budget = () => {
                                 <TagSelector
                                     selectedTags={formData.tags}
                                     onTagsChange={(tags) => setFormData({ ...formData, tags })}
+                                    userId={currentUser.userId}
+                                    token={currentUser.token}
                                 />
                             </div>
 
@@ -1119,15 +1152,17 @@ const Budget = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 1000,
-                    backdropFilter: 'blur(4px)'
+                    backdropFilter: 'blur(4px)',
+                    padding: '16px',
+                    overflowY: 'auto'
                 }}>
                     <div style={{
                         background: 'white',
-                        padding: '32px',
+                        padding: window.innerWidth < 768 ? '20px' : '32px',
                         borderRadius: '16px',
                         width: '100%',
                         maxWidth: '600px',
-                        maxHeight: '80vh',
+                        maxHeight: '90vh',
                         overflow: 'auto',
                         boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)'
                     }}>
@@ -1257,11 +1292,12 @@ const Budget = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    zIndex: 1000
+                    zIndex: 1000,
+                    padding: '16px'
                 }}>
                     <div style={{
                         background: 'white',
-                        padding: '32px',
+                        padding: window.innerWidth < 768 ? '20px' : '32px',
                         borderRadius: '16px',
                         width: '100%',
                         maxWidth: '400px',

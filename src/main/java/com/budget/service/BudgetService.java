@@ -54,13 +54,13 @@ public class BudgetService {
         }
         
         // Validate that either category or customCategoryName is set (but not both)
-        if (budget.getCategory() == null && (budget.getCustomCategoryName() == null || budget.getCustomCategoryName().trim().isEmpty())) {
-            throw new IllegalArgumentException("Either category or customCategoryName must be specified");
-        }
+        // if (budget.getCategory() == null && (budget.getCustomCategoryName() == null || budget.getCustomCategoryName().trim().isEmpty())) {
+        //     throw new IllegalArgumentException("Either category or customCategoryName must be specified");
+        // }
         
-        if (budget.getCategory() != null && budget.getCustomCategoryName() != null && !budget.getCustomCategoryName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Cannot specify both category and customCategoryName");
-        }
+        // if (budget.getCategory() != null && budget.getCustomCategoryName() != null && !budget.getCustomCategoryName().trim().isEmpty()) {
+        //     throw new IllegalArgumentException("Cannot specify both category and customCategoryName");
+        // }
         
         // If custom category name is provided, validate it exists
         if (budget.getCustomCategoryName() != null && !budget.getCustomCategoryName().trim().isEmpty()) {
@@ -335,12 +335,20 @@ public class BudgetService {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new ExpenseNotFoundException(id));
         authenticationHelper.validateUserAccess(expense.getUserId());
-        
-        expense.setAmount(expenseDetails.getAmount());
-        expense.setCategory(expenseDetails.getCategory());
-        expense.setExpenseDate(expenseDetails.getExpenseDate());
-        expense.setDescription(expenseDetails.getDescription());
-        
+        if (expenseDetails!=null) {
+            if (expenseDetails.getAmount() != null) {
+                expense.setAmount(expenseDetails.getAmount());
+            }
+            if (expenseDetails.getCategory() != null) {
+                expense.setCategory(expenseDetails.getCategory());
+            }
+            if (expenseDetails.getExpenseDate() != null) {
+                expense.setExpenseDate(expenseDetails.getExpenseDate());
+            }
+            if (expenseDetails.getDescription() != null) {
+                expense.setDescription(expenseDetails.getDescription());
+            }
+        }
         return expenseRepository.save(expense);
     }
 

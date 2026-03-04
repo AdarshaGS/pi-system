@@ -2,6 +2,7 @@ package com.budget;
 
 import com.alerts.service.EmailService;
 import com.alerts.service.NotificationService;
+import com.admin.service.JobStatusService;
 import com.alerts.entity.AlertChannel;
 import com.alerts.entity.NotificationType;
 import com.users.data.Users;
@@ -24,26 +25,35 @@ import java.util.Map;
 public class SubscriptionReminderScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionReminderScheduler.class);
-    
+
     @Autowired
     private EmailService emailService;
-    
+
     @Autowired
     private NotificationService notificationService;
-    
+
     @Autowired
     private UsersRepository usersRepository;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
+    @Autowired
+    private JobStatusService jobStatusService;
+
     /**
      * Check for subscriptions requiring renewal reminders
      * Runs daily at 8:00 AM
      */
-    @Scheduled(cron = "0 0 8 * * ?") // Every day at 8:00 AM
+    // @Scheduled(cron = "0 0 8 * * ?") // Every day at 8:00 AM
     public void sendRenewalReminders() {
+        if (!jobStatusService.isJobEnabled("SUBSCRIPTION_REMINDERS")) {
+            logger.info("Skipping SUBSCRIPTION_REMINDERS job as it is currently DISABLED.");
+            return;
+        }
+
         logger.info("Starting subscription renewal reminder job...");
+        jobStatusService.updateLastRun("SUBSCRIPTION_REMINDERS");
 
         try {
             // Get all active subscriptions that need reminders
@@ -81,13 +91,11 @@ public class SubscriptionReminderScheduler {
      * Check for unused subscriptions and send alerts
      * Runs weekly on Monday at 9:00 AM
      */
-    @Scheduled(cron = "0 0 9 * * MON") // Every Monday at 9:00 AM
+    // @Scheduled(cron = "0 0 9 * * MON") // Every Monday at 9:00 AM
     public void checkUnusedSubscriptions() {
         logger.info("Starting unused subscriptions check job...");
 
         try {
-            LocalDate thresholdDate = LocalDate.now().minusDays(30);
-
             // This would need to be run per user or in batches
             // For now, we'll log the count
             // In production, you'd iterate through users and send notifications
@@ -111,7 +119,7 @@ public class SubscriptionReminderScheduler {
      * Mark expired subscriptions
      * Runs daily at 1:00 AM to check for subscriptions that have expired
      */
-    @Scheduled(cron = "0 0 1 * * ?") // Every day at 1:00 AM
+    // @Scheduled(cron = "0 0 1 * * ?") // Every day at 1:00 AM
     public void markExpiredSubscriptions() {
         logger.info("Starting expired subscriptions check job...");
 
@@ -174,39 +182,36 @@ public class SubscriptionReminderScheduler {
                 "Reminder: Your %s subscription (₹%.2f) will renew on %s",
                 subscription.getServiceName(),
                 subscription.getAmount(),
-                subscription.getNextRenewalDate()
-        );
+                subscription.getNextRenewalDate());
 
         try {
             // Get user details for email
             Users user = usersRepository.findById(subscription.getUserId()).orElse(null);
-            
-            if (user != null) {
+
+            if (user != null && user.getId() != null) {
                 // Send email notification
                 emailService.sendEmail(user.getEmail(), subject, message);
                 logger.info("Email sent to {} for subscription renewal", user.getEmail());
+
+                // Send in-app notification
+                notificationService.sendNotification(
+                        user.getId(),
+                        subject,
+                        message,
+                        NotificationType.REMINDER,
+                        AlertChannel.IN_APP,
+                        Map.of(
+                                "subscriptionId", subscription.getId().toString(),
+                                "serviceName", subscription.getServiceName(),
+                                "renewalDate", subscription.getNextRenewalDate().toString(),
+                                "amount", subscription.getAmount().toString()),
+                        null);
+                logger.info("In-app notification sent for subscription renewal");
             }
-            
-            // Send in-app notification
-            notificationService.sendNotification(
-                subscription.getUserId(),
-                subject,
-                message,
-                NotificationType.REMINDER,
-                AlertChannel.IN_APP,
-                Map.of(
-                    "subscriptionId", subscription.getId().toString(),
-                    "serviceName", subscription.getServiceName(),
-                    "renewalDate", subscription.getNextRenewalDate().toString(),
-                    "amount", subscription.getAmount().toString()
-                ),
-                null
-            );
-            logger.info("In-app notification sent for subscription renewal");
-            
+
         } catch (Exception e) {
-            logger.error("Failed to send renewal reminder for subscription {}: {}", 
-                subscription.getId(), e.getMessage());
+            logger.error("Failed to send renewal reminder for subscription {}: {}",
+                    subscription.getId(), e.getMessage());
         }
     }
 }

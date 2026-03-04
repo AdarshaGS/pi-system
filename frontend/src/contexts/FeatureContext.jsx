@@ -26,11 +26,16 @@ export const FeatureProvider = ({ children }) => {
 
             const enabledFeatures = await featureApi.getEnabledFeatures(user.token);
             
-            // Convert array of feature names to object for quick lookup
+            // Convert array of feature names/objects to object for quick lookup
             const featureMap = {};
-            enabledFeatures.forEach(featureName => {
-                featureMap[featureName] = true;
-            });
+            if (Array.isArray(enabledFeatures)) {
+                enabledFeatures.forEach(feature => {
+                    const featureName = typeof feature === 'string' ? feature : feature.name;
+                    if (featureName) {
+                        featureMap[featureName] = true;
+                    }
+                });
+            }
             
             setFeatures(featureMap);
             setError(null);

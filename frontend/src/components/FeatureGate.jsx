@@ -9,7 +9,7 @@ const FeatureGate = ({ feature, children, fallback = null, showDisabledMessage =
     }
 
     if (!isFeatureEnabled(feature)) {
-        if (showDisabledMessage) {
+        if (!showDisabledMessage) {
             return (
                 <div style={{
                     padding: '40px 20px',

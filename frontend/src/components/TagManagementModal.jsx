@@ -34,7 +34,12 @@ const TagManagementModal = ({ show, onClose }) => {
     const fetchTags = async () => {
         setLoading(true);
         try {
-            const fetchedTags = await budgetApi.getUserTags();
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || !user.token) {
+                console.error('No user token found');
+                return;
+            }
+            const fetchedTags = await budgetApi.getUserTags(user.userId, user.token);
             setTags(fetchedTags);
         } catch (error) {
             console.error('Failed to fetch tags:', error);
@@ -47,7 +52,13 @@ const TagManagementModal = ({ show, onClose }) => {
         if (!formData.name.trim()) return;
 
         try {
-            const newTag = await budgetApi.createTag(formData);
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || !user.token) {
+                alert('Please log in to create tags');
+                return;
+            }
+            const tagData = { ...formData, userId: user.userId };
+            const newTag = await budgetApi.createTag(tagData, user.token);
             setTags([...tags, newTag]);
             resetForm();
         } catch (error) {
@@ -60,7 +71,12 @@ const TagManagementModal = ({ show, onClose }) => {
         if (!formData.name.trim()) return;
 
         try {
-            const updatedTag = await budgetApi.updateTag(editingTag.id, formData);
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || !user.token) {
+                alert('Please log in to update tags');
+                return;
+            }
+            const updatedTag = await budgetApi.updateTag(editingTag.id, formData, user.token);
             setTags(tags.map(t => t.id === editingTag.id ? updatedTag : t));
             resetForm();
         } catch (error) {
@@ -75,7 +91,12 @@ const TagManagementModal = ({ show, onClose }) => {
         }
 
         try {
-            await budgetApi.deleteTag(tagId);
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || !user.token) {
+                alert('Please log in to delete tags');
+                return;
+            }
+            await budgetApi.deleteTag(tagId, user.token);
             setTags(tags.filter(t => t.id !== tagId));
         } catch (error) {
             console.error('Failed to delete tag:', error);

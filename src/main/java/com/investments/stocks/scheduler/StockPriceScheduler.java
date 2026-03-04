@@ -9,8 +9,10 @@ import com.investments.stocks.repo.StockRepository;
 import com.investments.stocks.thirdParty.ThirdPartyResponse;
 import com.investments.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
 
+import com.admin.service.JobStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Component
 @Slf4j
@@ -19,11 +21,16 @@ public class StockPriceScheduler {
 
     private final StockRepository stockRepository;
     private final IndianAPIService indianAPIService;
+    private final JobStatusService jobStatusService;
 
     // Run every 1 Day
-    // @Scheduled(cron = "0 0/1 * * * ?")
+    // @Scheduled(cron = "0 0 0 * * ?") // Midnight daily
     public void updateStockPrices() {
+        if (!jobStatusService.isJobEnabled("STOCK_PRICE_UPDATE")) {
+            return;
+        }
         log.info("Starting scheduled stock price update...");
+        jobStatusService.updateLastRun("STOCK_PRICE_UPDATE");
         List<Stock> allStocks = stockRepository.findAll();
 
         for (Stock stock : allStocks) {

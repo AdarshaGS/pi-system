@@ -25,6 +25,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.investments.stocks.exception.SymbolNotFoundException;
 import com.investments.stocks.thirdParty.ThirdPartyResponse;
 
+// import io.github.resilience4j.ratelimiter.RateLimiter;
+// import io.github.resilience4j.retry.Retry;
+import java.util.function.Supplier;
+import org.springframework.cache.annotation.Cacheable;
+
 @Service
 public class IndianAPIServiceImpl implements IndianAPIService {
 
@@ -35,17 +40,28 @@ public class IndianAPIServiceImpl implements IndianAPIService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String SERVICE_NAME = "INDIANAPI";
     private final ThirdPartyAuditService auditService;
+    // private final RateLimiter rateLimiter;
+    // private final Retry retry;
 
     public IndianAPIServiceImpl(ExternalService externalService,
             ThirdPartyAuditService auditService) {
         this.httpClient = HttpClient.newHttpClient();
         this.externalService = externalService;
         this.auditService = auditService;
+        // this.rateLimiter = rateLimiter;
+        // this.retry = retry;
     }
 
-    @Override
-    public ThirdPartyResponse fetchStockData(String symbol) {
+    // @Override
+    // @Cacheable(value = "stockPrices", key = "#symbol", unless = "#result == null")
+    // public ThirdPartyResponse fetchStockData(String symbol) {
+    //     Supplier<ThirdPartyResponse> rateLimitedSupplier = RateLimiter.decorateSupplier(rateLimiter,
+    //             () -> fetchFromApi(symbol));
+    //     Supplier<ThirdPartyResponse> retrySupplier = Retry.decorateSupplier(retry, rateLimitedSupplier);
+    //     return retrySupplier.get();
+    // }
 
+    private ThirdPartyResponse fetchFromApi(String symbol) {
         final List<ExternalServicePropertiesEntity> properties = this.externalService
                 .getExternalServicePropertiesByServiceName(
                         SERVICE_NAME);
@@ -78,16 +94,15 @@ public class IndianAPIServiceImpl implements IndianAPIService {
             statusCode = httpResponse.statusCode();
             response = httpResponse.body();
 
-            // Validate successful HTTP response
             if (statusCode != null && (statusCode < 200 || statusCode >= 300)) {
-                log.error("API returned error status {} for symbol: {}. Response: {}", 
-                    statusCode, symbol, response);
+                log.error("API returned error status {} for symbol: {}. Response: {}",
+                        statusCode, symbol, response);
                 throw new SymbolNotFoundException(
-                    String.format("API returned error status %d for symbol: %s", statusCode, symbol));
+                        String.format("API returned error status %d for symbol: %s", statusCode, symbol));
             }
         } catch (Exception e) {
             exceptionMessage = e.getMessage();
-            throw e;
+            throw new RuntimeException(e);
         } finally {
             long duration = System.currentTimeMillis() - startTime;
             ThirdPartyRequestAudit audit = ThirdPartyRequestAudit.builder()
@@ -104,31 +119,20 @@ public class IndianAPIServiceImpl implements IndianAPIService {
             auditService.logOnly(audit);
         }
 
-        // Validate response is not null or empty
         if (response == null || response.trim().isEmpty()) {
             log.error("Empty or null response received for symbol: {}", symbol);
             throw new SymbolNotFoundException("No data received from third-party API for symbol: " + symbol);
         }
 
-        // Log the raw response for debugging
         log.info("Raw API response for symbol {}: {}", symbol, response);
 
-        ThirdPartyResponse thirdPartyResponse = null;
         try {
-            thirdPartyResponse = objectMapper.readValue(response, ThirdPartyResponse.class);
-        } catch (JsonMappingException e) {
-            log.error("Failed to map JSON response for symbol: {}. Response body: {}. Error: {}", 
-                symbol, response, e.getMessage(), e);
-            throw new SymbolNotFoundException("Invalid response format from third-party API for symbol: " + symbol);
+            return objectMapper.readValue(response, ThirdPartyResponse.class);
         } catch (JsonProcessingException e) {
-            log.error("Failed to process JSON response for symbol: {}. Response body: {}. Error: {}", 
-                symbol, response, e.getMessage(), e);
+            log.error("Failed to process JSON response for symbol: {}. Response body: {}. Error: {}",
+                    symbol, response, e.getMessage(), e);
             throw new SymbolNotFoundException("Failed to parse response from third-party API for symbol: " + symbol);
         }
-        if (thirdPartyResponse == null) {
-            throw new SymbolNotFoundException("Symbol not found in third-party API: " + symbol);
-        }
-        return thirdPartyResponse;
     }
 
     private Map<String, String> constructHeaders(final List<ExternalServicePropertiesEntity> properties) {
@@ -151,5 +155,11 @@ public class IndianAPIServiceImpl implements IndianAPIService {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Failed to encode symbol", e);
         }
+    }
+
+    @Override
+    public ThirdPartyResponse fetchStockData(String symbol) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'fetchStockData'");
     }
 }

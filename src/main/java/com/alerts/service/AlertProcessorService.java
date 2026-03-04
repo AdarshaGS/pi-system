@@ -21,6 +21,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
+import com.admin.service.JobStatusService;
+
 /**
  * Service for processing alerts based on rules
  * Runs scheduled jobs to check conditions and trigger notifications
@@ -36,25 +38,30 @@ public class AlertProcessorService {
     private final LoanRepository loanRepository;
     private final InsuranceRepository insuranceRepository;
     private final StockPriceWebSocketService stockPriceService;
+    private final JobStatusService jobStatusService;
 
     /**
      * Process stock price alerts - runs every 5 minutes
      */
-    @Scheduled(cron = "0 */5 * * * *")
+    // @Scheduled(cron = "0 */5 * * * *")
     public void processStockPriceAlerts() {
+        if (!jobStatusService.isJobEnabled("ALERT_PROCESSOR")) {
+            return;
+        }
         log.info("Processing stock price alerts...");
-        
+        jobStatusService.updateLastRun("ALERT_PROCESSOR");
+
         List<AlertRule> rules = alertRuleRepository.findByTypeAndEnabled(AlertType.STOCK_PRICE, true);
-        
+
         for (AlertRule rule : rules) {
             try {
                 processStockPriceAlert(rule);
             } catch (Exception e) {
-                log.error("Error processing stock price alert for rule ID: {}. Error: {}", 
-                         rule.getId(), e.getMessage());
+                log.error("Error processing stock price alert for rule ID: {}. Error: {}",
+                        rule.getId(), e.getMessage());
             }
         }
-        
+
         log.info("Completed processing {} stock price alerts", rules.size());
     }
 
@@ -86,24 +93,22 @@ public class AlertProcessorService {
 
             if (shouldTrigger) {
                 String message = String.format(
-                    "%s hit target price ₹%.2f (Current: ₹%.2f)",
-                    rule.getSymbol(),
-                    rule.getTargetPrice(),
-                    currentPrice
-                );
+                        "%s hit target price ₹%.2f (Current: ₹%.2f)",
+                        rule.getSymbol(),
+                        rule.getTargetPrice(),
+                        currentPrice);
 
                 notificationService.sendNotification(
-                    rule.getUserId(),
-                    "Stock Price Alert",
-                    message,
-                    NotificationType.ALERT,
-                    rule.getChannel(),
-                    Map.of("symbol", rule.getSymbol(), "currentPrice", currentPrice.toString()),
-                    rule.getId()
-                );
+                        rule.getUserId(),
+                        "Stock Price Alert",
+                        message,
+                        NotificationType.ALERT,
+                        rule.getChannel(),
+                        Map.of("symbol", rule.getSymbol(), "currentPrice", currentPrice.toString()),
+                        rule.getId());
 
                 alertRuleService.updateLastTriggered(rule.getId());
-                log.info("Triggered price alert for user: {}, symbol: {}", 
+                log.info("Triggered price alert for user: {}, symbol: {}",
                         rule.getUserId(), rule.getSymbol());
             }
         } catch (Exception e) {
@@ -114,56 +119,57 @@ public class AlertProcessorService {
     /**
      * Process EMI due alerts - runs daily at 8 AM
      */
-    @Scheduled(cron = "0 0 8 * * *")
+    // @Scheduled(cron = "0 0 8 * * *")
     public void processEMIDueAlerts() {
+        if (!jobStatusService.isJobEnabled("ALERT_PROCESSOR")) {
+            return;
+        }
         log.info("Processing EMI due alerts...");
-        
+
         List<AlertRule> rules = alertRuleRepository.findByTypeAndEnabled(AlertType.EMI_DUE, true);
-        
+
         for (AlertRule rule : rules) {
             try {
                 processEMIDueAlert(rule);
             } catch (Exception e) {
-                log.error("Error processing EMI due alert for rule ID: {}. Error: {}", 
-                         rule.getId(), e.getMessage());
+                log.error("Error processing EMI due alert for rule ID: {}. Error: {}",
+                        rule.getId(), e.getMessage());
             }
         }
-        
+
         log.info("Completed processing {} EMI due alerts", rules.size());
     }
 
     private void processEMIDueAlert(AlertRule rule) {
         // Find loans with upcoming EMI
         int daysBeforeDue = rule.getDaysBeforeDue() != null ? rule.getDaysBeforeDue() : 3;
-        
+
         List<Loan> loans = loanRepository.findByUserId(rule.getUserId());
-        
+
         for (Loan loan : loans) {
             // Calculate next EMI date (simple approximation based on start date)
             if (loan.getStartDate() != null && loan.getEmiAmount() != null) {
                 LocalDate nextEmiDate = loan.getStartDate().plusMonths(1);
                 long daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), nextEmiDate);
-                
+
                 if (daysUntilDue <= daysBeforeDue && daysUntilDue >= 0) {
                     String message = String.format(
-                        "EMI of ₹%.2f for %s loan due in %d days (Due date: %s)",
-                        loan.getEmiAmount(),
-                        loan.getLoanType(),
-                        daysUntilDue,
-                        nextEmiDate
-                    );
+                            "EMI of ₹%.2f for %s loan due in %d days (Due date: %s)",
+                            loan.getEmiAmount(),
+                            loan.getLoanType(),
+                            daysUntilDue,
+                            nextEmiDate);
 
                     notificationService.sendNotification(
-                        rule.getUserId(),
-                        "EMI Due Reminder",
-                        message,
-                        NotificationType.REMINDER,
-                        rule.getChannel(),
-                        Map.of("loanId", loan.getId().toString(), "daysUntilDue", String.valueOf(daysUntilDue)),
-                        rule.getId()
-                    );
+                            rule.getUserId(),
+                            "EMI Due Reminder",
+                            message,
+                            NotificationType.REMINDER,
+                            rule.getChannel(),
+                            Map.of("loanId", loan.getId().toString(), "daysUntilDue", String.valueOf(daysUntilDue)),
+                            rule.getId());
 
-                    log.info("Triggered EMI due alert for user: {}, loan: {}", 
+                    log.info("Triggered EMI due alert for user: {}, loan: {}",
                             rule.getUserId(), loan.getId());
                 }
             }
@@ -173,53 +179,55 @@ public class AlertProcessorService {
     /**
      * Process policy expiry alerts - runs daily at 9 AM
      */
-    @Scheduled(cron = "0 0 9 * * *")
+    // @Scheduled(cron = "0 0 9 * * *")
     public void processPolicyExpiryAlerts() {
+        if (!jobStatusService.isJobEnabled("ALERT_PROCESSOR")) {
+            return;
+        }
         log.info("Processing policy expiry alerts...");
-        
+
         List<AlertRule> rules = alertRuleRepository.findByTypeAndEnabled(AlertType.POLICY_EXPIRY, true);
-        
+
         for (AlertRule rule : rules) {
             try {
                 processPolicyExpiryAlert(rule);
             } catch (Exception e) {
-                log.error("Error processing policy expiry alert for rule ID: {}. Error: {}", 
-                         rule.getId(), e.getMessage());
+                log.error("Error processing policy expiry alert for rule ID: {}. Error: {}",
+                        rule.getId(), e.getMessage());
             }
         }
-        
+
         log.info("Completed processing {} policy expiry alerts", rules.size());
     }
 
     private void processPolicyExpiryAlert(AlertRule rule) {
         int daysBeforeExpiry = rule.getDaysBeforeDue() != null ? rule.getDaysBeforeDue() : 30;
-        
+
         List<Insurance> policies = insuranceRepository.findByUserId(rule.getUserId());
-        
+
         for (Insurance policy : policies) {
             if (policy.getEndDate() != null) {
                 long daysUntilExpiry = ChronoUnit.DAYS.between(LocalDate.now(), policy.getEndDate());
-                
+
                 if (daysUntilExpiry <= daysBeforeExpiry && daysUntilExpiry >= 0) {
                     String message = String.format(
-                        "%s insurance policy (%s) expiring in %d days (Expiry: %s)",
-                        policy.getType(),
-                        policy.getPolicyNumber(),
-                        daysUntilExpiry,
-                        policy.getEndDate()
-                    );
+                            "%s insurance policy (%s) expiring in %d days (Expiry: %s)",
+                            policy.getType(),
+                            policy.getPolicyNumber(),
+                            daysUntilExpiry,
+                            policy.getEndDate());
 
                     notificationService.sendNotification(
-                        rule.getUserId(),
-                        "Policy Expiry Alert",
-                        message,
-                        NotificationType.WARNING,
-                        rule.getChannel(),
-                        Map.of("policyId", policy.getId().toString(), "daysUntilExpiry", String.valueOf(daysUntilExpiry)),
-                        rule.getId()
-                    );
+                            rule.getUserId(),
+                            "Policy Expiry Alert",
+                            message,
+                            NotificationType.WARNING,
+                            rule.getChannel(),
+                            Map.of("policyId", policy.getId().toString(), "daysUntilExpiry",
+                                    String.valueOf(daysUntilExpiry)),
+                            rule.getId());
 
-                    log.info("Triggered policy expiry alert for user: {}, policy: {}", 
+                    log.info("Triggered policy expiry alert for user: {}, policy: {}",
                             rule.getUserId(), policy.getId());
                 }
             }
@@ -229,48 +237,50 @@ public class AlertProcessorService {
     /**
      * Process premium due alerts - runs daily at 8:30 AM
      */
-    @Scheduled(cron = "0 30 8 * * *")
+    // @Scheduled(cron = "0 30 8 * * *")
     public void processPremiumDueAlerts() {
+        if (!jobStatusService.isJobEnabled("ALERT_PROCESSOR")) {
+            return;
+        }
         log.info("Processing premium due alerts...");
-        
+
         List<AlertRule> rules = alertRuleRepository.findByTypeAndEnabled(AlertType.PREMIUM_DUE, true);
-        
+
         for (AlertRule rule : rules) {
             try {
                 processPremiumDueAlert(rule);
             } catch (Exception e) {
-                log.error("Error processing premium due alert for rule ID: {}. Error: {}", 
-                         rule.getId(), e.getMessage());
+                log.error("Error processing premium due alert for rule ID: {}. Error: {}",
+                        rule.getId(), e.getMessage());
             }
         }
-        
+
         log.info("Completed processing {} premium due alerts", rules.size());
     }
 
     private void processPremiumDueAlert(AlertRule rule) {
         List<Insurance> policies = insuranceRepository.findByUserId(rule.getUserId());
-        
+
         for (Insurance policy : policies) {
             // Check if premium is due based on frequency
-            // This is a simplified check - actual implementation would need premium schedule tracking
+            // This is a simplified check - actual implementation would need premium
+            // schedule tracking
             if (policy.getPremiumAmount() != null) {
                 String message = String.format(
-                    "Premium payment of ₹%.2f due for %s policy (%s)",
-                    policy.getPremiumAmount(),
-                    policy.getType(),
-                    policy.getPolicyNumber()
-                );
+                        "Premium payment of ₹%.2f due for %s policy (%s)",
+                        policy.getPremiumAmount(),
+                        policy.getType(),
+                        policy.getPolicyNumber());
 
                 // Only send if we haven't sent recently
                 notificationService.sendNotification(
-                    rule.getUserId(),
-                    "Premium Payment Due",
-                    message,
-                    NotificationType.REMINDER,
-                    rule.getChannel(),
-                    Map.of("policyId", policy.getId().toString()),
-                    rule.getId()
-                );
+                        rule.getUserId(),
+                        "Premium Payment Due",
+                        message,
+                        NotificationType.REMINDER,
+                        rule.getChannel(),
+                        Map.of("policyId", policy.getId().toString()),
+                        rule.getId());
             }
         }
     }
@@ -278,21 +288,24 @@ public class AlertProcessorService {
     /**
      * Process tax deadline alerts - runs daily at 10 AM
      */
-    @Scheduled(cron = "0 0 10 * * *")
+    // @Scheduled(cron = "0 0 10 * * *")
     public void processTaxDeadlineAlerts() {
+        if (!jobStatusService.isJobEnabled("ALERT_PROCESSOR")) {
+            return;
+        }
         log.info("Processing tax deadline alerts...");
-        
+
         List<AlertRule> rules = alertRuleRepository.findByTypeAndEnabled(AlertType.TAX_DEADLINE, true);
-        
+
         for (AlertRule rule : rules) {
             try {
                 processTaxDeadlineAlert(rule);
             } catch (Exception e) {
-                log.error("Error processing tax deadline alert for rule ID: {}. Error: {}", 
-                         rule.getId(), e.getMessage());
+                log.error("Error processing tax deadline alert for rule ID: {}. Error: {}",
+                        rule.getId(), e.getMessage());
             }
         }
-        
+
         log.info("Completed processing {} tax deadline alerts", rules.size());
     }
 
@@ -302,26 +315,24 @@ public class AlertProcessorService {
         if (LocalDate.now().isAfter(itrDeadline)) {
             itrDeadline = itrDeadline.plusYears(1);
         }
-        
+
         long daysUntilDeadline = ChronoUnit.DAYS.between(LocalDate.now(), itrDeadline);
         int alertThreshold = rule.getDaysBeforeDue() != null ? rule.getDaysBeforeDue() : 30;
-        
+
         if (daysUntilDeadline <= alertThreshold && daysUntilDeadline > 0) {
             String message = String.format(
-                "Income Tax Return filing deadline in %d days (Deadline: July 31, %d)",
-                daysUntilDeadline,
-                itrDeadline.getYear()
-            );
+                    "Income Tax Return filing deadline in %d days (Deadline: July 31, %d)",
+                    daysUntilDeadline,
+                    itrDeadline.getYear());
 
             notificationService.sendNotification(
-                rule.getUserId(),
-                "Tax Filing Deadline Alert",
-                message,
-                NotificationType.WARNING,
-                rule.getChannel(),
-                Map.of("deadline", itrDeadline.toString(), "daysRemaining", String.valueOf(daysUntilDeadline)),
-                rule.getId()
-            );
+                    rule.getUserId(),
+                    "Tax Filing Deadline Alert",
+                    message,
+                    NotificationType.WARNING,
+                    rule.getChannel(),
+                    Map.of("deadline", itrDeadline.toString(), "daysRemaining", String.valueOf(daysUntilDeadline)),
+                    rule.getId());
 
             alertRuleService.updateLastTriggered(rule.getId());
             log.info("Triggered tax deadline alert for user: {}", rule.getUserId());
