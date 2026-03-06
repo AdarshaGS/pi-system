@@ -33,7 +33,7 @@ public class BudgetService {
     private final IncomeRepository incomeRepository;
     private final CustomCategoryRepository customCategoryRepository;
     private final AuthenticationHelper authenticationHelper;
-    
+
     @Autowired
     private SubscriptionTierService subscriptionTierService;
 
@@ -52,33 +52,40 @@ public class BudgetService {
         if (budget.getMonthYear() == null) {
             budget.setMonthYear(YearMonth.now().toString());
         }
-        
+
         // Validate that either category or customCategoryName is set (but not both)
-        // if (budget.getCategory() == null && (budget.getCustomCategoryName() == null || budget.getCustomCategoryName().trim().isEmpty())) {
-        //     throw new IllegalArgumentException("Either category or customCategoryName must be specified");
+        // if (budget.getCategory() == null && (budget.getCustomCategoryName() == null
+        // || budget.getCustomCategoryName().trim().isEmpty())) {
+        // throw new IllegalArgumentException("Either category or customCategoryName
+        // must be specified");
         // }
-        
-        // if (budget.getCategory() != null && budget.getCustomCategoryName() != null && !budget.getCustomCategoryName().trim().isEmpty()) {
-        //     throw new IllegalArgumentException("Cannot specify both category and customCategoryName");
+
+        // if (budget.getCategory() != null && budget.getCustomCategoryName() != null &&
+        // !budget.getCustomCategoryName().trim().isEmpty()) {
+        // throw new IllegalArgumentException("Cannot specify both category and
+        // customCategoryName");
         // }
-        
+
         // If custom category name is provided, validate it exists
         if (budget.getCustomCategoryName() != null && !budget.getCustomCategoryName().trim().isEmpty()) {
-            if (!customCategoryRepository.existsByUserIdAndCategoryName(budget.getUserId(), budget.getCustomCategoryName())) {
-                throw new IllegalArgumentException("Custom category '" + budget.getCustomCategoryName() + "' does not exist. Please create it first.");
+            if (!customCategoryRepository.existsByUserIdAndCategoryName(budget.getUserId(),
+                    budget.getCustomCategoryName())) {
+                throw new IllegalArgumentException("Custom category '" + budget.getCustomCategoryName()
+                        + "' does not exist. Please create it first.");
             }
         }
-        
+
         Budget savedBudget;
-        
+
         // Check if custom category budget
         if (budget.isCustomCategory()) {
             // Find existing custom category budget
-            Optional<Budget> existingOpt = budgetRepository.findByUserIdAndMonthYear(budget.getUserId(), budget.getMonthYear())
+            Optional<Budget> existingOpt = budgetRepository
+                    .findByUserIdAndMonthYear(budget.getUserId(), budget.getMonthYear())
                     .stream()
                     .filter(b -> budget.getCustomCategoryName().equals(b.getCustomCategoryName()))
                     .findFirst();
-            
+
             savedBudget = existingOpt.map(existing -> {
                 existing.setMonthlyLimit(budget.getMonthlyLimit());
                 return budgetRepository.save(existing);
@@ -93,15 +100,10 @@ public class BudgetService {
                     })
                     .orElseGet(() -> budgetRepository.save(budget));
         }
-        
-        // Auto-update TOTAL budget if this is not TOTAL
-        if (budget.getCategory() != ExpenseCategory.TOTAL) {
-            updateTotalBudget(budget.getUserId(), budget.getMonthYear());
-        }
-        
+
         return savedBudget;
     }
-    
+
     /**
      * Batch update multiple budgets at once - OPTIMIZED for bulk operations
      * This prevents multiple API calls when setting budgets for multiple categories
@@ -111,14 +113,14 @@ public class BudgetService {
         if (budgets == null || budgets.isEmpty()) {
             throw new IllegalArgumentException("Budget list cannot be empty");
         }
-        
+
         // Validate all budgets belong to the same user and month
         Long userId = budgets.get(0).getUserId();
-        String monthYear = budgets.get(0).getMonthYear() != null ? 
-                budgets.get(0).getMonthYear() : YearMonth.now().toString();
-        
+        String monthYear = budgets.get(0).getMonthYear() != null ? budgets.get(0).getMonthYear()
+                : YearMonth.now().toString();
+
         authenticationHelper.validateUserAccess(userId);
-        
+
         // Validate consistency
         for (Budget budget : budgets) {
             if (!userId.equals(budget.getUserId())) {
@@ -131,52 +133,47 @@ public class BudgetService {
                 throw new IllegalArgumentException("All budgets must be for the same month");
             }
         }
-        
+
         List<Budget> savedBudgets = new ArrayList<>();
-        
+
         // Fetch existing budgets for this user and month
         List<Budget> existingBudgets = budgetRepository.findByUserIdAndMonthYear(userId, monthYear);
         Map<String, Budget> existingBudgetMap = new HashMap<>();
-        
+
         for (Budget existing : existingBudgets) {
-            String key = existing.isCustomCategory() ? 
-                    "CUSTOM:" + existing.getCustomCategoryName() : 
-                    "SYSTEM:" + existing.getCategory().name();
+            String key = existing.isCustomCategory() ? "CUSTOM:" + existing.getCustomCategoryName()
+                    : "SYSTEM:" + existing.getCategory().name();
             existingBudgetMap.put(key, existing);
         }
-        
+
         // Process each budget in the batch
         for (Budget budget : budgets) {
-            // Skip TOTAL category - it will be auto-calculated
-            if (budget.getCategory() == ExpenseCategory.TOTAL) {
-                continue;
+            // Validate category specification (skip for TOTAL which is user-explicit)
+            if (budget.getCategory() != ExpenseCategory.TOTAL) {
+                if (budget.getCategory() == null &&
+                        (budget.getCustomCategoryName() == null || budget.getCustomCategoryName().trim().isEmpty())) {
+                    throw new IllegalArgumentException("Either category or customCategoryName must be specified");
+                }
+
+                if (budget.getCategory() != null && budget.getCustomCategoryName() != null &&
+                        !budget.getCustomCategoryName().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Cannot specify both category and customCategoryName");
+                }
             }
-            
-            // Validate category specification
-            if (budget.getCategory() == null && 
-                (budget.getCustomCategoryName() == null || budget.getCustomCategoryName().trim().isEmpty())) {
-                throw new IllegalArgumentException("Either category or customCategoryName must be specified");
-            }
-            
-            if (budget.getCategory() != null && budget.getCustomCategoryName() != null && 
-                !budget.getCustomCategoryName().trim().isEmpty()) {
-                throw new IllegalArgumentException("Cannot specify both category and customCategoryName");
-            }
-            
+
             // Validate custom category exists
             if (budget.isCustomCategory()) {
                 if (!customCategoryRepository.existsByUserIdAndCategoryName(
                         budget.getUserId(), budget.getCustomCategoryName())) {
-                    throw new IllegalArgumentException("Custom category '" + 
+                    throw new IllegalArgumentException("Custom category '" +
                             budget.getCustomCategoryName() + "' does not exist");
                 }
             }
-            
+
             // Check if budget exists and update or create
-            String key = budget.isCustomCategory() ? 
-                    "CUSTOM:" + budget.getCustomCategoryName() : 
-                    "SYSTEM:" + budget.getCategory().name();
-            
+            String key = budget.isCustomCategory() ? "CUSTOM:" + budget.getCustomCategoryName()
+                    : "SYSTEM:" + budget.getCategory().name();
+
             Budget savedBudget;
             if (existingBudgetMap.containsKey(key)) {
                 Budget existing = existingBudgetMap.get(key);
@@ -185,31 +182,31 @@ public class BudgetService {
             } else {
                 savedBudget = budgetRepository.save(budget);
             }
-            
+
             savedBudgets.add(savedBudget);
         }
-        
-        // Auto-update TOTAL budget once after all categories are processed
-        updateTotalBudget(userId, monthYear);
-        
-        // Add TOTAL budget to the response
+
+        // Include any TOTAL (overall) budget in response if present
         budgetRepository.findByUserIdAndCategoryAndMonthYear(userId, ExpenseCategory.TOTAL, monthYear)
                 .ifPresent(savedBudgets::add);
-        
+
+        // Auto-update TOTAL budget once after all categories are processed
+        updateTotalBudget(userId, monthYear);
+
         return savedBudgets;
     }
-    
+
     /**
      * Automatically update the TOTAL budget to sum of all category budgets
      */
     @Transactional
     public void updateTotalBudget(Long userId, String monthYear) {
         BigDecimal totalBudget = calculateTotalMonthlyBudget(userId, monthYear);
-        
+
         // Find or create TOTAL budget
         Optional<Budget> totalBudgetOpt = budgetRepository.findByUserIdAndCategoryAndMonthYear(
                 userId, ExpenseCategory.TOTAL, monthYear);
-        
+
         if (totalBudgetOpt.isPresent()) {
             Budget total = totalBudgetOpt.get();
             total.setMonthlyLimit(totalBudget);
@@ -276,11 +273,15 @@ public class BudgetService {
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Calculate total budget as sum of all category budgets (excluding TOTAL)
+        // totalBudget = the overall/monthly budget the user explicitly set (TOTAL
+        // category).
+        // This is shown on the UI as "Monthly Limit". Category-level limits are
+        // separate.
         BigDecimal totalBudget = budgets.stream()
-                .filter(b -> b.getCategory() != ExpenseCategory.TOTAL)
+                .filter(b -> b.getCategory() == ExpenseCategory.TOTAL)
                 .map(Budget::getMonthlyLimit)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
 
         BigDecimal totalIncome = incomes.stream()
                 .map(Income::getAmount)
@@ -289,7 +290,7 @@ public class BudgetService {
         BigDecimal balance = totalIncome.subtract(totalSpent);
         BigDecimal remainingBudget = totalBudget.subtract(totalSpent);
         BigDecimal savings = totalIncome.subtract(totalSpent);
-        
+
         // Calculate budget usage percentage
         double budgetUsagePercentage = calculatePercentage(totalSpent, totalBudget);
 
@@ -335,7 +336,7 @@ public class BudgetService {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new ExpenseNotFoundException(id));
         authenticationHelper.validateUserAccess(expense.getUserId());
-        if (expenseDetails!=null) {
+        if (expenseDetails != null) {
             if (expenseDetails.getAmount() != null) {
                 expense.setAmount(expenseDetails.getAmount());
             }
@@ -392,13 +393,13 @@ public class BudgetService {
         Income income = incomeRepository.findById(id)
                 .orElseThrow(() -> new IncomeNotFoundException(id));
         authenticationHelper.validateUserAccess(income.getUserId());
-        
+
         income.setSource(incomeDetails.getSource());
         income.setAmount(incomeDetails.getAmount());
         income.setDate(incomeDetails.getDate());
         income.setIsRecurring(incomeDetails.getIsRecurring());
         income.setIsStable(incomeDetails.getIsStable());
-        
+
         return incomeRepository.save(income);
     }
 
@@ -510,7 +511,8 @@ public class BudgetService {
             LocalDate pastEnd = pastMonth.atEndOfMonth();
 
             List<Income> pastIncomes = incomeRepository.findByUserIdAndDateBetween(userId, pastStart, pastEnd);
-            List<Expense> pastExpenses = expenseRepository.findByUserIdAndExpenseDateBetween(userId, pastStart, pastEnd);
+            List<Expense> pastExpenses = expenseRepository.findByUserIdAndExpenseDateBetween(userId, pastStart,
+                    pastEnd);
 
             BigDecimal pastIncome = pastIncomes.stream()
                     .map(Income::getAmount)
@@ -588,10 +590,10 @@ public class BudgetService {
 
     // Pagination and filtering methods
     @Transactional(readOnly = true)
-    public Page<Expense> getExpensesFiltered(Long userId, String category, LocalDate startDate, LocalDate endDate, 
-                                              String search, Pageable pageable) {
+    public Page<Expense> getExpensesFiltered(Long userId, String category, LocalDate startDate, LocalDate endDate,
+            String search, Pageable pageable) {
         authenticationHelper.validateUserAccess(userId);
-        
+
         // If no date range specified, use current month
         final LocalDate finalStartDate;
         final LocalDate finalEndDate;
@@ -603,38 +605,38 @@ public class BudgetService {
             finalStartDate = startDate;
             finalEndDate = endDate;
         }
-        
+
         // Build dynamic filter
         Specification<Expense> spec = (root, query, cb) -> {
             List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
-            
+
             // User ID filter (always required)
             predicates.add(cb.equal(root.get("userId"), userId));
-            
+
             // Date range filter
             predicates.add(cb.between(root.get("expenseDate"), finalStartDate, finalEndDate));
-            
+
             // Category filter
             if (category != null && !category.isEmpty()) {
                 predicates.add(cb.equal(root.get("category"), ExpenseCategory.valueOf(category)));
             }
-            
+
             // Search in description
             if (search != null && !search.isEmpty()) {
                 predicates.add(cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%"));
             }
-            
+
             return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
         };
-        
+
         return expenseRepository.findAll(spec, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Income> getIncomesFiltered(Long userId, String source, LocalDate startDate, LocalDate endDate,
-                                            Pageable pageable) {
+            Pageable pageable) {
         authenticationHelper.validateUserAccess(userId);
-        
+
         // If no date range specified, use current month
         final LocalDate finalStartDate;
         final LocalDate finalEndDate;
@@ -646,44 +648,44 @@ public class BudgetService {
             finalStartDate = startDate;
             finalEndDate = endDate;
         }
-        
+
         // Build dynamic filter
         Specification<Income> spec = (root, query, cb) -> {
             List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
-            
+
             // User ID filter (always required)
             predicates.add(cb.equal(root.get("userId"), userId));
-            
+
             // Date range filter
             predicates.add(cb.between(root.get("date"), finalStartDate, finalEndDate));
-            
+
             // Source filter
             if (source != null && !source.isEmpty()) {
                 predicates.add(cb.equal(root.get("source"), source));
             }
-            
+
             return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
         };
-        
+
         return incomeRepository.findAll(spec, pageable);
     }
 
     // ==================== Custom Category Management ====================
-    
+
     @Transactional
     public CustomCategory createCustomCategory(CustomCategory customCategory) {
         authenticationHelper.validateUserAccess(customCategory.getUserId());
-        
+
         // Check tier limit before creating (FREE users limited to 5 total categories)
         int currentCount = customCategoryRepository.findByUserIdAndIsActive(
                 customCategory.getUserId(), true).size();
         subscriptionTierService.checkBudgetCategoryLimit(customCategory.getUserId(), currentCount);
-        
+
         // Validate category name is not empty
         if (customCategory.getCategoryName() == null || customCategory.getCategoryName().trim().isEmpty()) {
             throw new IllegalArgumentException("Category name cannot be empty");
         }
-        
+
         // Check if category name conflicts with existing enum categories
         String categoryName = customCategory.getCategoryName().toUpperCase();
         try {
@@ -695,13 +697,13 @@ public class BudgetService {
                 throw e;
             }
         }
-        
+
         // Check if user already has a category with this name
         if (customCategoryRepository.existsByUserIdAndCategoryName(
                 customCategory.getUserId(), customCategory.getCategoryName())) {
             throw new IllegalArgumentException("Category '" + customCategory.getCategoryName() + "' already exists");
         }
-        
+
         return customCategoryRepository.save(customCategory);
     }
 
@@ -721,9 +723,9 @@ public class BudgetService {
     public CustomCategory updateCustomCategory(Long id, CustomCategory updatedCategory) {
         CustomCategory existing = customCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Custom category not found with id: " + id));
-        
+
         authenticationHelper.validateUserAccess(existing.getUserId());
-        
+
         // Update fields
         if (updatedCategory.getDescription() != null) {
             existing.setDescription(updatedCategory.getDescription());
@@ -737,7 +739,7 @@ public class BudgetService {
         if (updatedCategory.getIsActive() != null) {
             existing.setIsActive(updatedCategory.getIsActive());
         }
-        
+
         return customCategoryRepository.save(existing);
     }
 
@@ -745,9 +747,9 @@ public class BudgetService {
     public void deleteCustomCategory(Long id) {
         CustomCategory category = customCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Custom category not found with id: " + id));
-        
+
         authenticationHelper.validateUserAccess(category.getUserId());
-        
+
         // Soft delete - mark as inactive instead of deleting
         category.setIsActive(false);
         customCategoryRepository.save(category);
@@ -757,28 +759,29 @@ public class BudgetService {
     public void hardDeleteCustomCategory(Long id) {
         CustomCategory category = customCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Custom category not found with id: " + id));
-        
+
         authenticationHelper.validateUserAccess(category.getUserId());
-        
+
         // Hard delete - permanently remove
         customCategoryRepository.delete(category);
     }
 
     // ==================== Enhanced Budget Management ====================
-    
+
     /**
-     * Calculate total monthly budget from all category budgets (excluding TOTAL category)
+     * Calculate total monthly budget from all category budgets (excluding TOTAL
+     * category)
      */
     @Transactional(readOnly = true)
     public BigDecimal calculateTotalMonthlyBudget(Long userId, String monthYear) {
         authenticationHelper.validateUserAccess(userId);
-        
+
         if (monthYear == null) {
             monthYear = YearMonth.now().toString();
         }
-        
+
         List<Budget> budgets = budgetRepository.findByUserIdAndMonthYear(userId, monthYear);
-        
+
         return budgets.stream()
                 .filter(b -> b.getCategory() != ExpenseCategory.TOTAL) // Exclude TOTAL category
                 .map(Budget::getMonthlyLimit)
@@ -791,21 +794,21 @@ public class BudgetService {
     @Transactional(readOnly = true)
     public Map<String, Object> getAllCategories(Long userId) {
         authenticationHelper.validateUserAccess(userId);
-        
+
         Map<String, Object> result = new HashMap<>();
-        
+
         // System categories
         List<String> systemCategories = Arrays.stream(ExpenseCategory.values())
                 .filter(cat -> cat != ExpenseCategory.TOTAL)
                 .map(Enum::name)
                 .collect(Collectors.toList());
-        
+
         // Custom categories
         List<CustomCategory> customCategories = customCategoryRepository.findByUserIdAndIsActive(userId, true);
-        
+
         result.put("systemCategories", systemCategories);
         result.put("customCategories", customCategories);
-        
+
         return result;
     }
 
@@ -814,54 +817,55 @@ public class BudgetService {
      */
     @Transactional
     public Map<String, Object> bulkDeleteExpenses(List<Long> expenseIds, Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         int deletedCount = 0;
         List<Long> failedIds = new ArrayList<>();
-        
+
         for (Long expenseId : expenseIds) {
             try {
                 Expense expense = expenseRepository.findById(expenseId)
-                    .orElseThrow(() -> new RuntimeException("Expense not found: " + expenseId));
-                
+                        .orElseThrow(() -> new RuntimeException("Expense not found: " + expenseId));
+
                 // Verify user owns this expense
                 if (!expense.getUserId().equals(userId)) {
                     failedIds.add(expenseId);
                     continue;
                 }
-                
+
                 expenseRepository.delete(expense);
                 deletedCount++;
             } catch (Exception e) {
                 failedIds.add(expenseId);
             }
         }
-        
+
         return Map.of(
-            "deleted", deletedCount,
-            "failed", failedIds.size(),
-            "failedIds", failedIds
-        );
+                "deleted", deletedCount,
+                "failed", failedIds.size(),
+                "failedIds", failedIds);
     }
 
     /**
      * Bulk update category for expenses
      */
     @Transactional
-    public Map<String, Object> bulkUpdateCategory(List<Long> expenseIds, ExpenseCategory newCategory, 
-                                                   String customCategoryName, Long userId) {
+    public Map<String, Object> bulkUpdateCategory(List<Long> expenseIds, ExpenseCategory newCategory,
+            String customCategoryName, Long userId) {
+        authenticationHelper.validateUserAccess(userId);
         int updatedCount = 0;
         List<Long> failedIds = new ArrayList<>();
-        
+
         for (Long expenseId : expenseIds) {
             try {
                 Expense expense = expenseRepository.findById(expenseId)
-                    .orElseThrow(() -> new RuntimeException("Expense not found: " + expenseId));
-                
+                        .orElseThrow(() -> new RuntimeException("Expense not found: " + expenseId));
+
                 // Verify user owns this expense
                 if (!expense.getUserId().equals(userId)) {
                     failedIds.add(expenseId);
                     continue;
                 }
-                
+
                 expense.setCategory(newCategory);
                 expense.setCustomCategoryName(customCategoryName);
                 expenseRepository.save(expense);
@@ -870,69 +874,67 @@ public class BudgetService {
                 failedIds.add(expenseId);
             }
         }
-        
+
         return Map.of(
-            "updated", updatedCount,
-            "failed", failedIds.size(),
-            "failedIds", failedIds
-        );
+                "updated", updatedCount,
+                "failed", failedIds.size(),
+                "failedIds", failedIds);
     }
-    
+
     // ========== Budget vs Actual Analysis Methods ==========
-    
+
     /**
      * Get budget vs actual variance analysis for a specific month
-     * @param userId User ID
+     * 
+     * @param userId    User ID
      * @param monthYear Month in YYYY-MM format (e.g., "2026-02")
      * @return Complete budget vs actual report with variance analysis
      */
     public BudgetVsActualReport getBudgetVsActualReport(Long userId, String monthYear) {
         authenticationHelper.validateUserAccess(userId);
-        
+
         if (monthYear == null) {
             monthYear = YearMonth.now().toString();
         }
-        
+
         // Get all budgets for the month
         List<Budget> budgets = budgetRepository.findByUserIdAndMonthYear(userId, monthYear);
-        
+
         // Get all expenses for the month
         YearMonth ym = YearMonth.parse(monthYear);
         LocalDate startDate = ym.atDay(1);
         LocalDate endDate = ym.atEndOfMonth();
         List<Expense> expenses = expenseRepository.findByUserIdAndExpenseDateBetween(userId, startDate, endDate);
-        
+
         // Group expenses by category
         Map<String, BigDecimal> expensesByCategory = new HashMap<>();
         for (Expense expense : expenses) {
-            String key = expense.isCustomCategory() ? 
-                    "CUSTOM:" + expense.getCustomCategoryName() : 
-                    "SYSTEM:" + expense.getCategory().name();
+            String key = expense.isCustomCategory() ? "CUSTOM:" + expense.getCustomCategoryName()
+                    : "SYSTEM:" + expense.getCategory().name();
             expensesByCategory.merge(key, expense.getAmount(), BigDecimal::add);
         }
-        
+
         // Build variance analysis for each category
         List<BudgetVarianceAnalysis> categoryBreakdown = new ArrayList<>();
         BigDecimal totalBudget = BigDecimal.ZERO;
         BigDecimal totalSpent = BigDecimal.ZERO;
-        
+
         for (Budget budget : budgets) {
             // Skip TOTAL category - it's calculated
             if (budget.getCategory() == ExpenseCategory.TOTAL) {
                 continue;
             }
-            
-            String key = budget.isCustomCategory() ? 
-                    "CUSTOM:" + budget.getCustomCategoryName() : 
-                    "SYSTEM:" + budget.getCategory().name();
-            
+
+            String key = budget.isCustomCategory() ? "CUSTOM:" + budget.getCustomCategoryName()
+                    : "SYSTEM:" + budget.getCategory().name();
+
             BigDecimal budgetAmount = budget.getMonthlyLimit();
             BigDecimal actualSpent = expensesByCategory.getOrDefault(key, BigDecimal.ZERO);
             BigDecimal variance = budgetAmount.subtract(actualSpent);
-            BigDecimal variancePercentage = budgetAmount.compareTo(BigDecimal.ZERO) > 0 ?
-                    actualSpent.divide(budgetAmount, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)) :
-                    BigDecimal.ZERO;
-            
+            BigDecimal variancePercentage = budgetAmount.compareTo(BigDecimal.ZERO) > 0
+                    ? actualSpent.divide(budgetAmount, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100))
+                    : BigDecimal.ZERO;
+
             // Determine status
             BudgetVarianceAnalysis.VarianceStatus status;
             if (variancePercentage.compareTo(BigDecimal.valueOf(100)) > 0) {
@@ -942,17 +944,15 @@ public class BudgetService {
             } else {
                 status = BudgetVarianceAnalysis.VarianceStatus.UNDER_BUDGET;
             }
-            
-            String categoryName = budget.isCustomCategory() ? 
-                    budget.getCustomCategoryName() : 
-                    budget.getCategory().name();
-            
+
+            String categoryName = budget.isCustomCategory() ? budget.getCustomCategoryName()
+                    : budget.getCategory().name();
+
             long transactionCount = expenses.stream()
-                    .filter(e -> key.equals(e.isCustomCategory() ? 
-                            "CUSTOM:" + e.getCustomCategoryName() : 
-                            "SYSTEM:" + e.getCategory().name()))
+                    .filter(e -> key.equals(e.isCustomCategory() ? "CUSTOM:" + e.getCustomCategoryName()
+                            : "SYSTEM:" + e.getCategory().name()))
                     .count();
-            
+
             categoryBreakdown.add(BudgetVarianceAnalysis.builder()
                     .category(categoryName)
                     .budgetAmount(budgetAmount)
@@ -963,17 +963,17 @@ public class BudgetService {
                     .remaining(variance.max(BigDecimal.ZERO))
                     .transactionCount((int) transactionCount)
                     .build());
-            
+
             totalBudget = totalBudget.add(budgetAmount);
             totalSpent = totalSpent.add(actualSpent);
         }
-        
+
         // Calculate overall metrics
         BigDecimal totalVariance = totalBudget.subtract(totalSpent);
-        BigDecimal totalVariancePercentage = totalBudget.compareTo(BigDecimal.ZERO) > 0 ?
-                totalSpent.divide(totalBudget, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)) :
-                BigDecimal.ZERO;
-        
+        BigDecimal totalVariancePercentage = totalBudget.compareTo(BigDecimal.ZERO) > 0
+                ? totalSpent.divide(totalBudget, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100))
+                : BigDecimal.ZERO;
+
         String overallStatus;
         if (totalVariancePercentage.compareTo(BigDecimal.valueOf(100)) > 0) {
             overallStatus = "OVER_BUDGET";
@@ -982,10 +982,10 @@ public class BudgetService {
         } else {
             overallStatus = "UNDER_BUDGET";
         }
-        
+
         // Calculate performance metrics
         BudgetVsActualReport.BudgetPerformanceMetrics metrics = calculatePerformanceMetrics(categoryBreakdown);
-        
+
         return BudgetVsActualReport.builder()
                 .month(ym)
                 .totalBudget(totalBudget)
@@ -997,24 +997,24 @@ public class BudgetService {
                 .metrics(metrics)
                 .build();
     }
-    
+
     /**
      * Calculate performance metrics from category breakdown
      */
     private BudgetVsActualReport.BudgetPerformanceMetrics calculatePerformanceMetrics(
             List<BudgetVarianceAnalysis> categoryBreakdown) {
-        
+
         int overBudget = 0;
         int underBudget = 0;
         int onTrack = 0;
         int noBudget = 0;
-        
+
         BigDecimal totalVariancePercentage = BigDecimal.ZERO;
         String worstCategory = null;
         BigDecimal worstVariance = BigDecimal.ZERO;
         String bestCategory = null;
         BigDecimal bestVariance = BigDecimal.ZERO;
-        
+
         for (BudgetVarianceAnalysis analysis : categoryBreakdown) {
             switch (analysis.getStatus()) {
                 case OVER_BUDGET:
@@ -1030,9 +1030,9 @@ public class BudgetService {
                     noBudget++;
                     break;
             }
-            
+
             totalVariancePercentage = totalVariancePercentage.add(analysis.getVariancePercentage());
-            
+
             // Track worst (most over budget)
             if (analysis.getStatus() == BudgetVarianceAnalysis.VarianceStatus.OVER_BUDGET) {
                 BigDecimal overAmount = analysis.getActualSpent().subtract(analysis.getBudgetAmount());
@@ -1041,7 +1041,7 @@ public class BudgetService {
                     worstVariance = overAmount;
                 }
             }
-            
+
             // Track best (most under budget)
             if (analysis.getStatus() == BudgetVarianceAnalysis.VarianceStatus.UNDER_BUDGET) {
                 BigDecimal underAmount = analysis.getBudgetAmount().subtract(analysis.getActualSpent());
@@ -1051,11 +1051,10 @@ public class BudgetService {
                 }
             }
         }
-        
-        BigDecimal avgVariancePercentage = categoryBreakdown.isEmpty() ? 
-                BigDecimal.ZERO : 
-                totalVariancePercentage.divide(BigDecimal.valueOf(categoryBreakdown.size()), 2, RoundingMode.HALF_UP);
-        
+
+        BigDecimal avgVariancePercentage = categoryBreakdown.isEmpty() ? BigDecimal.ZERO
+                : totalVariancePercentage.divide(BigDecimal.valueOf(categoryBreakdown.size()), 2, RoundingMode.HALF_UP);
+
         return BudgetVsActualReport.BudgetPerformanceMetrics.builder()
                 .categoriesOverBudget(overBudget)
                 .categoriesUnderBudget(underBudget)
@@ -1069,4 +1068,3 @@ public class BudgetService {
                 .build();
     }
 }
-

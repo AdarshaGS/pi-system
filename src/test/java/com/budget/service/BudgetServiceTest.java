@@ -63,7 +63,7 @@ class BudgetServiceTest {
     @BeforeEach
     void setUp() {
         userId = 1L;
-        
+
         testExpense = new Expense();
         testExpense.setId(1L);
         testExpense.setUserId(userId);
@@ -163,8 +163,7 @@ class BudgetServiceTest {
     void testGetExpenseByIdNotFound() {
         when(expenseRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> 
-            budgetService.getExpenseById(999L));
+        assertThrows(RuntimeException.class, () -> budgetService.getExpenseById(999L));
     }
 
     @Test
@@ -348,7 +347,8 @@ class BudgetServiceTest {
 
         when(budgetRepository.findByUserIdAndMonthYear(userId, YearMonth.now().toString()))
                 .thenReturn(budgets);
-        when(expenseRepository.findByUserIdAndExpenseDateBetween(eq(userId), any(LocalDate.class), any(LocalDate.class)))
+        when(expenseRepository.findByUserIdAndExpenseDateBetween(eq(userId), any(LocalDate.class),
+                any(LocalDate.class)))
                 .thenReturn(expenses);
         doNothing().when(authenticationHelper).validateUserAccess(userId);
 
@@ -356,7 +356,8 @@ class BudgetServiceTest {
 
         assertNotNull(result);
         verify(budgetRepository).findByUserIdAndMonthYear(userId, YearMonth.now().toString());
-        verify(expenseRepository).findByUserIdAndExpenseDateBetween(eq(userId), any(LocalDate.class), any(LocalDate.class));
+        verify(expenseRepository).findByUserIdAndExpenseDateBetween(eq(userId), any(LocalDate.class),
+                any(LocalDate.class));
     }
 
     @Test
@@ -367,15 +368,18 @@ class BudgetServiceTest {
 
         when(incomeRepository.findByUserIdAndDateBetween(eq(userId), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(incomes);
-        when(expenseRepository.findByUserIdAndExpenseDateBetween(eq(userId), any(LocalDate.class), any(LocalDate.class)))
+        when(expenseRepository.findByUserIdAndExpenseDateBetween(eq(userId), any(LocalDate.class),
+                any(LocalDate.class)))
                 .thenReturn(expenses);
         doNothing().when(authenticationHelper).validateUserAccess(userId);
 
         CashFlowDTO result = budgetService.getCashFlowAnalysis(userId, YearMonth.now().toString());
 
         assertNotNull(result);
-        verify(incomeRepository).findByUserIdAndDateBetween(eq(userId), any(LocalDate.class), any(LocalDate.class));
-        verify(expenseRepository).findByUserIdAndExpenseDateBetween(eq(userId), any(LocalDate.class), any(LocalDate.class));
+        verify(incomeRepository, times(7)).findByUserIdAndDateBetween(eq(userId), any(LocalDate.class),
+                any(LocalDate.class));
+        verify(expenseRepository, times(7)).findByUserIdAndExpenseDateBetween(eq(userId), any(LocalDate.class),
+                any(LocalDate.class));
     }
 
     // ===== EDGE CASE TESTS =====
