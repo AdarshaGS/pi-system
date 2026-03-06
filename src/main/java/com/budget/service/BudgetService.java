@@ -906,12 +906,14 @@ public class BudgetService {
         LocalDate endDate = ym.atEndOfMonth();
         List<Expense> expenses = expenseRepository.findByUserIdAndExpenseDateBetween(userId, startDate, endDate);
 
-        // Group expenses by category
+        // Group expenses by category and count transactions
         Map<String, BigDecimal> expensesByCategory = new HashMap<>();
+        Map<String, Integer> transactionsByCategory = new HashMap<>();
         for (Expense expense : expenses) {
             String key = expense.isCustomCategory() ? "CUSTOM:" + expense.getCustomCategoryName()
                     : "SYSTEM:" + expense.getCategory().name();
             expensesByCategory.merge(key, expense.getAmount(), BigDecimal::add);
+            transactionsByCategory.merge(key, 1, Integer::sum);
         }
 
         // Build variance analysis for each category
@@ -931,9 +933,15 @@ public class BudgetService {
             BigDecimal budgetAmount = budget.getMonthlyLimit();
             BigDecimal actualSpent = expensesByCategory.getOrDefault(key, BigDecimal.ZERO);
             BigDecimal variance = budgetAmount.subtract(actualSpent);
-            BigDecimal variancePercentage = budgetAmount.compareTo(BigDecimal.ZERO) > 0
-                    ? actualSpent.divide(budgetAmount, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100))
-                    : BigDecimal.ZERO;
+
+            BigDecimal variancePercentage;
+            if (budgetAmount.compareTo(BigDecimal.ZERO) > 0) {
+                variancePercentage = actualSpent.divide(budgetAmount, 4, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100));
+            } else {
+                variancePercentage = actualSpent.compareTo(BigDecimal.ZERO) > 0 ? BigDecimal.valueOf(1000)
+                        : BigDecimal.ZERO;
+            }
 
             // Determine status
             BudgetVarianceAnalysis.VarianceStatus status;
@@ -948,10 +956,7 @@ public class BudgetService {
             String categoryName = budget.isCustomCategory() ? budget.getCustomCategoryName()
                     : budget.getCategory().name();
 
-            long transactionCount = expenses.stream()
-                    .filter(e -> key.equals(e.isCustomCategory() ? "CUSTOM:" + e.getCustomCategoryName()
-                            : "SYSTEM:" + e.getCategory().name()))
-                    .count();
+            int transactionCount = transactionsByCategory.getOrDefault(key, 0);
 
             categoryBreakdown.add(BudgetVarianceAnalysis.builder()
                     .category(categoryName)
@@ -961,7 +966,7 @@ public class BudgetService {
                     .variancePercentage(variancePercentage.setScale(2, RoundingMode.HALF_UP))
                     .status(status)
                     .remaining(variance.max(BigDecimal.ZERO))
-                    .transactionCount((int) transactionCount)
+                    .transactionCount(transactionCount)
                     .build());
 
             totalBudget = totalBudget.add(budgetAmount);
@@ -970,9 +975,14 @@ public class BudgetService {
 
         // Calculate overall metrics
         BigDecimal totalVariance = totalBudget.subtract(totalSpent);
-        BigDecimal totalVariancePercentage = totalBudget.compareTo(BigDecimal.ZERO) > 0
-                ? totalSpent.divide(totalBudget, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100))
-                : BigDecimal.ZERO;
+        BigDecimal totalVariancePercentage;
+        if (totalBudget.compareTo(BigDecimal.ZERO) > 0) {
+            totalVariancePercentage = totalSpent.divide(totalBudget, 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+        } else {
+            totalVariancePercentage = totalSpent.compareTo(BigDecimal.ZERO) > 0 ? BigDecimal.valueOf(1000)
+                    : BigDecimal.ZERO;
+        }
 
         String overallStatus;
         if (totalVariancePercentage.compareTo(BigDecimal.valueOf(100)) > 0) {
