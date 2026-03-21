@@ -30,7 +30,7 @@ public class JobManagementController {
 
     @PostMapping("/{jobName}/execute")
     @Operation(summary = "Execute job manually", description = "Manually trigger a scheduled job to run immediately")
-    public ResponseEntity<Map<String, String>> executeJob(@PathVariable String jobName) {
+    public ResponseEntity<Map<String, String>> executeJob(@PathVariable("jobName") String jobName) {
         try {
             jobManagementService.executeJob(jobName);
             return ResponseEntity.ok(Map.of(

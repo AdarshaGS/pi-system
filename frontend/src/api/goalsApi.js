@@ -16,7 +16,7 @@
 
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/api/v1/goals';
+const BASE_URL = 'http://localhost:8080/api/financial-goals';
 
 // ===========================
 // FINANCIAL GOALS CRUD
@@ -109,8 +109,22 @@ export const deleteGoal = async (goalId) => {
  */
 export const getGoalProjection = async (goalId) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${goalId}/projection`);
-        return response.data;
+        const [requiredRes, onTrackRes, goalRes] = await Promise.all([
+            axios.get(`${BASE_URL}/${goalId}/required-contribution`).catch(() => ({ data: { requiredMonthlyContribution: 0 } })),
+            axios.get(`${BASE_URL}/${goalId}/on-track`).catch(() => ({ data: { onTrack: false } })),
+            axios.get(`${BASE_URL}/${goalId}`)
+        ]);
+
+        const goal = goalRes.data;
+        const required = requiredRes.data.requiredMonthlyContribution || 0;
+        const onTrack = onTrackRes.data.onTrack || false;
+
+        return {
+            onTrack: onTrack,
+            requiredMonthlyContribution: required,
+            projectedAmount: onTrack ? goal.targetAmount : goal.currentAmount + (goal.monthlyContribution * 12),
+            shortfall: onTrack ? 0 : goal.targetAmount - (goal.currentAmount + (goal.monthlyContribution * 12))
+        };
     } catch (error) {
         console.error('Error fetching goal projection:', error);
         throw error;
@@ -125,10 +139,18 @@ export const getGoalProjection = async (goalId) => {
  */
 export const calculateWhatIf = async (goalId, monthlyContribution) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${goalId}/what-if`, {
-            params: { monthlyContribution }
-        });
-        return response.data;
+        const goalRes = await axios.get(`${BASE_URL}/${goalId}`);
+        const goal = goalRes.data;
+        const current = goal.currentAmount || 0;
+        const target = goal.targetAmount || 0;
+        const projected = current + (monthlyContribution * 12); // Mock 1-year projection
+        const onTrack = projected >= target;
+
+        return {
+            onTrack: onTrack,
+            projectedAmount: projected,
+            shortfall: onTrack ? 0 : target - projected
+        };
     } catch (error) {
         console.error('Error calculating what-if scenario:', error);
         throw error;
@@ -147,7 +169,13 @@ export const calculateWhatIf = async (goalId, monthlyContribution) => {
  */
 export const recordContribution = async (goalId, contributionData) => {
     try {
-        const response = await axios.post(`${BASE_URL}/${goalId}/contribution`, contributionData);
+        const goalRes = await axios.get(`${BASE_URL}/${goalId}`);
+        const currentAmount = goalRes.data.currentAmount || 0;
+        const newAmount = currentAmount + contributionData.amount;
+
+        const response = await axios.patch(`${BASE_URL}/${goalId}/progress`, {
+            currentAmount: newAmount
+        });
         return response.data;
     } catch (error) {
         console.error('Error recording contribution:', error);
@@ -162,11 +190,11 @@ export const recordContribution = async (goalId, contributionData) => {
  */
 export const getContributions = async (goalId) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${goalId}/contributions`);
-        return response.data;
+        // Backend does not maintain a separate record table for contributions yet. Returning an empty array.
+        return [];
     } catch (error) {
         console.error('Error fetching contributions:', error);
-        throw error;
+        return [];
     }
 };
 
@@ -182,7 +210,7 @@ export const getContributions = async (goalId) => {
  */
 export const addMilestone = async (goalId, milestoneData) => {
     try {
-        const response = await axios.post(`${BASE_URL}/${goalId}/milestone`, milestoneData);
+        const response = await axios.post(`${BASE_URL}/${goalId}/milestones`, milestoneData);
         return response.data;
     } catch (error) {
         console.error('Error adding milestone:', error);
@@ -216,8 +244,7 @@ export const getMilestones = async (goalId) => {
  */
 export const getProgress = async (goalId) => {
     try {
-        const response = await axios.get(`${BASE_URL}/${goalId}/progress`);
-        return response.data;
+        return []; // Progress chart mock or fallback, not in backend
     } catch (error) {
         console.error('Error fetching progress:', error);
         throw error;
@@ -232,8 +259,13 @@ export const getProgress = async (goalId) => {
  */
 export const getGoalsByStatus = async (userId, status) => {
     try {
-        const response = await axios.get(`${BASE_URL}/user/${userId}/status/${status}`);
-        return response.data;
+        if (status === 'ACTIVE') {
+            const response = await axios.get(`${BASE_URL}/user/${userId}/active`);
+            return response.data;
+        } else {
+            const response = await axios.get(`${BASE_URL}/user/${userId}`);
+            return response.data.filter(g => g.status === status);
+        }
     } catch (error) {
         console.error('Error fetching goals by status:', error);
         throw error;

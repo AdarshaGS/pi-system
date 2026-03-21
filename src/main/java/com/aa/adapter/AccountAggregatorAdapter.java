@@ -1,19 +1,19 @@
-package com.aa.adapter;
+// package com.aa.adapter;
 
-import java.util.List;
-import java.util.Map;
+// import java.util.List;
+// import java.util.Map;
 
-import com.aa.data.*;
+// import com.aa.data.*;
 
-public interface AccountAggregatorAdapter {
+// public interface AccountAggregatorAdapter {
 
-    ConsentResponse createConsent(ConsentRequest request);
+//     ConsentResponse createConsent(ConsentRequest request);
 
-    ConsentStatusResponse getConsentStatus(String consentId);
+//     ConsentStatusResponse getConsentStatus(String consentId);
 
-    EncryptedFIPayload fetchFinancialInformation(FIRequest request);
+//     EncryptedFIPayload fetchFinancialInformation(FIRequest request);
 
-    void revokeConsent(String consentId);
+//     void revokeConsent(String consentId);
 
-    List<Map<String, String>> getConsentTemplates();
-}
+//     List<Map<String, String>> getConsentTemplates();
+// }

@@ -15,7 +15,8 @@ import {
     DollarSign,
     Landmark,
     Menu,
-    X
+    X,
+    Target
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useFeatures } from '../contexts/FeatureContext';
@@ -34,14 +35,14 @@ const Layout = () => {
                 const payload = JSON.parse(atob(user.token.split('.')[1]));
                 console.log('JWT Payload:', payload);
                 console.log('Roles from JWT:', payload.roles);
-                
+
                 const roles = payload.roles || [];
-                const hasAdmin = roles.some(role => 
-                    role === 'ROLE_ADMIN' || 
+                const hasAdmin = roles.some(role =>
+                    role === 'ROLE_ADMIN' ||
                     role === 'ROLE_SUPER_ADMIN' ||
                     role.includes('ADMIN')
                 );
-                
+
                 console.log('Is Admin?', hasAdmin);
                 setIsAdmin(hasAdmin);
             } catch (e) {
@@ -115,10 +116,16 @@ const Layout = () => {
                         </NavLink>
                     )}
                     {isFeatureEnabled('INVESTMENTS_MODULE') && (
-                        <NavLink to="/portfolio" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                            <Briefcase />
-                            Portfolio
-                        </NavLink>
+                        <>
+                            <NavLink to="/portfolio" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                                <Briefcase />
+                                Portfolio
+                            </NavLink>
+                            <NavLink to="/financial-goals" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                                <Target />
+                                Goals
+                            </NavLink>
+                        </>
                     )}
                     {isFeatureEnabled('BANKING_MODULE') && (
                         <>
@@ -156,12 +163,12 @@ const Layout = () => {
                         <SettingsIcon />
                         Settings
                     </NavLink>
-                    
+
                     {/* Admin Section */}
                     {isAdmin && (
                         <>
-                            <div style={{ 
-                                margin: '20px 0 10px 0', 
+                            <div style={{
+                                margin: '20px 0 10px 0',
                                 padding: '0 20px',
                                 fontSize: '12px',
                                 fontWeight: '600',

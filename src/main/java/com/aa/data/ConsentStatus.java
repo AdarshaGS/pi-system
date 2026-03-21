@@ -1,8 +1,8 @@
-package com.aa.data;
+// package com.aa.data;
 
-public enum ConsentStatus {
-    ACTIVE,
-    EXPIRED,
-    REVOKED,
-    PENDING
-}
+// public enum ConsentStatus {
+//     ACTIVE,
+//     EXPIRED,
+//     REVOKED,
+//     PENDING
+// }

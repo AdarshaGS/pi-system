@@ -25,11 +25,12 @@ const Budget = () => {
     const [submitting, setSubmitting] = useState(false);
     const [editingExpense, setEditingExpense] = useState(null);
     const [budgetLimits, setBudgetLimits] = useState({});
+    const [overallBudget, setOverallBudget] = useState('');
     const [selectedExpenses, setSelectedExpenses] = useState([]);
     const [bulkCategory, setBulkCategory] = useState('FOOD');
 
     const currentUser = JSON.parse(localStorage.getItem('user')) || {};
-    
+
     // Pagination and filter states
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize] = useState(10);
@@ -41,7 +42,7 @@ const Budget = () => {
         sortBy: 'expenseDate',
         order: 'desc'
     });
-    
+
     const [formData, setFormData] = useState({
         category: 'FOOD',
         description: '',
@@ -70,7 +71,7 @@ const Budget = () => {
 
         try {
             setLoading(true);
-            
+
             // Build params from filters and pagination
             const params = {
                 page: currentPage,
@@ -78,21 +79,21 @@ const Budget = () => {
                 sortBy: filters.sortBy,
                 order: filters.order
             };
-            
+
             // Add optional filters if they have values
             if (filters.category) params.category = filters.category;
             if (filters.startDate) params.startDate = filters.startDate;
             if (filters.endDate) params.endDate = filters.endDate;
             if (filters.search) params.search = filters.search;
-            
+
             const [reportData, expenseData, budgetData] = await Promise.all([
                 budgetApi.getReport(user.userId, user.token),
                 budgetApi.getExpenses(user.userId, user.token, params),
                 budgetApi.getAllBudgets(user.userId, user.token)
             ]);
-            
+
             setReport(reportData);
-            
+
             // Handle paginated response
             if (expenseData.content) {
                 setExpenses(expenseData);
@@ -105,11 +106,19 @@ const Budget = () => {
                     number: 0
                 });
             }
-            
+
             // Convert budget array to object keyed by category
             const limitsObj = {};
-            budgetData.forEach(b => limitsObj[b.category] = b.monthlyLimit);
+            let totalBudgetValue = '';
+            budgetData.forEach(b => {
+                if (b.category === 'TOTAL') {
+                    totalBudgetValue = b.monthlyLimit;
+                } else {
+                    limitsObj[b.category] = b.monthlyLimit;
+                }
+            });
             setBudgetLimits(limitsObj);
+            setOverallBudget(totalBudgetValue);
         } catch (err) {
             setError('Failed to fetch budget data');
         } finally {
@@ -226,7 +235,7 @@ const Budget = () => {
 
     const handleDeleteExpense = async (expenseId) => {
         if (!window.confirm('Are you sure you want to delete this expense?')) return;
-        
+
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user || !user.token) return;
 
@@ -244,11 +253,11 @@ const Budget = () => {
         if (!user || !user.token) return;
 
         const loadingToast = toast.loading('Exporting data...');
-        
+
         try {
             let blob;
             let filename;
-            
+
             if (params.format === 'csv') {
                 blob = await budgetApi.exportExpensesCSV(user.userId, user.token, {
                     startDate: params.startDate,
@@ -268,7 +277,7 @@ const Budget = () => {
                 blob = await budgetApi.downloadPDFReport(user.userId, user.token, monthYear);
                 filename = generateFilename('budget_report', 'pdf');
             }
-            
+
             if (blob) {
                 downloadFile(blob, filename);
                 toast.success('Export completed successfully!', { id: loadingToast });
@@ -284,10 +293,20 @@ const Budget = () => {
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user || !user.token) return;
 
+        // Check if there's anything to save
+        const hasOverallBudget = overallBudget && parseFloat(overallBudget) > 0;
+        const hasCategoryBudget = Object.values(budgetLimits).some(v => v && v > 0);
+        if (!hasOverallBudget && !hasCategoryBudget) {
+            toast.error('Please enter at least an overall budget or one category limit.');
+            return;
+        }
+
         setSubmitting(true);
         try {
             const monthYear = new Date().toISOString().slice(0, 7); // YYYY-MM
-            
+
+            // Save individual category budgets FIRST
+            // (backend auto-recalculates TOTAL as sum of categories)
             for (const [category, limit] of Object.entries(budgetLimits)) {
                 if (limit && limit > 0) {
                     await budgetApi.setBudget({
@@ -298,7 +317,17 @@ const Budget = () => {
                     }, user.token);
                 }
             }
-            
+
+            // Save overall budget (TOTAL) LAST so it overrides the auto-calculated sum
+            if (hasOverallBudget) {
+                await budgetApi.setBudget({
+                    userId: user.userId,
+                    category: 'TOTAL',
+                    monthlyLimit: parseFloat(overallBudget),
+                    monthYear: monthYear
+                }, user.token);
+            }
+
             setShowBudgetModal(false);
             fetchData();
             toast.success('Budget limits saved successfully!');
@@ -329,7 +358,7 @@ const Budget = () => {
 
     const handleBulkDelete = async () => {
         if (selectedExpenses.length === 0) return;
-        
+
         if (!window.confirm(`Delete ${selectedExpenses.length} selected expense(s)?`)) {
             return;
         }
@@ -375,11 +404,11 @@ const Budget = () => {
                     <button
                         onClick={() => setShowBudgetModal(true)}
                         className="auth-button"
-                        style={{ 
-                            width: 'auto', 
-                            padding: '10px 20px', 
-                            display: 'flex', 
-                            alignItems: 'center', 
+                        style={{
+                            width: 'auto',
+                            padding: '10px 20px',
+                            display: 'flex',
+                            alignItems: 'center',
                             gap: '8px',
                             background: '#6366f1'
                         }}
@@ -389,11 +418,11 @@ const Budget = () => {
                     <button
                         onClick={() => setShowExportModal(true)}
                         className="auth-button"
-                        style={{ 
-                            width: 'auto', 
-                            padding: '10px 20px', 
-                            display: 'flex', 
-                            alignItems: 'center', 
+                        style={{
+                            width: 'auto',
+                            padding: '10px 20px',
+                            display: 'flex',
+                            alignItems: 'center',
                             gap: '8px',
                             background: '#10b981'
                         }}
@@ -548,7 +577,7 @@ const Budget = () => {
                                     <option value="OTHER">Other</option>
                                 </select>
                             </div>
-                            
+
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--text-secondary)', fontWeight: '500' }}>
                                     Start Date
@@ -566,7 +595,7 @@ const Budget = () => {
                                     }}
                                 />
                             </div>
-                            
+
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--text-secondary)', fontWeight: '500' }}>
                                     End Date
@@ -584,7 +613,7 @@ const Budget = () => {
                                     }}
                                 />
                             </div>
-                            
+
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--text-secondary)', fontWeight: '500' }}>
                                     Search Description
@@ -604,7 +633,7 @@ const Budget = () => {
                                 />
                             </div>
                         </div>
-                        
+
                         <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                             <button
                                 onClick={() => {
@@ -780,7 +809,7 @@ const Budget = () => {
                         <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                             Showing {(currentPage * pageSize) + 1} to {Math.min((currentPage + 1) * pageSize, expenses.totalElements)} of {expenses.totalElements} expenses
                         </div>
-                        
+
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                             <button
                                 onClick={() => setCurrentPage(currentPage - 1)}
@@ -801,11 +830,11 @@ const Budget = () => {
                             >
                                 <ChevronLeft size={16} /> Previous
                             </button>
-                            
+
                             <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                                 Page {currentPage + 1} of {expenses.totalPages}
                             </span>
-                            
+
                             <button
                                 onClick={() => setCurrentPage(currentPage + 1)}
                                 disabled={currentPage >= expenses.totalPages - 1}
@@ -1174,18 +1203,63 @@ const Budget = () => {
                         </div>
 
                         <div style={{ marginBottom: '24px', padding: '12px', background: '#e7f5ff', borderRadius: '8px', fontSize: '14px', color: '#0c5460' }}>
-                            💡 Set monthly spending limits for each category. Leave empty to skip a category.
+                            💡 Set an overall monthly budget, or individual category limits, or both. Leave fields empty to skip.
+                        </div>
+
+                        {/* Overall Budget Field */}
+                        <div style={{ marginBottom: '24px', padding: '16px', background: '#f8f9ff', borderRadius: '12px', border: '2px solid #6366f1' }}>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '14px',
+                                marginBottom: '8px',
+                                color: '#6366f1',
+                                fontWeight: '700',
+                                letterSpacing: '0.02em'
+                            }}>
+                                🎯 OVERALL MONTHLY BUDGET
+                            </label>
+                            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '10px', marginTop: 0 }}>
+                                Set a single cap for total monthly spending across all categories.
+                            </p>
+                            <div style={{ position: 'relative' }}>
+                                <span style={{ position: 'absolute', left: '12px', top: '12px', color: '#6366f1', fontWeight: '700', fontSize: '16px' }}>₹</span>
+                                <input
+                                    type="number"
+                                    value={overallBudget}
+                                    onChange={(e) => setOverallBudget(e.target.value ? parseFloat(e.target.value) : '')}
+                                    placeholder="Enter overall monthly budget"
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 12px 12px 32px',
+                                        borderRadius: '8px',
+                                        border: '2px solid #e9ecef',
+                                        borderColor: overallBudget ? '#6366f1' : '#e9ecef',
+                                        fontSize: '16px',
+                                        fontWeight: '600',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                    min="0"
+                                    step="1000"
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div style={{ flex: 1, height: '1px', background: '#e9ecef' }} />
+                            <span style={{ fontSize: '12px', color: '#9ca3af', fontWeight: '500', whiteSpace: 'nowrap' }}>CATEGORY LIMITS (optional)</span>
+                            <div style={{ flex: 1, height: '1px', background: '#e9ecef' }} />
                         </div>
 
                         <div style={{ display: 'grid', gap: '16px' }}>
                             {['FOOD', 'RENT', 'TRANSPORT', 'ENTERTAINMENT', 'SHOPPING', 'UTILITIES', 'HEALTH', 'EDUCATION', 'INVESTMENT', 'OTHERS'].map(category => (
                                 <div key={category}>
-                                    <label style={{ 
-                                        display: 'block', 
-                                        fontSize: '14px', 
-                                        marginBottom: '8px', 
-                                        color: 'var(--text-primary)', 
-                                        fontWeight: '600' 
+                                    <label style={{
+                                        display: 'block',
+                                        fontSize: '14px',
+                                        marginBottom: '8px',
+                                        color: 'var(--text-primary)',
+                                        fontWeight: '600'
                                     }}>
                                         {category}
                                     </label>
@@ -1199,12 +1273,12 @@ const Budget = () => {
                                                 [category]: e.target.value ? parseFloat(e.target.value) : ''
                                             }))}
                                             placeholder={`Enter ${category.toLowerCase()} limit`}
-                                            style={{ 
-                                                width: '100%', 
-                                                padding: '12px 12px 12px 32px', 
-                                                borderRadius: '8px', 
-                                                border: '1px solid #e9ecef', 
-                                                fontSize: '14px' 
+                                            style={{
+                                                width: '100%',
+                                                padding: '12px 12px 12px 32px',
+                                                borderRadius: '8px',
+                                                border: '1px solid #e9ecef',
+                                                fontSize: '14px'
                                             }}
                                             min="0"
                                             step="100"
@@ -1219,16 +1293,16 @@ const Budget = () => {
                                 onClick={handleSaveBudgetLimits}
                                 disabled={submitting}
                                 className="auth-button"
-                                style={{ 
+                                style={{
                                     flex: 1,
-                                    background: submitting ? '#ccc' : 'var(--brand-color)' 
+                                    background: submitting ? '#ccc' : 'var(--brand-color)'
                                 }}
                             >
                                 {submitting ? 'Saving...' : 'Save All Limits'}
                             </button>
                             <button
                                 onClick={() => setShowBudgetModal(false)}
-                                style={{ 
+                                style={{
                                     flex: 1,
                                     padding: '12px 24px',
                                     background: '#f1f3f5',

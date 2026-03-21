@@ -1,22 +1,22 @@
-package com.aa.service;
+// package com.aa.service;
 
-import java.util.List;
-import java.util.Map;
+// import java.util.List;
+// import java.util.Map;
 
-import com.aa.data.ConsentRequest;
-import com.aa.data.ConsentResponse;
-import com.aa.data.ConsentStatusResponse;
-import com.aa.data.EncryptedFIPayload;
-import com.aa.data.FIRequest;
+// import com.aa.data.ConsentRequest;
+// import com.aa.data.ConsentResponse;
+// import com.aa.data.ConsentStatusResponse;
+// import com.aa.data.EncryptedFIPayload;
+// import com.aa.data.FIRequest;
 
-public interface AAService {
-    List<Map<String, String>> getConsentTemplates();
+// public interface AAService {
+//     List<Map<String, String>> getConsentTemplates();
 
-    ConsentResponse createConsent(ConsentRequest request);
+//     ConsentResponse createConsent(ConsentRequest request);
 
-    ConsentStatusResponse getConsentStatus(String consentId);
+//     ConsentStatusResponse getConsentStatus(String consentId);
 
-    EncryptedFIPayload fetchFinancialInformation(FIRequest request);
+//     EncryptedFIPayload fetchFinancialInformation(FIRequest request);
 
-    void revokeConsent(String consentId);
-}
+//     void revokeConsent(String consentId);
+// }

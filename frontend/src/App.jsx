@@ -32,6 +32,8 @@ import TaxPlanningTools from './components/TaxPlanningTools';
 import ITRFilingAssistant from './components/ITRFilingAssistant';
 import Lending from './pages/Lending';
 import AiAssistant from './components/AiAssistant';
+import FinancialGoals from './pages/FinancialGoals';
+import GoalDetails from './pages/GoalDetails';
 
 const ProtectedRoute = ({ children }) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -78,6 +80,16 @@ function App() {
               <Route path="portfolio" element={
                 <FeatureGate feature="INVESTMENTS_MODULE" showDisabledMessage>
                   <Portfolio />
+                </FeatureGate>
+              } />
+              <Route path="financial-goals" element={
+                <FeatureGate feature="INVESTMENTS_MODULE" showDisabledMessage>
+                  <FinancialGoals />
+                </FeatureGate>
+              } />
+              <Route path="goals/:goalId" element={
+                <FeatureGate feature="INVESTMENTS_MODULE" showDisabledMessage>
+                  <GoalDetails />
                 </FeatureGate>
               } />
               <Route path="banking" element={
