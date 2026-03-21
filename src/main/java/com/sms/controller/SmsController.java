@@ -58,12 +58,6 @@ public class SmsController {
         this.authHelper.validateUserAccess(request.getUserId());
         SMSImportResponse response = smsService.importMessages(request);
 
-        log.info("Import completed: {} success, {} partial, {} failed, {} duplicates",
-                response.getSuccessfullyParsed(),
-                response.getPartiallyParsed(),
-                response.getFailed(),
-                response.getDuplicates());
-
         return ResponseEntity.ok(response);
     }
 

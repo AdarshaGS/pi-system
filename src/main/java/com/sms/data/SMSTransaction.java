@@ -99,6 +99,9 @@ public class SMSTransaction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "message_type")
+    private String messageType;
+
     public enum TransactionType {
         DEBIT, CREDIT, UNKNOWN
     }

@@ -22,18 +22,6 @@ public class SMSImportResponse {
     @Schema(description = "Total number of SMS messages in the import request", example = "10")
     private int totalMessages;
     
-    @Schema(description = "Number of messages successfully parsed (amount & type extracted)", example = "8")
-    private int successfullyParsed;
-    
-    @Schema(description = "Number of messages partially parsed (some fields extracted)", example = "1")
-    private int partiallyParsed;
-    
-    @Schema(description = "Number of messages that failed to parse", example = "0")
-    private int failed;
-    
-    @Schema(description = "Number of duplicate messages skipped", example = "1")
-    private int duplicates;
-    
     @Builder.Default
     @Schema(description = "List of parsed transaction summaries")
     private List<TransactionSummary> transactions = new ArrayList<>();
@@ -59,6 +47,12 @@ public class SMSImportResponse {
         
         @Schema(description = "Confidence score (0.0 to 1.0)", example = "0.95")
         private Double confidence;
+        
+        @Schema(description = "Message type: TRANSACTION, MANDATE_ALERT, OTP, PROMOTIONAL, etc.", example = "TRANSACTION")
+        private String messageType;
+        
+        @Schema(description = "Whether this was added to budget", example = "true")
+        private boolean addedToBudget;
     }
     
     @Data

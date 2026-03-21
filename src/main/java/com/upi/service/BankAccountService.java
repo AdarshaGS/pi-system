@@ -77,4 +77,22 @@ public class BankAccountService {
                 .message("Balance retrieved successfully.")
                 .build();
     }
+
+    public void addOrUpdateBankAccount(Long userId, String accountNumber) {
+        Optional<BankAccount> existingAccountOpt = bankAccountRepository.findByUserIdAndAccountNumber(userId, accountNumber);
+        
+        if (existingAccountOpt.isPresent()) {
+            // Bank account already exists, no action needed
+            return;
+        }
+        
+        // Create a new bank account entry
+        BankAccount newAccount = BankAccount.builder()
+                .user(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found.")))
+                .accountNumber(accountNumber)
+                .balance(BigDecimal.ZERO) // Initial balance can be set to zero or updated later
+                .build();
+        
+        bankAccountRepository.save(newAccount);
+    }
 }
