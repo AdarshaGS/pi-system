@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import com.budget.service.BudgetService;
 import com.sms.data.ParsedSMSData;
 import com.sms.data.SMSImportRequest;
 import com.sms.data.SMSImportResponse;
+import com.sms.data.SMSTemplates;
 import com.sms.data.SMSTransaction;
 import com.sms.repo.SMSTransactionRepository;
 import com.upi.service.BankAccountService;
@@ -30,16 +32,14 @@ public class SmsServiceImpl implements SmsService {
     private final SMSTransactionRepository repository;
     private final BudgetService budgetService;
     private final BankAccountService bankAccountService;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     @Transactional
     public SMSImportResponse importMessages(SMSImportRequest request) {
-        log.info("Importing {} SMS messages for user {}", request.getMessages().size(), request.getUserId());
-
         SMSImportResponse.SMSImportResponseBuilder responseBuilder = SMSImportResponse.builder();
         List<SMSImportResponse.TransactionSummary> summaries = new ArrayList<>();
         List<SMSImportResponse.ErrorDetail> errors = new ArrayList<>();
-
         int totalMessages = request.getMessages().size();
 
         for (SMSImportRequest.SMSMessage smsMessage : request.getMessages()) {
@@ -70,23 +70,29 @@ public class SmsServiceImpl implements SmsService {
                         addedToBudget = true;
                         log.info("Created income from SMS: {}", transaction.getId());
                     } else if (TransactionType.DEBIT.name().equals(transactionType)) {
+                        String transactionCategory = autoCategorizeMerchant(transaction.getMerchant());
                         Expense expense = Expense.builder()
                                 .userId(transaction.getUserId())
                                 .amount(transaction.getAmount())
                                 .expenseDate(transaction.getTransactionDate())
                                 .description(transaction.getMerchant() != null ? transaction.getMerchant() : "SMS Transaction")
                                 .notes("SMS Parsed - Ref: " + (transaction.getReferenceNumber() != null ? transaction.getReferenceNumber() : "N/A"))
+                                .customCategoryName(transactionCategory)
                                 .build();
                         this.budgetService.addExpense(expense);
                         addedToBudget = true;
                     }
+
+                    if (transaction.getAccountNumber() != null) {
+                        this.bankAccountService.addOrUpdateBankAccount(transaction.getUserId(),
+                                transaction.getAccountNumber());
+                    }
+
+                    transaction.setMessageType(messageType);
+                    this.repository.save(transaction);
                 }
 
-                if (transaction.getAccountNumber() != null) {
-                    this.bankAccountService.addOrUpdateBankAccount(transaction.getUserId(),
-                            transaction.getAccountNumber());
-                }
-
+                
                 summaries.add(SMSImportResponse.TransactionSummary.builder()
                         .transactionId(transaction.getId())
                         .message(truncateMessage(smsMessage.getContent(), 50))
@@ -97,7 +103,6 @@ public class SmsServiceImpl implements SmsService {
                         .build());
 
             } catch (Exception e) {
-                log.error("Error processing SMS message", e);
                 errors.add(SMSImportResponse.ErrorDetail.builder()
                         .message(truncateMessage(smsMessage.getContent(), 50))
                         .error(e.getMessage())
@@ -115,12 +120,8 @@ public class SmsServiceImpl implements SmsService {
     @Override
     @Transactional
     public SMSTransaction parseSingleMessage(Long userId, String message, String sender) {
-        log.debug("Parsing single SMS for user {}", userId);
-
-        // Parse the SMS
         ParsedSMSData parsedData = parserService.parseSMS(message);
 
-        // Create transaction entity
         SMSTransaction transaction = SMSTransaction.builder()
                 .userId(userId)
                 .originalMessage(message)
@@ -142,12 +143,7 @@ public class SmsServiceImpl implements SmsService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        // Save to database
-        SMSTransaction saved = repository.save(transaction);
-        log.info("Saved SMS transaction with ID: {} (Status: {}, Confidence: {})",
-                saved.getId(), saved.getParseStatus(), saved.getParseConfidence());
-
-        return saved;
+        return transaction;
     }
 
     @Override
@@ -168,14 +164,7 @@ public class SmsServiceImpl implements SmsService {
         return message.substring(0, maxLength) + "...";
     }
 
-/**
-     * Detect message type from SMS transaction patterns
-     * Priority order: OTP -> PROMOTIONAL -> FAILED -> MANDATE -> TRANSACTION -> BALANCE -> UNKNOWN
-     * 
-     * @param transaction The SMS transaction to classify
-     * @return Message type: TRANSACTION, MANDATE_ALERT, FAILED_TRANSACTION, BALANCE_INQUIRY, 
-     *         OTP, PROMOTIONAL, SERVICE_ALERT, or UNKNOWN
-     */
+
     private String detectTransactionPatterns(SMSTransaction transaction) {
         if (transaction.getOriginalMessage() == null) {
             return "UNKNOWN";
@@ -183,7 +172,6 @@ public class SmsServiceImpl implements SmsService {
 
         String messageLower = transaction.getOriginalMessage().toLowerCase();
 
-        // Priority 5: Future/Mandate/Scheduled Transactions (IMPORTANT!)
         String[] mandateKeywords = {
             "will be debited", "will be credited", "to be debited", "to be credited",
             "scheduled for", "scheduled on", "auto-debit on", "auto pay on",
@@ -195,7 +183,6 @@ public class SmsServiceImpl implements SmsService {
             return "MANDATE_ALERT";
         }
 
-        // Priority 6: Actual Completed Transactions (with word boundaries)
         String[] transactionKeywords = {
             "debited", "credited", "withdrawn", "deposited",
             "paid", "received", "transferred", "sent to",
@@ -207,7 +194,6 @@ public class SmsServiceImpl implements SmsService {
             return "TRANSACTION";
         }
 
-        // Priority 7: Balance Inquiry Only (no transaction)
         String[] balanceKeywords = {
             "available balance", "balance enquiry", "current balance",
             "available bal", "avl bal", "balance is"
@@ -221,9 +207,6 @@ public class SmsServiceImpl implements SmsService {
         return "UNKNOWN";
     }
 
-    /**
-     * Check if message contains any of the keywords
-     */
     private boolean containsAnyKeyword(String message, String[] keywords) {
         for (String keyword : keywords) {
             if (message.contains(keyword)) {
@@ -233,19 +216,13 @@ public class SmsServiceImpl implements SmsService {
         return false;
     }
 
-    /**
-     * Check if message contains any keyword with word boundary
-     * Prevents false matches like "prepaid" matching "paid"
-     */
     private boolean containsAnyKeywordWithBoundary(String message, String[] keywords) {
         for (String keyword : keywords) {
-            // Use word boundary regex for single words
             if (keyword.split("\\s+").length == 1) {
                 if (message.matches(".*\\b" + keyword + "\\b.*")) {
                     return true;
                 }
             } else {
-                // For phrases, use simple contains
                 if (message.contains(keyword)) {
                     return true;
                 }
@@ -254,11 +231,30 @@ public class SmsServiceImpl implements SmsService {
         return false;
     }
 
-    /**
-     * Check if message has amount indicators
-     */
     private boolean hasAmount(String message) {
         return message.matches(".*(rs\\.?|inr|₹)\\s*[0-9,]+.*");
     }
+
+    public String autoCategorizeMerchant(String merchant) {
+        String category = null;
+
+        List<String> amazonKeywords = List.of("amazon", "flipkart", "myntra", "ajio");
+
+        if (merchant != null) {
+            String merchantLower = merchant.toLowerCase();
+            if (amazonKeywords.stream().anyMatch(merchantLower::contains)) {
+                category = "Shopping";
+            }
+
+        }
+        return category;
+    }
+
+
+    // public List<SMSTemplates> getSMSTemplates() {
+    //     final String sql = "SELECT id, message_template FROM sms_templates";
+    //     return this.jdbcTemplate.que
+    //     });
+    // }
 
 }
