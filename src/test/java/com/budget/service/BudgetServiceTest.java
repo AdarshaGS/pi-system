@@ -1,11 +1,16 @@
 package com.budget.service;
 
-import com.pisystem.modules.budget.data.*;
-import com.pisystem.modules.budget.repo.BudgetRepository;
-import com.pisystem.modules.budget.repo.CustomCategoryRepository;
-import com.pisystem.modules.budget.repo.ExpenseRepository;
-import com.pisystem.modules.budget.repo.IncomeRepository;
-import com.pisystem.shared.security.AuthenticationHelper;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,16 +24,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import com.pisystem.modules.budget.data.Budget;
+import com.pisystem.modules.budget.data.BudgetReportDTO;
+import com.pisystem.modules.budget.data.CashFlowDTO;
+import com.pisystem.modules.budget.data.Expense;
+import com.pisystem.modules.budget.data.ExpenseCategory;
+import com.pisystem.modules.budget.data.Income;
+import com.pisystem.modules.budget.repo.BudgetRepository;
+import com.pisystem.modules.budget.repo.CustomCategoryRepository;
+import com.pisystem.modules.budget.repo.ExpenseRepository;
+import com.pisystem.modules.budget.repo.IncomeRepository;
+import com.pisystem.modules.budget.service.BudgetService;
+import com.pisystem.shared.security.AuthenticationHelper;
 
 /**
  * Unit tests for BudgetService - Sprint 3

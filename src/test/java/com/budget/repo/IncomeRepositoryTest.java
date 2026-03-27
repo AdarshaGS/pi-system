@@ -1,6 +1,11 @@
 package com.budget.repo;
 
-import com.pisystem.modules.budget.data.Income;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,11 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.pisystem.modules.budget.data.Income;
+import com.pisystem.modules.budget.repo.IncomeRepository;
 
 /**
  * Repository tests for IncomeRepository - Sprint 3

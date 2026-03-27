@@ -1,10 +1,7 @@
 package com.audit.filter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
@@ -20,6 +17,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.pisystem.shared.audit.entity.RequestAudit;
+import com.pisystem.shared.audit.filter.RequestAuditFilter;
 import com.pisystem.shared.audit.service.RequestAuditService;
 
 import jakarta.servlet.FilterChain;

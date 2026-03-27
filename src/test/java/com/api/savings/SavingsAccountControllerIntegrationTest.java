@@ -1,9 +1,6 @@
 package com.api.savings;
 
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.*;
 
 import java.util.Map;
 
@@ -14,10 +11,10 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import com.pisystem.devtools.config.BaseApiTest;
-import com.pisystem.devtools.helpers.ApiAssertions;
-import com.pisystem.devtools.helpers.AuthHelper;
-import com.pisystem.devtools.helpers.TestDataBuilder;
+import com.api.config.BaseApiTest;
+import com.api.helpers.ApiAssertions;
+import com.api.helpers.AuthHelper;
+import com.api.helpers.TestDataBuilder;
 
 import io.restassured.response.Response;
 

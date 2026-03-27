@@ -1,33 +1,30 @@
 package com.investments.stocks.thirdParty.providers.AlphaVantage;
 
-import com.pisystem.shared.audit.entity.ThirdPartyRequestAudit;
-import com.pisystem.shared.audit.service.ThirdPartyAuditService;
-import com.pisystem.integrations.externalservices.data.ExternalServicePropertiesEntity;
-import com.pisystem.integrations.externalservices.service.ExternalService;
-import com.pisystem.modules.stocks.exception.RateLimitExceededException;
-import com.pisystem.modules.stocks.ratelimit.RateLimiter;
-import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
-import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageGlobalQuote;
-import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageResponseOverview;
-import com.pisystem.modules.stocks.validation.StockPriceValidator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedConstruction;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.pisystem.integrations.externalservices.data.ExternalServicePropertiesEntity;
+import com.pisystem.integrations.externalservices.service.ExternalService;
+import com.pisystem.modules.stocks.exception.RateLimitExceededException;
+import com.pisystem.modules.stocks.ratelimit.RateLimiter;
+import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.AlphaVantageProvider;
+import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageGlobalQuote;
+import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageResponseOverview;
+import com.pisystem.modules.stocks.validation.StockPriceValidator;
+import com.pisystem.shared.audit.entity.ThirdPartyRequestAudit;
+import com.pisystem.shared.audit.service.ThirdPartyAuditService;
 
 /**
  * Unit tests for AlphaVantageProvider.

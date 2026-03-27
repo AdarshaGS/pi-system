@@ -29,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.pisystem.core.auth.controller.AuthController;
 import com.pisystem.core.auth.data.LoginRequest;
 import com.pisystem.core.auth.data.LoginResponse;
+import com.pisystem.core.auth.security.CustomUserDetailsService;
 import com.pisystem.core.auth.security.JwtUtil;
 import com.pisystem.core.auth.service.IRefreshTokenService;
 import com.pisystem.shared.audit.service.ActivityLogService;
@@ -58,7 +59,7 @@ public class AuthControllerUnitTest {
     private IRefreshTokenService refreshTokenService;
     
     @Mock
-    private com.auth.security.CustomUserDetailsService customUserDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
     
     @Mock
     private ActivityLogService activityLogService;

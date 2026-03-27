@@ -2,6 +2,8 @@ package com.budget.repo;
 
 import com.pisystem.modules.budget.data.Expense;
 import com.pisystem.modules.budget.data.ExpenseCategory;
+import com.pisystem.modules.budget.repo.ExpenseRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

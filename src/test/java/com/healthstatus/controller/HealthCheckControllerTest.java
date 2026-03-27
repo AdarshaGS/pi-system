@@ -1,9 +1,15 @@
 package com.healthstatus.controller;
 
-import com.pisystem.devtools.config.BaseApiTest;
-import com.pisystem.devtools.helpers.ApiAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+
+import com.api.config.BaseApiTest;
+import com.api.helpers.ApiAssertions;
+
 import io.restassured.response.Response;
-import org.junit.jupiter.api.*;
 
 /**
  * Integration tests for Health Check Controller

@@ -1,11 +1,11 @@
 package com.pisystem.modules.stocks.config;
 
-import io.micrometer.core.aop.TimedAspect;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
+
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
 
 /**
  * Configuration for custom application metrics and monitoring

@@ -1,10 +1,12 @@
 package com.investments.stocks.validation;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import com.pisystem.modules.stocks.validation.StockPriceValidator;
 
 /**
  * Unit tests for StockPriceValidator.

@@ -1,11 +1,11 @@
 package com.investments.stocks;
 
-import com.main.Application;
+import com.pisystem.PiSystemApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = PiSystemApplication.class)
 @ActiveProfiles("test")
 class StockApplicationTests {
 

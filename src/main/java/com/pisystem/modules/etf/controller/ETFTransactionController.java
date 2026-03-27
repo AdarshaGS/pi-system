@@ -1,16 +1,25 @@
 package com.pisystem.modules.etf.controller;
 
-import com.pisystem.shared.security.AuthenticationHelper;
-import com.pisystem.modules.etf.model.ETFTransaction;
-import com.pisystem.modules.etf.service.ETFTransactionService;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.pisystem.modules.etf.service.ETFTransactionService;
+import com.pisystem.modules.etf.model.ETFTransaction;
+import com.pisystem.shared.security.AuthenticationHelper;
 
 @RestController
 @RequestMapping("/api/v1/etfs/transactions")
@@ -25,7 +34,7 @@ public class ETFTransactionController {
     @PostMapping
     public ResponseEntity<ETFTransaction> addTransaction(@RequestBody ETFTransaction transaction) {
         Long userId = authenticationHelper.getCurrentUserId();
-        ETFTransaction created = transactionService.addTransaction(userId, transaction);
+        ETFTransaction created = this.transactionService.addTransaction(userId, transaction);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 

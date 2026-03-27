@@ -1,12 +1,8 @@
 package com.lending.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,6 +19,7 @@ import com.pisystem.modules.lending.data.RepaymentDTO;
 import com.pisystem.modules.lending.data.RepaymentMethod;
 import com.pisystem.modules.lending.repo.LendingRepository;
 import com.pisystem.modules.lending.repo.RepaymentRepository;
+import com.pisystem.modules.lending.service.LendingServiceImpl;
 
 public class LendingServiceImplTest {
 
