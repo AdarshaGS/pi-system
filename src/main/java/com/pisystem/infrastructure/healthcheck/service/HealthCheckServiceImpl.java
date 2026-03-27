@@ -1,4 +1,4 @@
-package com.healthstatus.service;
+package com.pisystem.infrastructure.healthcheck.service;
 
 import org.springframework.stereotype.Service;
 
