@@ -1,4 +1,4 @@
-package com.investments.stocks.networth.data;
+package com.pisystem.modules.stocks.networth.data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,8 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.common.data.EntityType;
-import com.common.data.TypedEntity;
+import com.pisystem.shared.data.EntityType;
+import com.pisystem.shared.data.TypedEntity;
 
 @Entity
 @Table(name = "user_liabilities")

@@ -1,6 +1,6 @@
 package com.api.config;
 
-import com.main.Application;
+import com.pisystem.PiSystemApplication;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -20,7 +20,7 @@ import org.springframework.test.context.TestPropertySource;
  * Provides common setup for REST Assured and Spring Boot Test
  */
 @SpringBootTest(
-    classes = Application.class,
+    classes = PiSystemApplication.class,
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ActiveProfiles("test")

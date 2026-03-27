@@ -1,4 +1,4 @@
-package com.investments.stocks.networth.data;
+package com.pisystem.modules.stocks.networth.data;
 
 import java.util.List;
 import lombok.Builder;

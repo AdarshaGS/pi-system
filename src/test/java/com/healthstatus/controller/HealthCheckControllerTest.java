@@ -1,7 +1,7 @@
 package com.healthstatus.controller;
 
-import com.api.config.BaseApiTest;
-import com.api.helpers.ApiAssertions;
+import com.pisystem.devtools.config.BaseApiTest;
+import com.pisystem.devtools.helpers.ApiAssertions;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 

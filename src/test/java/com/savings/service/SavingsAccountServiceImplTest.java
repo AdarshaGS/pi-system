@@ -17,10 +17,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import com.common.security.AuthenticationHelper;
-import com.savings.data.SavingsAccount;
-import com.savings.data.SavingsAccountDTO;
-import com.savings.repo.SavingsAccountRepository;
+import com.pisystem.shared.security.AuthenticationHelper;
+import com.pisystem.modules.savings.data.SavingsAccount;
+import com.pisystem.modules.savings.data.SavingsAccountDTO;
+import com.pisystem.modules.savings.repo.SavingsAccountRepository;
 
 @ExtendWith(MockitoExtension.class)
 class SavingsAccountServiceImplTest {

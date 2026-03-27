@@ -1,4 +1,4 @@
-package com.investments.stocks.diversification.portfolio.service;
+package com.pisystem.modules.stocks.diversification.portfolio.service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.investments.stocks.diversification.portfolio.data.AnalysisInsight;
-import com.investments.stocks.diversification.portfolio.data.NextBestAction;
-import com.investments.stocks.diversification.portfolio.data.PortfolioInsightsDTO;
-import com.investments.stocks.diversification.portfolio.data.RiskSummary;
+import com.pisystem.modules.stocks.diversification.portfolio.data.AnalysisInsight;
+import com.pisystem.modules.stocks.diversification.portfolio.data.NextBestAction;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioInsightsDTO;
+import com.pisystem.modules.stocks.diversification.portfolio.data.RiskSummary;
 
 @Service
 public class PortfolioInsightService {

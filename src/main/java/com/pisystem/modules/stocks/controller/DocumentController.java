@@ -1,8 +1,8 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
-import com.investments.stocks.data.Document;
-import com.investments.stocks.dto.DocumentDTO;
-import com.investments.stocks.service.DocumentService;
+import com.pisystem.modules.stocks.data.Document;
+import com.pisystem.modules.stocks.dto.DocumentDTO;
+import com.pisystem.modules.stocks.service.DocumentService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;

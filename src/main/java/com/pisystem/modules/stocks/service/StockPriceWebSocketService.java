@@ -1,12 +1,12 @@
-package com.investments.stocks.service;
+package com.pisystem.modules.stocks.service;
 
-import com.investments.stocks.data.Stock;
-import com.investments.stocks.data.StockPrice;
-import com.investments.stocks.dto.StockPriceUpdate;
-import com.investments.stocks.repo.StockPriceRepository;
-import com.investments.stocks.repo.StockRepository;
-import com.investments.stocks.thirdParty.ThirdPartyResponse;
-import com.investments.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
+import com.pisystem.modules.stocks.data.Stock;
+import com.pisystem.modules.stocks.data.StockPrice;
+import com.pisystem.modules.stocks.dto.StockPriceUpdate;
+import com.pisystem.modules.stocks.repo.StockPriceRepository;
+import com.pisystem.modules.stocks.repo.StockRepository;
+import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
+import com.pisystem.modules.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

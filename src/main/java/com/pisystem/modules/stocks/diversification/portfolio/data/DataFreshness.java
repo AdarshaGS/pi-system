@@ -1,4 +1,4 @@
-package com.investments.stocks.diversification.portfolio.data;
+package com.pisystem.modules.stocks.diversification.portfolio.data;
 
 import lombok.Builder;
 import lombok.Data;

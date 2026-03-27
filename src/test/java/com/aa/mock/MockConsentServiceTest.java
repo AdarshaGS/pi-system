@@ -21,12 +21,12 @@
 // import org.mockito.Mock;
 // import org.mockito.junit.jupiter.MockitoExtension;
 
-// import com.aa.data.AAConsentEntity;
-// import com.aa.data.ConsentRequest;
-// import com.aa.data.ConsentResponse;
-// import com.aa.data.ConsentStatus;
-// import com.aa.data.FIType;
-// import com.aa.repo.AAConsentRepository;
+// import com.pisystem.integrations.accountaggregator.data.AAConsentEntity;
+// import com.pisystem.integrations.accountaggregator.data.ConsentRequest;
+// import com.pisystem.integrations.accountaggregator.data.ConsentResponse;
+// import com.pisystem.integrations.accountaggregator.data.ConsentStatus;
+// import com.pisystem.integrations.accountaggregator.data.FIType;
+// import com.pisystem.integrations.accountaggregator.repo.AAConsentRepository;
 
 // @ExtendWith(MockitoExtension.class)
 // class MockConsentServiceTest {

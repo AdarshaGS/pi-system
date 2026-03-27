@@ -1,4 +1,4 @@
-package com.investments.stocks.networth.service.impl;
+package com.pisystem.modules.stocks.networth.service.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -7,29 +7,29 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
-import com.investments.stocks.diversification.portfolio.service.PortfolioReadService;
-import com.investments.stocks.networth.data.NetWorthDTO;
-import com.investments.stocks.networth.data.UserAsset;
-import com.investments.stocks.networth.data.UserLiability;
-import com.common.data.EntityType;
-import com.common.data.OnBoardingType;
-import com.investments.stocks.networth.repo.UserAssetRepository;
-import com.investments.stocks.networth.repo.UserLiabilityRepository;
-import com.investments.stocks.networth.service.NetWorthReadService;
-import com.loan.data.Loan;
-import com.loan.service.LoanService;
-import com.savings.service.SavingsAccountService;
-import com.tax.service.TaxService;
-import com.savings.service.FixedDepositService;
-import com.savings.service.RecurringDepositService;
-import com.savings.data.SavingsAccountDTO;
-import com.savings.data.FixedDepositDTO;
-import com.savings.data.RecurringDepositDTO;
-import com.lending.service.LendingService;
-import com.investments.stocks.networth.data.AssetLiabilityTemplateDTO;
-import com.investments.stocks.networth.data.EntityTemplateDTO;
-import com.lending.data.LendingDTO;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioDTOResponse;
+import com.pisystem.modules.stocks.diversification.portfolio.service.PortfolioReadService;
+import com.pisystem.modules.stocks.networth.data.NetWorthDTO;
+import com.pisystem.modules.stocks.networth.data.UserAsset;
+import com.pisystem.modules.stocks.networth.data.UserLiability;
+import com.pisystem.shared.data.EntityType;
+import com.pisystem.shared.data.OnBoardingType;
+import com.pisystem.modules.stocks.networth.repo.UserAssetRepository;
+import com.pisystem.modules.stocks.networth.repo.UserLiabilityRepository;
+import com.pisystem.modules.stocks.networth.service.NetWorthReadService;
+import com.pisystem.modules.loans.data.Loan;
+import com.pisystem.modules.loans.service.LoanService;
+import com.pisystem.modules.savings.service.SavingsAccountService;
+import com.pisystem.modules.tax.service.TaxService;
+import com.pisystem.modules.savings.service.FixedDepositService;
+import com.pisystem.modules.savings.service.RecurringDepositService;
+import com.pisystem.modules.savings.data.SavingsAccountDTO;
+import com.pisystem.modules.savings.data.FixedDepositDTO;
+import com.pisystem.modules.savings.data.RecurringDepositDTO;
+import com.pisystem.modules.lending.service.LendingService;
+import com.pisystem.modules.stocks.networth.data.AssetLiabilityTemplateDTO;
+import com.pisystem.modules.stocks.networth.data.EntityTemplateDTO;
+import com.pisystem.modules.lending.data.LendingDTO;
 
 import lombok.RequiredArgsConstructor;
 

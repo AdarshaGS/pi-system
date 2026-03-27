@@ -1,6 +1,6 @@
-package com.investments.stocks.dto;
+package com.pisystem.modules.stocks.dto;
 
-import com.investments.stocks.data.Document;
+import com.pisystem.modules.stocks.data.Document;
 import java.time.LocalDateTime;
 
 public class DocumentDTO {

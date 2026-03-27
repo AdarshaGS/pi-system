@@ -1,6 +1,6 @@
-package com.investments.stocks.thirdParty.providers.IndianAPI.service;
+package com.pisystem.modules.stocks.thirdParty.providers.IndianAPI.service;
 
-import com.investments.stocks.thirdParty.ThirdPartyResponse;
+import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
 
 public interface IndianAPIService {
     ThirdPartyResponse fetchStockData(String symbol);

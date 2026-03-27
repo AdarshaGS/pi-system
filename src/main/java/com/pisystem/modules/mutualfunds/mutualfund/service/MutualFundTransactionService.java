@@ -1,6 +1,6 @@
-package com.mutualfund.service;
+package com.pisystem.modules.mutualfunds.service;
 
-import com.mutualfund.model.MutualFundTransaction;
+import com.pisystem.modules.mutualfunds.model.MutualFundTransaction;
 import java.time.LocalDate;
 import java.util.List;
 

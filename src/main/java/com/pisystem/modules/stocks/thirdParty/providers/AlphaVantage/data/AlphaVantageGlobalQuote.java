@@ -1,4 +1,4 @@
-package com.investments.stocks.thirdParty.providers.AlphaVantage.data;
+package com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

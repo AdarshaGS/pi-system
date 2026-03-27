@@ -1,4 +1,4 @@
-package com.investments.stocks.diversification.portfolio.service;
+package com.pisystem.modules.stocks.diversification.portfolio.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
-import com.investments.stocks.data.Stock;
-import com.investments.stocks.diversification.portfolio.data.MarketCapAllocation;
-import com.investments.stocks.diversification.portfolio.data.Portfolio;
-import com.investments.stocks.diversification.portfolio.data.PortfolioAllocationResult;
-import com.investments.stocks.diversification.portfolio.data.SectorAllocation;
+import com.pisystem.modules.stocks.data.Stock;
+import com.pisystem.modules.stocks.diversification.portfolio.data.MarketCapAllocation;
+import com.pisystem.modules.stocks.diversification.portfolio.data.Portfolio;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioAllocationResult;
+import com.pisystem.modules.stocks.diversification.portfolio.data.SectorAllocation;
 
 @Service
 @Slf4j

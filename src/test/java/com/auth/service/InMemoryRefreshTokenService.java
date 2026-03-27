@@ -1,6 +1,6 @@
 package com.auth.service;
 
-import com.auth.security.JwtProperties;
+import com.pisystem.core.auth.security.JwtProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;

@@ -1,4 +1,4 @@
-package com.investments.stocks.thirdParty;
+package com.pisystem.modules.stocks.thirdParty;
 
 public interface StockDataProvider {
 

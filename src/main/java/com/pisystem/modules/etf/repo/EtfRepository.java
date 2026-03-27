@@ -1,6 +1,6 @@
-package com.investments.etf.repo;
+package com.pisystem.modules.etf.repo;
 
-import com.investments.etf.data.Etf;
+import com.pisystem.modules.etf.data.Etf;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.investments.stocks.data.StockPrice;
+import com.pisystem.modules.stocks.data.StockPrice;
 
 @Repository
 public interface StockPriceRepository extends JpaRepository<StockPrice, Long> {

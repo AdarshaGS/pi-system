@@ -1,7 +1,7 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
-import com.investments.stocks.data.CreditScore;
-import com.investments.stocks.service.CreditScoreService;
+import com.pisystem.modules.stocks.data.CreditScore;
+import com.pisystem.modules.stocks.service.CreditScoreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

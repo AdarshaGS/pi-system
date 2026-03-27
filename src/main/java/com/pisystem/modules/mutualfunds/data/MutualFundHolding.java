@@ -1,4 +1,4 @@
-package com.investments.mutualfunds.data;
+package com.pisystem.modules.mutualfunds.data;
 
 import java.math.BigDecimal;
 import java.util.List;

@@ -1,6 +1,6 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
-import com.investments.stocks.data.GoalMilestone;
+import com.pisystem.modules.stocks.data.GoalMilestone;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

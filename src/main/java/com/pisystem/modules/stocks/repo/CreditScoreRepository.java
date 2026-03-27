@@ -1,6 +1,6 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
-import com.investments.stocks.data.CreditScore;
+import com.pisystem.modules.stocks.data.CreditScore;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

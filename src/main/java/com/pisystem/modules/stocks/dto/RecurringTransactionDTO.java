@@ -1,6 +1,6 @@
-package com.investments.stocks.dto;
+package com.pisystem.modules.stocks.dto;
 
-import com.investments.stocks.data.RecurringTransaction;
+import com.pisystem.modules.stocks.data.RecurringTransaction;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;

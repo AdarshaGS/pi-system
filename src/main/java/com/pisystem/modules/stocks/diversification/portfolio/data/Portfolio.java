@@ -1,8 +1,8 @@
-package com.investments.stocks.diversification.portfolio.data;
+package com.pisystem.modules.stocks.diversification.portfolio.data;
 
 import java.math.BigDecimal;
 
-import com.common.data.EntityType;
+import com.pisystem.shared.data.EntityType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.common.data.TypedEntity;
+import com.pisystem.shared.data.TypedEntity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

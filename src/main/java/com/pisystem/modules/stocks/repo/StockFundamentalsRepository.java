@@ -1,11 +1,11 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.investments.stocks.data.StockFundamentals;
+import com.pisystem.modules.stocks.data.StockFundamentals;
 
 @Repository
 public interface StockFundamentalsRepository extends JpaRepository<StockFundamentals, Long> {

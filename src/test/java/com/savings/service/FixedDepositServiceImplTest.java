@@ -17,10 +17,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.common.security.AuthenticationHelper;
-import com.savings.data.FixedDeposit;
-import com.savings.data.FixedDepositDTO;
-import com.savings.repo.FixedDepositRepository;
+import com.pisystem.shared.security.AuthenticationHelper;
+import com.pisystem.modules.savings.data.FixedDeposit;
+import com.pisystem.modules.savings.data.FixedDepositDTO;
+import com.pisystem.modules.savings.repo.FixedDepositRepository;
 
 @ExtendWith(MockitoExtension.class)
 class FixedDepositServiceImplTest {

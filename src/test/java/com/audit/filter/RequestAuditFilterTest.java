@@ -19,8 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.audit.entity.RequestAudit;
-import com.audit.service.RequestAuditService;
+import com.pisystem.shared.audit.entity.RequestAudit;
+import com.pisystem.shared.audit.service.RequestAuditService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

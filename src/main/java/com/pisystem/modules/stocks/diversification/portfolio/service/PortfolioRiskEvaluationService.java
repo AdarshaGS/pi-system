@@ -1,4 +1,4 @@
-package com.investments.stocks.diversification.portfolio.service;
+package com.pisystem.modules.stocks.diversification.portfolio.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.investments.stocks.data.Stock;
-import com.investments.stocks.diversification.portfolio.data.AnalysisInsight;
-import com.investments.stocks.diversification.portfolio.data.Portfolio;
-import com.investments.stocks.diversification.portfolio.data.RiskAnalysisResult;
+import com.pisystem.modules.stocks.data.Stock;
+import com.pisystem.modules.stocks.diversification.portfolio.data.AnalysisInsight;
+import com.pisystem.modules.stocks.diversification.portfolio.data.Portfolio;
+import com.pisystem.modules.stocks.diversification.portfolio.data.RiskAnalysisResult;
 
 @Service
 public class PortfolioRiskEvaluationService {

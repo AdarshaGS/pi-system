@@ -1,6 +1,6 @@
-package com.investments.stocks.diversification.portfolio.service;
+package com.pisystem.modules.stocks.diversification.portfolio.service;
 
-import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioDTOResponse;
 
 public interface PortfolioReadService {
 

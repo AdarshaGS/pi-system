@@ -1,4 +1,4 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.investments.stocks.data.StockWatchlist;
+import com.pisystem.modules.stocks.data.StockWatchlist;
 
 @Repository
 public interface StockWatchlistRepository extends JpaRepository<StockWatchlist, Long> {

@@ -1,4 +1,4 @@
-package com.investments.stocks.dto;
+package com.pisystem.modules.stocks.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

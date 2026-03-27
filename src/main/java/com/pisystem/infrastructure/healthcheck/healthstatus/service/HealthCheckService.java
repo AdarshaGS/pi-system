@@ -1,6 +1,6 @@
-package com.healthstatus.service;
+package com.pisystem.infrastructure.healthcheck.service;
 
-import com.healthstatus.data.HealthStatus;
+import com.pisystem.infrastructure.healthcheck.data.HealthStatus;
 
 public interface HealthCheckService {
 

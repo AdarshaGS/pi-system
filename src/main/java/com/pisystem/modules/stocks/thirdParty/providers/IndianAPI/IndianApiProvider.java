@@ -1,11 +1,11 @@
-package com.investments.stocks.thirdParty.providers.IndianAPI;
+package com.pisystem.modules.stocks.thirdParty.providers.IndianAPI;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import com.investments.stocks.thirdParty.StockDataProvider;
-import com.investments.stocks.thirdParty.ThirdPartyResponse;
-import com.investments.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
+import com.pisystem.modules.stocks.thirdParty.StockDataProvider;
+import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
+import com.pisystem.modules.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
-import com.investments.stocks.service.PortfolioRebalancingService;
+import com.pisystem.modules.stocks.service.PortfolioRebalancingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

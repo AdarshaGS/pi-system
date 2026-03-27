@@ -15,14 +15,14 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.lending.data.LendingDTO;
-import com.lending.data.LendingRecord;
-import com.lending.data.LendingStatus;
-import com.lending.data.Repayment;
-import com.lending.data.RepaymentDTO;
-import com.lending.data.RepaymentMethod;
-import com.lending.repo.LendingRepository;
-import com.lending.repo.RepaymentRepository;
+import com.pisystem.modules.lending.data.LendingDTO;
+import com.pisystem.modules.lending.data.LendingRecord;
+import com.pisystem.modules.lending.data.LendingStatus;
+import com.pisystem.modules.lending.data.Repayment;
+import com.pisystem.modules.lending.data.RepaymentDTO;
+import com.pisystem.modules.lending.data.RepaymentMethod;
+import com.pisystem.modules.lending.repo.LendingRepository;
+import com.pisystem.modules.lending.repo.RepaymentRepository;
 
 public class LendingServiceImplTest {
 

@@ -1,4 +1,4 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.investments.stocks.data.CorporateAction;
-import com.investments.stocks.data.CorporateActionType;
+import com.pisystem.modules.stocks.data.CorporateAction;
+import com.pisystem.modules.stocks.data.CorporateActionType;
 
 @Repository
 public interface CorporateActionRepository extends JpaRepository<CorporateAction, Long> {

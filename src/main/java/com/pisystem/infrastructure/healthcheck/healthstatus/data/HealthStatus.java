@@ -1,4 +1,4 @@
-package com.healthstatus.data;
+package com.pisystem.infrastructure.healthcheck.data;
 
 import lombok.Data;
 

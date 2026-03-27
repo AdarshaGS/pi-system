@@ -15,23 +15,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
-import com.investments.stocks.diversification.portfolio.service.PortfolioReadService;
-import com.investments.stocks.networth.data.NetWorthDTO;
-import com.investments.stocks.networth.data.UserAsset;
-import com.common.data.EntityType;
-import com.investments.stocks.networth.data.UserLiability;
-import com.investments.stocks.networth.repo.UserAssetRepository;
-import com.investments.stocks.networth.repo.UserLiabilityRepository;
-import com.investments.stocks.networth.service.impl.NetWorthReadServiceImpl;
-import com.loan.data.Loan;
-import com.loan.service.LoanService;
-import com.savings.data.FixedDepositDTO;
-import com.savings.data.RecurringDepositDTO;
-import com.savings.data.SavingsAccountDTO;
-import com.savings.service.FixedDepositService;
-import com.savings.service.RecurringDepositService;
-import com.savings.service.SavingsAccountService;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioDTOResponse;
+import com.pisystem.modules.stocks.diversification.portfolio.service.PortfolioReadService;
+import com.pisystem.modules.stocks.networth.data.NetWorthDTO;
+import com.pisystem.modules.stocks.networth.data.UserAsset;
+import com.pisystem.shared.data.EntityType;
+import com.pisystem.modules.stocks.networth.data.UserLiability;
+import com.pisystem.modules.stocks.networth.repo.UserAssetRepository;
+import com.pisystem.modules.stocks.networth.repo.UserLiabilityRepository;
+import com.pisystem.modules.stocks.networth.service.impl.NetWorthReadServiceImpl;
+import com.pisystem.modules.loans.data.Loan;
+import com.pisystem.modules.loans.service.LoanService;
+import com.pisystem.modules.savings.data.FixedDepositDTO;
+import com.pisystem.modules.savings.data.RecurringDepositDTO;
+import com.pisystem.modules.savings.data.SavingsAccountDTO;
+import com.pisystem.modules.savings.service.FixedDepositService;
+import com.pisystem.modules.savings.service.RecurringDepositService;
+import com.pisystem.modules.savings.service.SavingsAccountService;
 
 @ExtendWith(MockitoExtension.class)
 class NetWorthReadServiceImplTest {

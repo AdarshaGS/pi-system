@@ -1,4 +1,4 @@
-package com.investments.stocks.data;
+package com.pisystem.modules.stocks.data;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,8 +11,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.common.data.EntityType;
-import com.common.data.TypedEntity;
+import com.pisystem.shared.data.EntityType;
+import com.pisystem.shared.data.TypedEntity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

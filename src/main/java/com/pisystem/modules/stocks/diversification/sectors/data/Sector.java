@@ -1,4 +1,4 @@
-package com.investments.stocks.diversification.sectors.data;
+package com.pisystem.modules.stocks.diversification.sectors.data;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

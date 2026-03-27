@@ -1,7 +1,7 @@
-package com.investments.stocks.scheduler;
+package com.pisystem.modules.stocks.scheduler;
 
-import com.admin.service.JobStatusService;
-import com.investments.stocks.service.InvestmentRecurringTransactionService;
+import com.pisystem.core.admin.service.JobStatusService;
+import com.pisystem.modules.stocks.service.InvestmentRecurringTransactionService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

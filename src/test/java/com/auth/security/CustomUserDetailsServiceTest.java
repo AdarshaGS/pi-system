@@ -16,8 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.users.data.Users;
-import com.users.repo.UsersRepository;
+import com.pisystem.core.users.data.Users;
+import com.pisystem.core.users.repo.UsersRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomUserDetailsServiceTest {

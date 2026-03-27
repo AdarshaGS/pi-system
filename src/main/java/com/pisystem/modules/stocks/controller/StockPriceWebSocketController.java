@@ -1,7 +1,7 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
-import com.investments.stocks.dto.StockPriceUpdate;
-import com.investments.stocks.service.StockPriceWebSocketService;
+import com.pisystem.modules.stocks.dto.StockPriceUpdate;
+import com.pisystem.modules.stocks.service.StockPriceWebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

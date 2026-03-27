@@ -1,13 +1,13 @@
-package com.investments.mutualfunds.service;
+package com.pisystem.modules.mutualfunds.service;
 
 import java.util.List;
-import com.investments.mutualfunds.data.MutualFundHolding;
-import com.investments.mutualfunds.data.MutualFundInsights;
-import com.investments.mutualfunds.data.MutualFundSummary;
-import com.externalServices.mutualfund.dto.MFLatestNAVResponse;
-import com.externalServices.mutualfund.dto.MFNAVHistoryResponse;
-import com.externalServices.mutualfund.dto.MFSchemeListItem;
-import com.externalServices.mutualfund.dto.MFSchemeSearchResult;
+import com.pisystem.modules.mutualfunds.data.MutualFundHolding;
+import com.pisystem.modules.mutualfunds.data.MutualFundInsights;
+import com.pisystem.modules.mutualfunds.data.MutualFundSummary;
+import com.pisystem.integrations.externalservices.mutualfund.dto.MFLatestNAVResponse;
+import com.pisystem.integrations.externalservices.mutualfund.dto.MFNAVHistoryResponse;
+import com.pisystem.integrations.externalservices.mutualfund.dto.MFSchemeListItem;
+import com.pisystem.integrations.externalservices.mutualfund.dto.MFSchemeSearchResult;
 
 public interface MutualFundService {
     // Portfolio management APIs

@@ -1,4 +1,4 @@
-package com.investments.mutualfunds.data;
+package com.pisystem.modules.mutualfunds.data;
 
 public enum MFAssetType {
     EQUITY,

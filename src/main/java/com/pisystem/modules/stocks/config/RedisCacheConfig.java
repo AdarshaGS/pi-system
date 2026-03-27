@@ -1,4 +1,4 @@
-package com.investments.stocks.config;
+package com.pisystem.modules.stocks.config;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;

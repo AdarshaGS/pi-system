@@ -1,4 +1,4 @@
-package com.investments.stocks.exception;
+package com.pisystem.modules.stocks.exception;
 
 /**
  * Exception thrown when a requested resource is not found

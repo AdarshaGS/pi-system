@@ -1,4 +1,4 @@
-package com.investments.stocks.data;
+package com.pisystem.modules.stocks.data;
 
 public enum AlertType {
     TARGET_PRICE,      // Alert when price reaches target

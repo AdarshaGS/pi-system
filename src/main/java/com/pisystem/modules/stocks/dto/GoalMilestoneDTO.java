@@ -1,6 +1,6 @@
-package com.investments.stocks.dto;
+package com.pisystem.modules.stocks.dto;
 
-import com.investments.stocks.data.GoalMilestone;
+import com.pisystem.modules.stocks.data.GoalMilestone;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

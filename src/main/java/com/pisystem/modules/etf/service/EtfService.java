@@ -1,7 +1,7 @@
-package com.investments.etf.service;
+package com.pisystem.modules.etf.service;
 
-import com.investments.etf.data.Etf;
-import com.investments.etf.repo.EtfRepository;
+import com.pisystem.modules.etf.data.Etf;
+import com.pisystem.modules.etf.repo.EtfRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

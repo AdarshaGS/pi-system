@@ -1,4 +1,4 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -6,13 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import com.common.features.FeatureFlag;
-import com.common.features.RequiresFeature;
-import com.common.security.AuthenticationHelper;
-import com.investments.stocks.data.*;
-import com.investments.stocks.dto.*;
-import com.investments.stocks.service.StockManagementService;
-import com.investments.stocks.service.StockReadService;
+import com.pisystem.shared.features.FeatureFlag;
+import com.pisystem.shared.features.RequiresFeature;
+import com.pisystem.shared.security.AuthenticationHelper;
+import com.pisystem.modules.stocks.data.*;
+import com.pisystem.modules.stocks.dto.*;
+import com.pisystem.modules.stocks.service.StockManagementService;
+import com.pisystem.modules.stocks.service.StockReadService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

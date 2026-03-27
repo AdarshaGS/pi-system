@@ -1,4 +1,4 @@
-package com.investments.stocks.data;
+package com.pisystem.modules.stocks.data;
 
 public enum CorporateActionType {
     DIVIDEND,      // Dividend payment

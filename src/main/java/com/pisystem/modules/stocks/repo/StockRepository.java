@@ -1,4 +1,4 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.investments.stocks.data.Stock;
+import com.pisystem.modules.stocks.data.Stock;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {

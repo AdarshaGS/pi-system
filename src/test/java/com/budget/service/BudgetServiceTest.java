@@ -1,11 +1,11 @@
 package com.budget.service;
 
-import com.budget.data.*;
-import com.budget.repo.BudgetRepository;
-import com.budget.repo.CustomCategoryRepository;
-import com.budget.repo.ExpenseRepository;
-import com.budget.repo.IncomeRepository;
-import com.common.security.AuthenticationHelper;
+import com.pisystem.modules.budget.data.*;
+import com.pisystem.modules.budget.repo.BudgetRepository;
+import com.pisystem.modules.budget.repo.CustomCategoryRepository;
+import com.pisystem.modules.budget.repo.ExpenseRepository;
+import com.pisystem.modules.budget.repo.IncomeRepository;
+import com.pisystem.shared.security.AuthenticationHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

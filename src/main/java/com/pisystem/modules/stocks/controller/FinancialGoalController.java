@@ -1,9 +1,9 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
-import com.investments.stocks.data.FinancialGoal;
-import com.investments.stocks.dto.FinancialGoalDTO;
-import com.investments.stocks.dto.GoalMilestoneDTO;
-import com.investments.stocks.service.FinancialGoalService;
+import com.pisystem.modules.stocks.data.FinancialGoal;
+import com.pisystem.modules.stocks.dto.FinancialGoalDTO;
+import com.pisystem.modules.stocks.dto.GoalMilestoneDTO;
+import com.pisystem.modules.stocks.service.FinancialGoalService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

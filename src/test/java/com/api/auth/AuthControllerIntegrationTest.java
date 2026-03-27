@@ -1,8 +1,8 @@
 package com.api.auth;
 
-import com.api.config.BaseApiTest;
-import com.api.helpers.ApiAssertions;
-import com.api.helpers.TestDataBuilder;
+import com.pisystem.devtools.config.BaseApiTest;
+import com.pisystem.devtools.helpers.ApiAssertions;
+import com.pisystem.devtools.helpers.TestDataBuilder;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 

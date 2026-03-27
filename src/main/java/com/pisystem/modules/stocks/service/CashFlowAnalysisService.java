@@ -1,7 +1,7 @@
-package com.investments.stocks.service;
+package com.pisystem.modules.stocks.service;
 
-import com.investments.stocks.data.CashFlowRecord;
-import com.investments.stocks.repo.CashFlowRecordRepository;
+import com.pisystem.modules.stocks.data.CashFlowRecord;
+import com.pisystem.modules.stocks.repo.CashFlowRecordRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

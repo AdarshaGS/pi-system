@@ -1,7 +1,7 @@
 package com.audit.service;
 
-import com.audit.entity.ThirdPartyRequestAudit;
-import com.audit.repository.ThirdPartyRequestAuditRepository;
+import com.pisystem.shared.audit.entity.ThirdPartyRequestAudit;
+import com.pisystem.shared.audit.repository.ThirdPartyRequestAuditRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

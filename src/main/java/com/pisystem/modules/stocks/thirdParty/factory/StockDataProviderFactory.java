@@ -1,4 +1,4 @@
-package com.investments.stocks.thirdParty.factory;
+package com.pisystem.modules.stocks.thirdParty.factory;
 
 import java.util.List;
 import java.util.Map;
@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.investments.stocks.thirdParty.StockDataProvider;
-import com.investments.stocks.thirdParty.ThirdPartyResponse;
+import com.pisystem.modules.stocks.thirdParty.StockDataProvider;
+import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
 
 import lombok.extern.slf4j.Slf4j;
 

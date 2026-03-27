@@ -1,8 +1,8 @@
-package com.investments.stocks.exception;
+package com.pisystem.modules.stocks.exception;
 
 import org.springframework.http.HttpStatus;
 
-import com.common.exception.BusinessException;
+import com.pisystem.shared.exception.BusinessException;
 
 public class SymbolNotFoundException extends BusinessException {
 

@@ -1,4 +1,4 @@
-package com.stocks.config;
+package com.pisystem.modules.stocks.config;
 
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;

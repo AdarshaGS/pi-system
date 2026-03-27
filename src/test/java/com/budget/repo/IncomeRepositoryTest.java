@@ -1,6 +1,6 @@
 package com.budget.repo;
 
-import com.budget.data.Income;
+import com.pisystem.modules.budget.data.Income;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

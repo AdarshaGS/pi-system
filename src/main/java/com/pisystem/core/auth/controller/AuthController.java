@@ -1,0 +1,312 @@
+package com.pisystem.core.auth.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+
+import com.pisystem.core.auth.data.ForgotPasswordRequest;
+import com.pisystem.core.auth.data.LoginRequest;
+import com.pisystem.core.auth.data.LoginResponse;
+import com.pisystem.core.auth.data.RefreshTokenRequest;
+import com.pisystem.core.auth.data.RefreshTokenResponse;
+import com.pisystem.core.auth.security.JwtUtil;
+import com.pisystem.core.auth.service.IRefreshTokenService;
+import com.pisystem.core.users.data.Users;
+import com.pisystem.core.users.exception.UserNotFoundException;
+import com.pisystem.core.users.repo.UsersRepository;
+import com.pisystem.core.users.service.UserWriteService;
+import com.pisystem.shared.audit.service.ActivityLogService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "APIs for user authentication and registration")
+public class AuthController {
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final UsersRepository usersRepository;
+    private final UserWriteService userWriteService;
+    private final PasswordEncoder passwordEncoder;
+    private final IRefreshTokenService refreshTokenService;
+    private final com.pisystem.core.auth.security.CustomUserDetailsService customUserDetailsService;
+    private final ActivityLogService activityLogService;
+
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
+            UsersRepository usersRepository, UserWriteService userWriteService, PasswordEncoder passwordEncoder,
+            IRefreshTokenService refreshTokenService,
+            com.pisystem.core.auth.security.CustomUserDetailsService customUserDetailsService,
+            ActivityLogService activityLogService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+        this.usersRepository = usersRepository;
+        this.userWriteService = userWriteService;
+        this.passwordEncoder = passwordEncoder;
+        this.refreshTokenService = refreshTokenService;
+        this.customUserDetailsService = customUserDetailsService;
+        this.activityLogService = activityLogService;
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "User login", description = "Authenticate user with email and password, returns JWT token")
+    @ApiResponse(responseCode = "200", description = "Successfully authenticated")
+    @ApiResponse(responseCode = "401", description = "Invalid credentials", content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.pisystem.shared.exception.ApiErrorResponse.class)))
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String token = jwtUtil.generateToken(userDetails);
+            String refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+
+            Users user = usersRepository.findByEmail(loginRequest.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Log successful login
+            activityLogService.logActivity(user.getId(), user.getName(), user.getEmail(), "LOGIN",
+                    "User logged in successfully");
+
+            LoginResponse response = LoginResponse.builder()
+                    .userId(user.getId())
+                    .token(token)
+                    .refreshToken(refreshToken)
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .message("Login successful")
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (BadCredentialsException e) {
+            // Log failed login attempt
+            usersRepository.findByEmail(loginRequest.getEmail()).ifPresent(user -> {
+                activityLogService.logActivity(user.getId(), user.getName(), user.getEmail(), "LOGIN",
+                        null, null, "Failed login attempt", "FAILURE", "Invalid credentials");
+            });
+            
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(LoginResponse.builder().message("Invalid email or password").build());
+        }
+    }
+
+    @PostMapping("/register")
+    @Operation(summary = "Register new user", description = "Create a new user account with hashed password")
+    @ApiResponse(responseCode = "201", description = "Successfully registered")
+    @ApiResponse(responseCode = "400", description = "User already exists")
+    public ResponseEntity<?> register(@Valid @RequestBody Users user) {
+        try {
+            if (usersRepository.findByEmail(user.getEmail()).isPresent()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(LoginResponse.builder().message("User with this email already exists").build());
+            }
+
+            Users savedUser = userWriteService.createUser(user);
+
+            // Log user registration
+            activityLogService.logActivity(savedUser.getId(), savedUser.getName(), savedUser.getEmail(), "REGISTER",
+                    "User", savedUser.getId().toString(), "New user registered", "SUCCESS", null);
+
+            // Fetch UserDetails to include roles in JWT
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(savedUser.getEmail());
+            String token = jwtUtil.generateToken(userDetails);
+            String refreshToken = refreshTokenService.createRefreshToken(savedUser.getEmail());
+
+            LoginResponse response = LoginResponse.builder()
+                    .userId(savedUser.getId())
+                    .email(savedUser.getEmail())
+                    .name(savedUser.getName())
+                    .token(token)
+                    .refreshToken(refreshToken)
+                    .message("User registered successfully")
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(LoginResponse.builder().message(e.getMessage()).build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(LoginResponse.builder().message("Registration failed: " + e.getMessage()).build());
+        }
+    }
+
+    // Forgot password API
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Forgot password", description = "Send password reset email")
+    @ApiResponse(responseCode = "200", description = "Successfully sent password reset email")
+    public LoginResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        // Call upon checking if the user exists
+        userWriteService.updateUserPassword(forgotPasswordRequest);
+        return LoginResponse.builder().email(forgotPasswordRequest.getEmail()).message("Password updated successfully")
+                .build();
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout user", description = "Clears the security context and invalidates the current session")
+    @ApiResponse(responseCode = "200", description = "Successfully logged out")
+    @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing token")
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        String username = null;
+        Users user = null;
+        
+        // Extract username and blacklist access token if present
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            try {
+                username = jwtUtil.extractUsername(token);
+                if (username != null) {
+                    user = usersRepository.findByEmail(username).orElse(null);
+                }
+                refreshTokenService.blacklistAccessToken(token);
+            } catch (Exception e) {
+                // Token is invalid or expired, but we'll still proceed with logout
+            }
+        }
+
+        // Log logout activity
+        if (user != null) {
+            activityLogService.logActivity(user.getId(), user.getName(), user.getEmail(), "LOGOUT",
+                    "User logged out");
+        }
+
+        // Clear the security context
+        SecurityContextHolder.clearContext();
+
+        // Delete refresh token if provided in a custom header or extracted from request
+        if (authHeader != null && authHeader.startsWith("Bearer-Refresh ")) {
+            String refreshToken = authHeader.substring(15);
+            refreshTokenService.deleteRefreshToken(refreshToken);
+        }
+
+        LoginResponse response = LoginResponse.builder()
+                .email(username)
+                .message("Logout successful")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    // update user
+    @PostMapping("/update-user")
+    @Operation(summary = "Update user", description = "Update user details")
+    @ApiResponse(responseCode = "200", description = "Successfully updated user")
+    @ApiResponse(responseCode = "404", description = "User not found")
+    public ResponseEntity<?> updateUser(@RequestHeader(value = "Authorization", required = false) String authHeader,
+            @Valid @RequestBody Users user) {
+        try {
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                try {
+                    String email = jwtUtil.extractUsername(token);
+                    // Fetch the user to get the correct ID
+                    Users existingUser = usersRepository.findByEmail(email)
+                            .orElseThrow(() -> new RuntimeException("User not found"));
+
+                    // Secure: Force the ID of the user to be updated to match the token's owner
+                    user.setId(existingUser.getId());
+                    // Optionally prevent email change or handle it carefully
+
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body(LoginResponse.builder().message("Invalid token").build());
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(LoginResponse.builder().message("Authorization header missing").build());
+            }
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+            userWriteService.updateUser(user);
+            return ResponseEntity.ok(LoginResponse.builder().message("User updated successfully").build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(LoginResponse.builder().message("Update user failed: " + e.getMessage()).build());
+        }
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token", description = "Generate a new access token using a valid refresh token")
+    @ApiResponse(responseCode = "200", description = "Successfully refreshed token")
+    @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
+    public ResponseEntity<?> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        try {
+            String email = refreshTokenService.validateAndGetUserEmail(request.getRefreshToken());
+
+            // Rotate refresh token
+            refreshTokenService.deleteRefreshToken(request.getRefreshToken());
+            String newRefreshToken = refreshTokenService.createRefreshToken(email);
+
+            String newAccessToken = jwtUtil.generateToken(email);
+
+            return ResponseEntity.ok(RefreshTokenResponse.builder()
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken)
+                    .message("Token refreshed successfully")
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(RefreshTokenResponse.builder().message(e.getMessage()).build());
+        }
+    }
+
+    // does user exists
+    @GetMapping("/does-user-exists")
+    @Operation(summary = "Does user exists", description = "Check if user exists")
+    @ApiResponse(responseCode = "200", description = "Successfully checked if user exists")
+    @ApiResponse(responseCode = "404", description = "User not found")
+    public boolean doesUserExists(@RequestBody final String email) throws UserNotFoundException {
+        if (usersRepository.findByEmail(email).isPresent()) {
+            return true;
+        } else {
+            throw new UserNotFoundException();
+        }
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "Get current user profile", description = "Returns the authenticated user's profile including userId")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved user profile")
+    @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing token")
+    public ResponseEntity<?> getProfile(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(LoginResponse.builder().message("Authorization header missing or invalid").build());
+        }
+
+        String token = authHeader.substring(7);
+        try {
+            String email = jwtUtil.extractUsername(token);
+            Users user = usersRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            LoginResponse response = LoginResponse.builder()
+                    .userId(user.getId())
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(LoginResponse.builder().message("Invalid token: " + e.getMessage()).build());
+        }
+    }
+}

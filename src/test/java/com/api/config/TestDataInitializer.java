@@ -1,7 +1,7 @@
 package com.api.config;
 
-import com.auth.data.Role;
-import com.auth.repo.RoleRepository;
+import com.pisystem.core.auth.data.Role;
+import com.pisystem.core.auth.repo.RoleRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;

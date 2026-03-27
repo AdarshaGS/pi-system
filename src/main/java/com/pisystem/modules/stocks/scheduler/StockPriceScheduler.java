@@ -1,15 +1,15 @@
-package com.investments.stocks.scheduler;
+package com.pisystem.modules.stocks.scheduler;
 
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.investments.stocks.data.Stock;
-import com.investments.stocks.repo.StockRepository;
-import com.investments.stocks.thirdParty.ThirdPartyResponse;
-import com.investments.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
+import com.pisystem.modules.stocks.data.Stock;
+import com.pisystem.modules.stocks.repo.StockRepository;
+import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
+import com.pisystem.modules.stocks.thirdParty.providers.IndianAPI.service.IndianAPIService;
 
-import com.admin.service.JobStatusService;
+import com.pisystem.core.admin.service.JobStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

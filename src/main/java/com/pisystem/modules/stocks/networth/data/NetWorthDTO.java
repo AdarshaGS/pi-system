@@ -1,10 +1,10 @@
-package com.investments.stocks.networth.data;
+package com.pisystem.modules.stocks.networth.data;
 
 import lombok.*;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import com.common.data.EntityType;
+import com.pisystem.shared.data.EntityType;
 
 @NoArgsConstructor
 @Data

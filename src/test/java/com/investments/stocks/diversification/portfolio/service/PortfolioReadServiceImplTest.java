@@ -14,23 +14,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.investments.stocks.data.Stock;
-import com.investments.stocks.diversification.portfolio.data.Portfolio;
-import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
-import com.investments.stocks.diversification.portfolio.repo.PortfolioRepository;
-import com.investments.stocks.diversification.sectors.data.Sector;
-import com.investments.stocks.diversification.sectors.repo.SectorRepository;
-import com.investments.stocks.repo.StockRepository;
-import com.loan.data.Loan;
-import com.loan.service.LoanService;
-import com.protection.insurance.data.Insurance;
-import com.protection.insurance.service.InsuranceService;
-import com.savings.data.FixedDepositDTO;
-import com.savings.data.RecurringDepositDTO;
-import com.savings.data.SavingsAccountDTO;
-import com.savings.service.FixedDepositService;
-import com.savings.service.RecurringDepositService;
-import com.savings.service.SavingsAccountService;
+import com.pisystem.modules.stocks.data.Stock;
+import com.pisystem.modules.stocks.diversification.portfolio.data.Portfolio;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioDTOResponse;
+import com.pisystem.modules.stocks.diversification.portfolio.repo.PortfolioRepository;
+import com.pisystem.modules.stocks.diversification.sectors.data.Sector;
+import com.pisystem.modules.stocks.diversification.sectors.repo.SectorRepository;
+import com.pisystem.modules.stocks.repo.StockRepository;
+import com.pisystem.modules.loans.data.Loan;
+import com.pisystem.modules.loans.service.LoanService;
+import com.pisystem.modules.insurance.insurance.data.Insurance;
+import com.pisystem.modules.insurance.insurance.service.InsuranceService;
+import com.pisystem.modules.savings.data.FixedDepositDTO;
+import com.pisystem.modules.savings.data.RecurringDepositDTO;
+import com.pisystem.modules.savings.data.SavingsAccountDTO;
+import com.pisystem.modules.savings.service.FixedDepositService;
+import com.pisystem.modules.savings.service.RecurringDepositService;
+import com.pisystem.modules.savings.service.SavingsAccountService;
 
 @ExtendWith(MockitoExtension.class)
 class PortfolioReadServiceImplTest {

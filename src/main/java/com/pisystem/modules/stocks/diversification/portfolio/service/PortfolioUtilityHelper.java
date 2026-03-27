@@ -1,4 +1,4 @@
-package com.investments.stocks.diversification.portfolio.service;
+package com.pisystem.modules.stocks.diversification.portfolio.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,15 +9,15 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.investments.stocks.diversification.portfolio.data.MarketCapAllocation;
-import com.loan.service.LoanService;
-import com.protection.insurance.service.InsuranceService;
-import com.savings.data.FixedDepositDTO;
-import com.savings.data.RecurringDepositDTO;
-import com.savings.data.SavingsAccountDTO;
-import com.savings.service.FixedDepositService;
-import com.savings.service.RecurringDepositService;
-import com.savings.service.SavingsAccountService;
+import com.pisystem.modules.stocks.diversification.portfolio.data.MarketCapAllocation;
+import com.pisystem.modules.loans.service.LoanService;
+import com.pisystem.modules.insurance.service.InsuranceService;
+import com.pisystem.modules.savings.data.FixedDepositDTO;
+import com.pisystem.modules.savings.data.RecurringDepositDTO;
+import com.pisystem.modules.savings.data.SavingsAccountDTO;
+import com.pisystem.modules.savings.service.FixedDepositService;
+import com.pisystem.modules.savings.service.RecurringDepositService;
+import com.pisystem.modules.savings.service.SavingsAccountService;
 
 @Component
 public class PortfolioUtilityHelper {

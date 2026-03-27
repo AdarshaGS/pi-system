@@ -1,4 +1,4 @@
-package com.investments.stocks.validation;
+package com.pisystem.modules.stocks.validation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

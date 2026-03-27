@@ -26,15 +26,15 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.auth.controller.AuthController;
-import com.auth.data.LoginRequest;
-import com.auth.data.LoginResponse;
-import com.auth.security.JwtUtil;
-import com.auth.service.IRefreshTokenService;
-import com.audit.service.ActivityLogService;
-import com.users.data.Users;
-import com.users.repo.UsersRepository;
-import com.users.service.UserWriteService;
+import com.pisystem.core.auth.controller.AuthController;
+import com.pisystem.core.auth.data.LoginRequest;
+import com.pisystem.core.auth.data.LoginResponse;
+import com.pisystem.core.auth.security.JwtUtil;
+import com.pisystem.core.auth.service.IRefreshTokenService;
+import com.pisystem.shared.audit.service.ActivityLogService;
+import com.pisystem.core.users.data.Users;
+import com.pisystem.core.users.repo.UsersRepository;
+import com.pisystem.core.users.service.UserWriteService;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthControllerUnitTest {

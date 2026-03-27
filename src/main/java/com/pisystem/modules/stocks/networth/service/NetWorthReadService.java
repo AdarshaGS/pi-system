@@ -1,7 +1,7 @@
-package com.investments.stocks.networth.service;
+package com.pisystem.modules.stocks.networth.service;
 
-import com.investments.stocks.networth.data.AssetLiabilityTemplateDTO;
-import com.investments.stocks.networth.data.NetWorthDTO;
+import com.pisystem.modules.stocks.networth.data.AssetLiabilityTemplateDTO;
+import com.pisystem.modules.stocks.networth.data.NetWorthDTO;
 
 public interface NetWorthReadService {
     NetWorthDTO getNetWorth(Long userId);

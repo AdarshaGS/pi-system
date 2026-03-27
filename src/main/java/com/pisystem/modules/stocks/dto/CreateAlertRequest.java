@@ -1,4 +1,4 @@
-package com.investments.stocks.dto;
+package com.pisystem.modules.stocks.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.Builder;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import com.investments.stocks.data.AlertType;
+import com.pisystem.modules.stocks.data.AlertType;
 
 import java.math.BigDecimal;
 

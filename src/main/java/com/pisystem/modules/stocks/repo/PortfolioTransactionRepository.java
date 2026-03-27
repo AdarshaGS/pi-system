@@ -1,7 +1,7 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
-import com.investments.stocks.data.PortfolioTransaction;
-import com.investments.stocks.data.PortfolioTransaction.TransactionType;
+import com.pisystem.modules.stocks.data.PortfolioTransaction;
+import com.pisystem.modules.stocks.data.PortfolioTransaction.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

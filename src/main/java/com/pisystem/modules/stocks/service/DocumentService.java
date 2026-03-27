@@ -1,9 +1,9 @@
-package com.investments.stocks.service;
+package com.pisystem.modules.stocks.service;
 
-import com.investments.stocks.data.Document;
-import com.investments.stocks.dto.DocumentDTO;
-import com.investments.stocks.exception.ResourceNotFoundException;
-import com.investments.stocks.repo.DocumentRepository;
+import com.pisystem.modules.stocks.data.Document;
+import com.pisystem.modules.stocks.dto.DocumentDTO;
+import com.pisystem.modules.stocks.exception.ResourceNotFoundException;
+import com.pisystem.modules.stocks.repo.DocumentRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

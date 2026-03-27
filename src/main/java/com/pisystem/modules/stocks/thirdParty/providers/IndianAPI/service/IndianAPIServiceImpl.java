@@ -1,4 +1,4 @@
-package com.investments.stocks.thirdParty.providers.IndianAPI.service;
+package com.pisystem.modules.stocks.thirdParty.providers.IndianAPI.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -15,15 +15,15 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.audit.entity.ThirdPartyRequestAudit;
-import com.audit.service.ThirdPartyAuditService;
-import com.externalServices.data.ExternalServicePropertiesEntity;
-import com.externalServices.service.ExternalService;
+import com.pisystem.shared.audit.entity.ThirdPartyRequestAudit;
+import com.pisystem.shared.audit.service.ThirdPartyAuditService;
+import com.pisystem.integrations.externalservices.data.ExternalServicePropertiesEntity;
+import com.pisystem.integrations.externalservices.service.ExternalService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.investments.stocks.exception.SymbolNotFoundException;
-import com.investments.stocks.thirdParty.ThirdPartyResponse;
+import com.pisystem.modules.stocks.exception.SymbolNotFoundException;
+import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
 
 // import io.github.resilience4j.ratelimiter.RateLimiter;
 // import io.github.resilience4j.retry.Retry;

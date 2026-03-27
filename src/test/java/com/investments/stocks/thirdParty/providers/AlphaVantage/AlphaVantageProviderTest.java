@@ -1,15 +1,15 @@
 package com.investments.stocks.thirdParty.providers.AlphaVantage;
 
-import com.audit.entity.ThirdPartyRequestAudit;
-import com.audit.service.ThirdPartyAuditService;
-import com.externalServices.data.ExternalServicePropertiesEntity;
-import com.externalServices.service.ExternalService;
-import com.investments.stocks.exception.RateLimitExceededException;
-import com.investments.stocks.ratelimit.RateLimiter;
-import com.investments.stocks.thirdParty.ThirdPartyResponse;
-import com.investments.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageGlobalQuote;
-import com.investments.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageResponseOverview;
-import com.investments.stocks.validation.StockPriceValidator;
+import com.pisystem.shared.audit.entity.ThirdPartyRequestAudit;
+import com.pisystem.shared.audit.service.ThirdPartyAuditService;
+import com.pisystem.integrations.externalservices.data.ExternalServicePropertiesEntity;
+import com.pisystem.integrations.externalservices.service.ExternalService;
+import com.pisystem.modules.stocks.exception.RateLimitExceededException;
+import com.pisystem.modules.stocks.ratelimit.RateLimiter;
+import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
+import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageGlobalQuote;
+import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageResponseOverview;
+import com.pisystem.modules.stocks.validation.StockPriceValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;

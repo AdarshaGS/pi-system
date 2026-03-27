@@ -1,4 +1,4 @@
-package com.investments.stocks.ratelimit;
+package com.pisystem.modules.stocks.ratelimit;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;

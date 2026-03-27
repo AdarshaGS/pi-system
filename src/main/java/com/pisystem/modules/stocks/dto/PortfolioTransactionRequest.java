@@ -1,6 +1,6 @@
-package com.investments.stocks.dto;
+package com.pisystem.modules.stocks.dto;
 
-import com.investments.stocks.data.PortfolioTransaction.TransactionType;
+import com.pisystem.modules.stocks.data.PortfolioTransaction.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

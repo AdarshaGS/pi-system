@@ -1,9 +1,9 @@
-package com.healthstatus.service;
+package com.pisystem.infrastructure.healthcheck.service;
 
 import org.springframework.stereotype.Service;
 
-import com.healthstatus.data.ComponentHealth;
-import com.healthstatus.data.HealthStatus;
+import com.pisystem.infrastructure.healthcheck.data.ComponentHealth;
+import com.pisystem.infrastructure.healthcheck.data.HealthStatus;
 
 import javax.sql.DataSource;
 import java.lang.management.ManagementFactory;

@@ -1,4 +1,4 @@
-package com.investments.stocks.config;
+package com.pisystem.modules.stocks.config;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

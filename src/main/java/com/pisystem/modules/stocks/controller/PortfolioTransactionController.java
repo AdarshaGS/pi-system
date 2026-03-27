@@ -1,4 +1,4 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.common.security.AuthenticationHelper;
-import com.investments.stocks.data.PortfolioTransaction;
-import com.investments.stocks.dto.PortfolioTransactionRequest;
-import com.investments.stocks.dto.TransactionStats;
-import com.investments.stocks.service.PortfolioTransactionService;
+import com.pisystem.shared.security.AuthenticationHelper;
+import com.pisystem.modules.stocks.data.PortfolioTransaction;
+import com.pisystem.modules.stocks.dto.PortfolioTransactionRequest;
+import com.pisystem.modules.stocks.dto.TransactionStats;
+import com.pisystem.modules.stocks.service.PortfolioTransactionService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

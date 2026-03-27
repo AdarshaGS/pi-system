@@ -1,7 +1,7 @@
-package com.investments.stocks.service;
+package com.pisystem.modules.stocks.service;
 
-import com.investments.stocks.data.CreditScore;
-import com.investments.stocks.repo.CreditScoreRepository;
+import com.pisystem.modules.stocks.data.CreditScore;
+import com.pisystem.modules.stocks.repo.CreditScoreRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

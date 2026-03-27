@@ -1,14 +1,14 @@
-package com.investments.stocks.diversification.portfolio.service;
+package com.pisystem.modules.stocks.diversification.portfolio.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.investments.stocks.diversification.portfolio.data.AnalysisInsight;
-import com.investments.stocks.diversification.portfolio.data.PortfolioScoringResult;
-import com.investments.stocks.diversification.portfolio.data.RiskAnalysisResult;
-import com.investments.stocks.diversification.portfolio.data.ScoreExplanation;
+import com.pisystem.modules.stocks.diversification.portfolio.data.AnalysisInsight;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioScoringResult;
+import com.pisystem.modules.stocks.diversification.portfolio.data.RiskAnalysisResult;
+import com.pisystem.modules.stocks.diversification.portfolio.data.ScoreExplanation;
 
 @Service
 public class PortfolioScoringService {

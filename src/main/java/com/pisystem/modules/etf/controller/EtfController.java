@@ -1,9 +1,9 @@
-package com.investments.etf.controller;
+package com.pisystem.modules.etf.controller;
 
-import com.common.features.FeatureFlag;
-import com.common.features.RequiresFeature;
-import com.investments.etf.data.Etf;
-import com.investments.etf.service.EtfService;
+import com.pisystem.shared.features.FeatureFlag;
+import com.pisystem.shared.features.RequiresFeature;
+import com.pisystem.modules.etf.data.Etf;
+import com.pisystem.modules.etf.service.EtfService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;

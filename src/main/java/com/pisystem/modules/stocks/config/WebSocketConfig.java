@@ -1,4 +1,4 @@
-package com.investments.stocks.config;
+package com.pisystem.modules.stocks.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

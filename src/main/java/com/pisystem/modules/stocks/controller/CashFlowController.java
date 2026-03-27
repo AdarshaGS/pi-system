@@ -1,6 +1,6 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
-import com.investments.stocks.service.CashFlowAnalysisService;
+import com.pisystem.modules.stocks.service.CashFlowAnalysisService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

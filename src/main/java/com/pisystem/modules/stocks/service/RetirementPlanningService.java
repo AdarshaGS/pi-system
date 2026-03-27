@@ -1,7 +1,7 @@
-package com.investments.stocks.service;
+package com.pisystem.modules.stocks.service;
 
-import com.users.data.UserProfileResponse;
-import com.users.service.UserProfileService;
+import com.pisystem.core.users.data.UserProfileResponse;
+import com.pisystem.core.users.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

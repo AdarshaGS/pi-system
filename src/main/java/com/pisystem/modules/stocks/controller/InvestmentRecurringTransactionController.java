@@ -1,9 +1,9 @@
-package com.investments.stocks.controller;
+package com.pisystem.modules.stocks.controller;
 
-import com.investments.stocks.data.RecurringTransaction;
-import com.investments.stocks.dto.RecurringTransactionDTO;
-import com.investments.stocks.dto.RecurringTransactionHistoryDTO;
-import com.investments.stocks.service.InvestmentRecurringTransactionService;
+import com.pisystem.modules.stocks.data.RecurringTransaction;
+import com.pisystem.modules.stocks.dto.RecurringTransactionDTO;
+import com.pisystem.modules.stocks.dto.RecurringTransactionHistoryDTO;
+import com.pisystem.modules.stocks.service.InvestmentRecurringTransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,11 +1,11 @@
-package com.investments.stocks.repo;
+package com.pisystem.modules.stocks.repo;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.investments.stocks.data.PriceAlert;
+import com.pisystem.modules.stocks.data.PriceAlert;
 
 @Repository
 public interface PriceAlertRepository extends JpaRepository<PriceAlert, Long> {

@@ -1,4 +1,4 @@
-package com.investments.stocks.data;
+package com.pisystem.modules.stocks.data;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

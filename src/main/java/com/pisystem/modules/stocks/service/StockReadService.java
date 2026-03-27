@@ -1,6 +1,6 @@
-package com.investments.stocks.service;
+package com.pisystem.modules.stocks.service;
 
-import com.investments.stocks.data.StockResponse;
+import com.pisystem.modules.stocks.data.StockResponse;
 
 public interface StockReadService {
     StockResponse getStockBySymbol(String symbol);

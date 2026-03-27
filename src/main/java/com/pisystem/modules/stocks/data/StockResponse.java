@@ -1,4 +1,4 @@
-package com.investments.stocks.data;
+package com.pisystem.modules.stocks.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

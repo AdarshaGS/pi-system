@@ -1,4 +1,4 @@
-package com.investments.stocks.networth.data;
+package com.pisystem.modules.stocks.networth.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

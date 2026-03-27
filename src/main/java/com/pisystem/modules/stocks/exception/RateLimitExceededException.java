@@ -1,4 +1,4 @@
-package com.investments.stocks.exception;
+package com.pisystem.modules.stocks.exception;
 
 /**
  * Exception thrown when API rate limit is exceeded.

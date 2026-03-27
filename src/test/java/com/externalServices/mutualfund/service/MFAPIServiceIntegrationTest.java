@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.externalServices.mutualfund.dto.MFLatestNAVResponse;
-import com.externalServices.mutualfund.dto.MFNAVHistoryResponse;
-import com.externalServices.mutualfund.dto.MFSchemeListItem;
-import com.externalServices.mutualfund.dto.MFSchemeSearchResult;
-import com.investments.mutualfunds.service.MutualFundService;
+import com.pisystem.integrations.externalservices.mutualfund.dto.MFLatestNAVResponse;
+import com.pisystem.integrations.externalservices.mutualfund.dto.MFNAVHistoryResponse;
+import com.pisystem.integrations.externalservices.mutualfund.dto.MFSchemeListItem;
+import com.pisystem.integrations.externalservices.mutualfund.dto.MFSchemeSearchResult;
+import com.pisystem.modules.mutualfunds.service.MutualFundService;
 
 /**
  * Integration tests for Mutual Fund External API

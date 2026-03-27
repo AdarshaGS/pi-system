@@ -1,4 +1,4 @@
-package com.investments.stocks.thirdParty.providers.AlphaVantage;
+package com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage;
 
 import java.util.List;
 
@@ -6,16 +6,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.audit.entity.ThirdPartyRequestAudit;
-import com.externalServices.data.ExternalServicePropertiesEntity;
-import com.externalServices.service.ExternalService;
-import com.investments.stocks.exception.RateLimitExceededException;
-import com.investments.stocks.ratelimit.RateLimiter;
-import com.investments.stocks.thirdParty.StockDataProvider;
-import com.investments.stocks.thirdParty.ThirdPartyResponse;
-import com.investments.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageGlobalQuote;
-import com.investments.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageResponseOverview;
-import com.investments.stocks.validation.StockPriceValidator;
+import com.pisystem.shared.audit.entity.ThirdPartyRequestAudit;
+import com.pisystem.integrations.externalservices.data.ExternalServicePropertiesEntity;
+import com.pisystem.integrations.externalservices.service.ExternalService;
+import com.pisystem.modules.stocks.exception.RateLimitExceededException;
+import com.pisystem.modules.stocks.ratelimit.RateLimiter;
+import com.pisystem.modules.stocks.thirdParty.StockDataProvider;
+import com.pisystem.modules.stocks.thirdParty.ThirdPartyResponse;
+import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageGlobalQuote;
+import com.pisystem.modules.stocks.thirdParty.providers.AlphaVantage.data.AlphaVantageResponseOverview;
+import com.pisystem.modules.stocks.validation.StockPriceValidator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,13 +36,13 @@ public class AlphaVantageProvider implements StockDataProvider {
 
     private final ExternalService externalService;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final com.audit.service.ThirdPartyAuditService auditService;
+    private final com.pisystem.shared.audit.service.ThirdPartyAuditService auditService;
     private final StockPriceValidator validator;
     private final RateLimiter rateLimiter;
 
     public AlphaVantageProvider(
             final ExternalService externalService,
-            final com.audit.service.ThirdPartyAuditService auditService,
+            final com.pisystem.shared.audit.service.ThirdPartyAuditService auditService,
             final StockPriceValidator validator,
             final RateLimiter rateLimiter) {
         this.externalService = externalService;

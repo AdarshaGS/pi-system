@@ -1,4 +1,4 @@
-package com.investments.stocks.diversification.portfolio.service;
+package com.pisystem.modules.stocks.diversification.portfolio.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,23 +13,23 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.investments.stocks.data.Stock;
-import com.investments.stocks.diversification.portfolio.data.DataFreshness;
-import com.investments.stocks.diversification.portfolio.data.Portfolio;
-import com.investments.stocks.diversification.portfolio.data.PortfolioAllocationResult;
-import com.investments.stocks.diversification.portfolio.data.PortfolioDTOResponse;
-import com.investments.stocks.diversification.portfolio.data.PortfolioInsightsDTO;
-import com.investments.stocks.diversification.portfolio.data.PortfolioScoringResult;
-import com.investments.stocks.diversification.portfolio.data.PortfolioValuationResult;
-import com.investments.stocks.diversification.portfolio.data.RiskAnalysisResult;
-import com.investments.stocks.diversification.portfolio.data.RiskSummary;
-import com.investments.stocks.diversification.portfolio.data.SectorAllocation;
-import com.investments.stocks.diversification.portfolio.repo.PortfolioRepository;
-import com.investments.stocks.diversification.sectors.data.Sector;
-import com.investments.stocks.diversification.sectors.repo.SectorRepository;
-import com.investments.stocks.repo.StockRepository;
-import com.investments.stocks.repo.PortfolioTransactionRepository;
-import com.investments.stocks.data.PortfolioTransaction;
+import com.pisystem.modules.stocks.data.Stock;
+import com.pisystem.modules.stocks.diversification.portfolio.data.DataFreshness;
+import com.pisystem.modules.stocks.diversification.portfolio.data.Portfolio;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioAllocationResult;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioDTOResponse;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioInsightsDTO;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioScoringResult;
+import com.pisystem.modules.stocks.diversification.portfolio.data.PortfolioValuationResult;
+import com.pisystem.modules.stocks.diversification.portfolio.data.RiskAnalysisResult;
+import com.pisystem.modules.stocks.diversification.portfolio.data.RiskSummary;
+import com.pisystem.modules.stocks.diversification.portfolio.data.SectorAllocation;
+import com.pisystem.modules.stocks.diversification.portfolio.repo.PortfolioRepository;
+import com.pisystem.modules.stocks.diversification.sectors.data.Sector;
+import com.pisystem.modules.stocks.diversification.sectors.repo.SectorRepository;
+import com.pisystem.modules.stocks.repo.StockRepository;
+import com.pisystem.modules.stocks.repo.PortfolioTransactionRepository;
+import com.pisystem.modules.stocks.data.PortfolioTransaction;
 
 @Service
 public class PortfolioReadServiceImpl implements PortfolioReadService {
