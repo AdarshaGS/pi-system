@@ -9,7 +9,7 @@ public enum FeatureFlag {
     // Module-level feature flags
     BUDGET_MODULE("Budget Module", "Budget and expense management with alerts, subscriptions, and recurring transactions", "budget"),
     TAX_MODULE("Tax Module", "Tax planning, regime comparison, capital gains, and ITR management", "tax"),
-    INVESTMENTS_MODULE("Investments Module", "Portfolio tracking for stocks, mutual funds, bonds, gold, ETF, and real estate", "investments"),
+    INVESTMENTS_MODULE("Investments Module", "Portfolio tracking for stocks, bonds, gold, and real estate", "investments"),
     BANKING_MODULE("Banking Module", "Manage bank accounts, credit cards, loans, FDs, and RDs", "banking"),
     INSURANCE_MODULE("Insurance Module", "Track life, health, and other insurance policies", "insurance"),
     NET_WORTH_MODULE("Net Worth Module", "Calculate net worth and track asset allocation", "networth"),

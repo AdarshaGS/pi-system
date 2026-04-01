@@ -159,7 +159,6 @@ public class SmsServiceImpl implements SmsService {
                         .build());
 
             } catch (Exception e) {
-                log.error("Error processing SMS message: {}", e.getMessage(), e);
                 errors.add(SMSImportResponse.ErrorDetail.builder()
                         .message(truncateMessage(smsMessage.getContent(), 50))
                         .error(e.getMessage())
@@ -438,6 +437,10 @@ public class SmsServiceImpl implements SmsService {
 
         }
         return category;
+    }
+
+    private void detectSelfTransferTransactions(SMSTransaction transaction) {
+        
     }
 
 

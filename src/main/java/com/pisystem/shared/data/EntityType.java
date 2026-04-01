@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EntityType {
     STOCK(1, "Stock"),
-    MUTUAL_FUND(2, "Mutual Fund"),
-    ETF(3, "ETF"),
     LENDING(5, "Lending"),
     SAVINGS_ACCOUNT(7, "Savings Account"),
     FIXED_DEPOSIT(8, "Fixed Deposit"),

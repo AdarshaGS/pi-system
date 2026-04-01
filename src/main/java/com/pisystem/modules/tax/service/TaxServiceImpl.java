@@ -248,9 +248,7 @@ public class TaxServiceImpl implements TaxService {
         BigDecimal taxRate;
         
         String assetType = transaction.getAssetType();
-        if ("EQUITY".equals(assetType) || 
-            "MUTUAL_FUND_EQUITY".equals(assetType) ||
-            "ETF".equals(assetType)) {
+        if ("EQUITY".equals(assetType)) {
             // Equity: LTCG if held > 12 months
             if (holdingDays > 365) {
                 gainType = "LTCG";

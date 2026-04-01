@@ -29,7 +29,7 @@ public class OpenApiConfig {
                                 .addTagsItem(new Tag().name("Portfolio")
                                                 .description("High-level portfolio aggregation & analytics"))
                                 .addTagsItem(new Tag().name("Holdings")
-                                                .description("Detailed equity, mutual fund, and ETF data"))
+                                                .description("Detailed stock holdings and equity data"))
                                 .addTagsItem(new Tag().name("SMS Transaction Parser")
                                                 .description("Parse bank SMS messages and extract transaction details automatically"))
                                 .addTagsItem(new Tag().name("Admin")

@@ -30,14 +30,7 @@ public class PortfolioEngine {
             totalAssets = totalAssets.add(cash);
         }
 
-        // 2. Mutual Funds (Equity)
-        if (data.containsKey(FIType.MUTUAL_FUNDS)) {
-            BigDecimal equity = calculateSum(data.get(FIType.MUTUAL_FUNDS), "currentValue");
-            assetSplit.put("EQUITY", equity);
-            totalAssets = totalAssets.add(equity);
-        }
-
-        // 3. Loans (Debt)
+        // 2. Loans (Debt)
         if (data.containsKey(FIType.LOANS)) {
             totalDebt = calculateSum(data.get(FIType.LOANS), "outstandingAmount");
             assetSplit.put("DEBT", totalDebt); // Simplification: loans subtract from net worth, but here we track them
