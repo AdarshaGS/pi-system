@@ -1,4 +1,4 @@
-ALTER TABLE `pi_system`.`bank_accounts`
+ALTER TABLE `bank_accounts`
 ADD COLUMN `balance` double NOT NULL;
 
 ALTER TABLE `bank_accounts`

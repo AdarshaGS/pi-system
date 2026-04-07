@@ -7,9 +7,9 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/pisystem}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false  # Required for Hibernate transaction management
@@ -49,26 +49,26 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
+            client-id: ${GOOGLE_CLIENT_ID:dev-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:dev-client-secret}
             scope: profile,email
 
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  secret: ${JWT_SECRET:default-secret-key-for-dev-only-change-in-prod}
+  expiration: ${JWT_EXPIRATION:86400000}
   refresh-token:
-    expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+    expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
 
 aa:
-  mode: ${AA_MODE}
+  mode: ${AA_MODE:sandbox}
 
 external:
   service:
@@ -79,8 +79,8 @@ external:
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -95,7 +95,7 @@ external:
     enabled: ${MAIL_ENABLED:true}
 
 server:
-  port: ${PORT}
+  port: ${PORT:8080}
 
 springdoc:
   swagger-ui:

@@ -506,7 +506,7 @@ CREATE TABLE IF NOT EXISTS capital_gains_transactions (
     updated_at TIMESTAMP,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='CapitalGainsTransaction';
-CREATE INDEX idx_user_financial_year ON capital_gains_transactions (user_id, financial_year);
+-- CREATE INDEX idx_user_financial_year ON capital_gains_transactions (user_id, financial_year);
 CREATE INDEX idx_asset_type ON capital_gains_transactions (asset_type);
 CREATE INDEX idx_gain_type ON capital_gains_transactions (gain_type);
 CREATE INDEX idx_sale_date ON capital_gains_transactions (sale_date);

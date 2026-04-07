@@ -193,39 +193,44 @@ CREATE TABLE IF NOT EXISTS insurance_policy_riders (
 -- =====================================================
 
 -- Sample Life Insurance Policies
-INSERT INTO insurance_policies (
+INSERT IGNORE INTO insurance_policies (
     user_id, policy_number, policy_type, provider_name, policy_name,
     sum_assured, coverage_amount, premium_amount, premium_frequency,
     premium_paying_term, policy_term, policy_start_date, policy_end_date,
     next_premium_date, policy_status, nominee_name, nominee_relation
 ) VALUES
-(1, 'LIC-123456789', 'TERM', 'LIC of India', 'Jeevan Anand Policy', 
+(1, 'LIC-123456789', 'TERM', 'LIC of India', 'Jeevan Anand Policy',
  5000000.00, 5000000.00, 15000.00, 'YEARLY', 20, 20, '2020-01-15', '2040-01-15',
  '2026-01-15', 'ACTIVE', 'Spouse Name', 'Spouse'),
- 
-(1, 'HDFC-987654321', 'ENDOWMENT', 'HDFC Life', 'Click 2 Invest ULIP', 
+
+(1, 'HDFC-987654321', 'ENDOWMENT', 'HDFC Life', 'Click 2 Invest ULIP',
  2000000.00, 2000000.00, 8000.00, 'MONTHLY', 10, 15, '2021-06-01', '2036-06-01',
  '2026-03-01', 'ACTIVE', 'Parent Name', 'Parent'),
- 
-(1, 'MAX-456789123', 'HEALTH', 'Max Bupa', 'Health Companion Individual', 
+
+(1, 'MAX-456789123', 'HEALTH', 'Max Bupa', 'Health Companion Individual',
  500000.00, 500000.00, 12000.00, 'YEARLY', 1, 1, '2025-04-01', '2026-04-01',
  '2026-04-01', 'ACTIVE', 'Self', 'Self');
+
+-- Resolve policy IDs dynamically — avoids FK errors when AUTO_INCREMENT doesn't start at 1
+SET @lic_id  = (SELECT id FROM insurance_policies WHERE policy_number = 'LIC-123456789'  AND user_id = 1 LIMIT 1);
+SET @hdfc_id = (SELECT id FROM insurance_policies WHERE policy_number = 'HDFC-987654321' AND user_id = 1 LIMIT 1);
+SET @max_id  = (SELECT id FROM insurance_policies WHERE policy_number = 'MAX-456789123'  AND user_id = 1 LIMIT 1);
 
 -- Sample Premium Payments
 INSERT INTO insurance_premium_payments (
     user_id, policy_id, payment_date, premium_amount, payment_mode,
     coverage_start_date, coverage_end_date, payment_status, receipt_number
 ) VALUES
-(1, 1, '2025-01-15', 15000.00, 'ONLINE', '2025-01-15', '2026-01-15', 'PAID', 'RCP-2025-001'),
-(1, 2, '2026-01-01', 8000.00, 'AUTO_DEBIT', '2026-01-01', '2026-02-01', 'PAID', 'RCP-2026-002'),
-(1, 2, '2026-02-01', 8000.00, 'AUTO_DEBIT', '2026-02-01', '2026-03-01', 'PAID', 'RCP-2026-003'),
-(1, 3, '2025-04-01', 12000.00, 'ONLINE', '2025-04-01', '2026-04-01', 'PAID', 'RCP-2025-004');
+(1, @lic_id,  '2025-01-15', 15000.00, 'ONLINE',    '2025-01-15', '2026-01-15', 'PAID', 'RCP-2025-001'),
+(1, @hdfc_id, '2026-01-01',  8000.00, 'AUTO_DEBIT', '2026-01-01', '2026-02-01', 'PAID', 'RCP-2026-002'),
+(1, @hdfc_id, '2026-02-01',  8000.00, 'AUTO_DEBIT', '2026-02-01', '2026-03-01', 'PAID', 'RCP-2026-003'),
+(1, @max_id,  '2025-04-01', 12000.00, 'ONLINE',    '2025-04-01', '2026-04-01', 'PAID', 'RCP-2025-004');
 
 -- Sample Policy Riders
 INSERT INTO insurance_policy_riders (
     policy_id, rider_name, rider_type, rider_sum_assured, rider_premium,
     rider_start_date, rider_end_date, is_active
 ) VALUES
-(1, 'Accidental Death Benefit', 'ACCIDENTAL_DEATH', 5000000.00, 500.00, '2020-01-15', '2040-01-15', TRUE),
-(1, 'Critical Illness Rider', 'CRITICAL_ILLNESS', 1000000.00, 800.00, '2020-01-15', '2040-01-15', TRUE),
-(3, 'Personal Accident Cover', 'ACCIDENTAL_DEATH', 1000000.00, 300.00, '2025-04-01', '2026-04-01', TRUE);
+(@lic_id, 'Accidental Death Benefit', 'ACCIDENTAL_DEATH', 5000000.00, 500.00, '2020-01-15', '2040-01-15', TRUE),
+(@lic_id, 'Critical Illness Rider',   'CRITICAL_ILLNESS', 1000000.00, 800.00, '2020-01-15', '2040-01-15', TRUE),
+(@max_id, 'Personal Accident Cover',  'ACCIDENTAL_DEATH', 1000000.00, 300.00, '2025-04-01', '2026-04-01', TRUE);

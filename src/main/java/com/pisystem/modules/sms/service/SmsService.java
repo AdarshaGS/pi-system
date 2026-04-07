@@ -1,6 +1,8 @@
 package com.pisystem.modules.sms.service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import com.pisystem.modules.sms.data.SMSImportRequest;
 import com.pisystem.modules.sms.data.SMSImportResponse;
@@ -37,5 +39,15 @@ public interface SmsService {
      * @return List of unprocessed transactions
      */
     List<SMSTransaction> getUnprocessedTransactions(Long userId);
-    
+
+    /**
+     * Fetch SUCCESS transactions within a date window (for transfer detection).
+     */
+    List<SMSTransaction> getTransactionsInWindow(Long userId, LocalDate startDate, LocalDate endDate);
+
+    /**
+     * Return the set of account numbers registered by a user (for transfer detection).
+     */
+    Set<String> getUserBankAccountNumbers(Long userId);
+
 }

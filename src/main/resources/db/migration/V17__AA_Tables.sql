@@ -44,5 +44,5 @@ VALUES
   DEFAULT,
   'aa-data-fetch',
   'http://localhost:8081/aa/fetch',
-  (SELECT id FROM external_service WHERE name = 'ACCOUNT_AGGREGATOR')
+  (SELECT id FROM external_services WHERE name = 'ACCOUNT_AGGREGATOR')
 );

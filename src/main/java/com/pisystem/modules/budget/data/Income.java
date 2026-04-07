@@ -58,4 +58,7 @@ public class Income {
 
     @Column(length = 500)
     private String description;
+
+    @Column(name = "sms_transaction_id")
+    private Long smsTransactionId; // Back-link to the SMS transaction that created this income
 }

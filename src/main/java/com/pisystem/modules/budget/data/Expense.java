@@ -46,6 +46,9 @@ public class Expense {
     @Column(length = 500)
     private String notes; // Additional notes or comments
 
+    @Column(name = "sms_transaction_id")
+    private Long smsTransactionId; // Back-link to the SMS transaction that created this expense
+
     @ManyToMany
     @JoinTable(
         name = "expense_tags",

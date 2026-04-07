@@ -7,7 +7,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +17,7 @@ import com.pisystem.modules.sms.data.ParsedSMSData;
 import com.pisystem.modules.sms.data.SMSTransaction.ParseStatus;
 import com.pisystem.modules.sms.data.SMSTransaction.TransactionType;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -35,7 +35,18 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SMSParserService {
+
+    private final SmsPatternRegistry patternRegistry;
+
+    /**
+     * Resolve a compiled pattern: returns the DB override if one exists for
+     * {@code key}, otherwise returns the static {@code fallback}.
+     */
+    private Pattern p(String key, Pattern fallback) {
+        return patternRegistry.get(key, fallback);
+    }
 
     // ==================== PATTERNS ====================
     
@@ -106,30 +117,11 @@ public class SMSParserService {
         DateTimeFormatter.ofPattern("dd MMM yyyy"),
         DateTimeFormatter.ofPattern("dd MMM yy"),
         DateTimeFormatter.ofPattern("MMM dd, yyyy"),
+        DateTimeFormatter.ofPattern("MMM d, yyyy"),
         DateTimeFormatter.ofPattern("yyyy-MM-dd"),
         DateTimeFormatter.ofPattern("ddMMMyyyy"),
         DateTimeFormatter.ofPattern("ddMMMyy")
     );
-    
-    // OPTIMIZATION: Group formatters by expected length for faster parsing
-    private static final Map<Integer, List<DateTimeFormatter>> FORMATTERS_BY_LENGTH = 
-        Map.of(
-            8, List.of(
-                DateTimeFormatter.ofPattern("dd-MM-yy"),
-                DateTimeFormatter.ofPattern("dd/MM/yy"),
-                DateTimeFormatter.ofPattern("ddMMMyy")
-            ),
-            10, List.of(
-                DateTimeFormatter.ofPattern("dd-MM-yyyy"),
-                DateTimeFormatter.ofPattern("dd/MM/yyyy"),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            ),
-            11, List.of(
-                DateTimeFormatter.ofPattern("dd-MMM-yyyy"),
-                DateTimeFormatter.ofPattern("dd MMM yyyy"),
-                DateTimeFormatter.ofPattern("ddMMMyyyy")
-            )
-        );
     
     // Enhanced date extraction pattern with "on" keyword
     private static final Pattern DATE_WITH_ON_PATTERN = Pattern.compile(
@@ -149,7 +141,7 @@ public class SMSParserService {
     );
     
     private static final Pattern ACCOUNT_PATTERN = Pattern.compile(
-        "(?:A/c|Account|a/c|acc)\\s*(?:no\\.?)?\\s*(?:ending\\s*)?(?:XX+)?([0-9]{4})",
+        "(?:A/c|Account|a/c|acc)\\s*(?:no\\.?)?\\s*(?:ending\\s*)?(?:[X*]+)?([0-9]{4,12})",
         Pattern.CASE_INSENSITIVE
     );
     
@@ -179,9 +171,9 @@ public class SMSParserService {
         Pattern.CASE_INSENSITIVE
     );
     
-    // UPI reference pattern
+    // UPI reference pattern — matches: UPI Ref, UPI RRN, UPI ID, UPI no, plain UPI + digits
     private static final Pattern UPI_PATTERN = Pattern.compile(
-        "(?:UPI|upi)\\s*(?:Ref|ref|ID|id)?\\s*(?::|no\\.?)?\\s*([0-9]+)",
+        "(?:UPI|upi)\\s*(?:Ref|ref|RRN|rrn|ID|id)?\\s*(?::|no\\.?)?\\s*([0-9]+)",
         Pattern.CASE_INSENSITIVE
     );
     
@@ -440,7 +432,7 @@ public class SMSParserService {
      * OPTIMIZATION: Use compiled pattern instead of List iteration
      */
     private boolean hasFutureIntent(String lowerMessage) {
-        return FUTURE_INTENT_PATTERN.matcher(lowerMessage).find();
+        return p("PARSER_FUTURE_INTENT", FUTURE_INTENT_PATTERN).matcher(lowerMessage).find();
     }
     
     
@@ -448,17 +440,17 @@ public class SMSParserService {
      * Extract amount from SMS
      */
     private BigDecimal extractAmount(String message) {
-        Matcher matcher = AMOUNT_PATTERN.matcher(message);
+        Matcher matcher = p("PARSER_AMOUNT_1", AMOUNT_PATTERN).matcher(message);
         if (matcher.find()) {
             return parseAmount(matcher.group(1));
         }
-        
+
         // Try alternative pattern
-        matcher = AMOUNT_PATTERN_2.matcher(message);
+        matcher = p("PARSER_AMOUNT_2", AMOUNT_PATTERN_2).matcher(message);
         if (matcher.find()) {
             return parseAmount(matcher.group(1));
         }
-        
+
         return null;
     }
     
@@ -481,22 +473,11 @@ public class SMSParserService {
      * RULE: If both debit and credit keywords present -> COMPLEX_TRANSACTION
      */
     private TransactionType extractTransactionType(String lowerMessage) {
-        boolean hasDebit = DEBIT_PATTERN.matcher(lowerMessage).find();
-        boolean hasCredit = CREDIT_PATTERN.matcher(lowerMessage).find();
-        
-        // RULE: Both present = complex transaction
-        if (hasDebit && hasCredit) {
-            return TransactionType.COMPLEX_TRANSACTION;
-        }
-        
-        if (hasDebit) {
-            return TransactionType.DEBIT;
-        }
-        
-        if (hasCredit) {
-            return TransactionType.CREDIT;
-        }
-        
+        boolean hasDebit  = p("PARSER_DEBIT",  DEBIT_PATTERN).matcher(lowerMessage).find();
+        boolean hasCredit = p("PARSER_CREDIT", CREDIT_PATTERN).matcher(lowerMessage).find();
+        if (hasDebit && hasCredit)  return TransactionType.COMPLEX_TRANSACTION;
+        if (hasDebit)               return TransactionType.DEBIT;
+        if (hasCredit)              return TransactionType.CREDIT;
         return TransactionType.UNKNOWN;
     }
     
@@ -507,7 +488,7 @@ public class SMSParserService {
      */
     private DateExtractionResult extractDateWithPriority(String message, LocalDate smsTimestamp) {
         // Try to extract date with "on" keyword first (highest priority)
-        Matcher onMatcher = DATE_WITH_ON_PATTERN.matcher(message);
+        Matcher onMatcher = p("PARSER_DATE_WITH_ON", DATE_WITH_ON_PATTERN).matcher(message);
         if (onMatcher.find()) {
             String dateStr = onMatcher.group(1).trim();
             LocalDate date = tryParseDate(dateStr);
@@ -516,9 +497,9 @@ public class SMSParserService {
                 return new DateExtractionResult(date, true);
             }
         }
-        
+
         // Try generic date pattern
-        Matcher dateMatcher = DATE_PATTERN.matcher(message);
+        Matcher dateMatcher = p("PARSER_DATE", DATE_PATTERN).matcher(message);
         while (dateMatcher.find()) {
             String dateStr = dateMatcher.group(1).trim();
             LocalDate date = tryParseDate(dateStr);
@@ -540,22 +521,15 @@ public class SMSParserService {
     }
     
     /**
-     * Try to parse date string with multiple formatters
-     */
-    /**
-     * Try to parse date string with multiple formatters
-     * OPTIMIZATION: Try formatters based on string length first (15-20% faster)
+     * Try to parse date string with multiple formatters.
+     * Always tries all DATE_FORMATTERS in order.
+     * (A length-based optimization was removed — it caused misses like
+     * "23-07-2025" being matched against yy-only formatters.)
      */
     private LocalDate tryParseDate(String dateStr) {
-        int length = dateStr.replaceAll("[^0-9a-zA-Z]", "").length();
-        
-        // Try length-specific formatters first
-        List<DateTimeFormatter> formatters = FORMATTERS_BY_LENGTH.getOrDefault(length, DATE_FORMATTERS);
-        
-        for (DateTimeFormatter formatter : formatters) {
+        for (DateTimeFormatter formatter : DATE_FORMATTERS) {
             try {
                 LocalDate date = LocalDate.parse(dateStr, formatter);
-                // Sanity check: date should not be in far future
                 if (!date.isAfter(LocalDate.now().plusDays(1))) {
                     return date;
                 }
@@ -566,9 +540,6 @@ public class SMSParserService {
         return null;
     }
     
-    /**
-     * Helper class to return date with metadata
-     */
     private static class DateExtractionResult {
         LocalDate date;
         boolean fromMessage;
@@ -579,10 +550,6 @@ public class SMSParserService {
         }
     }
     
-    
-    /**
-     * Extract time from SMS
-     */
     private LocalTime extractTime(String message) {
         Matcher matcher = TIME_PATTERN.matcher(message);
         if (matcher.find()) {
@@ -608,43 +575,59 @@ public class SMSParserService {
     }
     
     /**
-     * Enhanced merchant extraction
+     * Banking action verbs that must never be stored as a merchant name.
+     * These appear in transfer phrases like "to credit a/c XXXX" or "from debit a/c".
+     */
+    private static final Set<String> MERCHANT_BLACKLIST = java.util.Set.of(
+            "credit", "debit", "transfer", "account", "balance"
+    );
+
+    /**
+     * Enhanced merchant extraction.
+     * Falls back to the UPI reference number (RRN / Ref / ID) when no valid
+     * named merchant can be extracted, so the field is never empty for UPI
+     * transactions like "to credit a/c XXXX (UPI RRN 284982567069)".
      */
     private String extractMerchant(String message) {
-        Matcher matcher = MERCHANT_PATTERN.matcher(message);
+        Matcher matcher = p("PARSER_MERCHANT", MERCHANT_PATTERN).matcher(message);
         if (matcher.find()) {
             String merchant = matcher.group(1).trim();
-            // Clean up common suffixes
             merchant = merchant.replaceAll("(?i)\\s+(using|via|with)$", "");
-            return merchant;
+            if (!MERCHANT_BLACKLIST.contains(merchant.toLowerCase())) {
+                return merchant;
+            }
+        }
+        // Fallback: use UPI reference / RRN as a pseudo-merchant identifier
+        Matcher upiMatcher = p("PARSER_UPI", UPI_PATTERN).matcher(message);
+        if (upiMatcher.find()) {
+            return "UPI Ref " + upiMatcher.group(1);
         }
         return null;
     }
     
     /**
-     * Extract account number (last 4 digits)
+     * Returns "XXXX" + last 4 digits of the captured digit string.
+     * e.g. "465339" → "XXXX5339", "1234" → "XXXX1234"
      */
+    private String maskAccount(String digits) {
+        if (digits == null || digits.length() < 4) return "XXXX" + digits;
+        return "XXXX" + digits.substring(digits.length() - 4);
+    }
+
     private String extractAccount(String message) {
-        Matcher matcher = ACCOUNT_PATTERN.matcher(message);
+        Matcher matcher = p("PARSER_ACCOUNT", ACCOUNT_PATTERN).matcher(message);
         if (matcher.find()) {
-            return "XXXX" + matcher.group(1);
+            return maskAccount(matcher.group(1));
         }
         return null;
     }
     
-    /**
-     * Extract FROM account (source account for transfers)
-     */
     private String extractFromAccount(String message) {
         log.error("[DEBUG] extractFromAccount called with message: {}", message.substring(0, Math.min(100, message.length())));
-        Matcher matcher = FROM_ACCOUNT_PATTERN.matcher(message);
+        Matcher matcher = p("PARSER_FROM_ACCOUNT", FROM_ACCOUNT_PATTERN).matcher(message);
         if (matcher.find()) {
-            String captured = matcher.group(1);
-            String result = "XXXX" + captured;
-            log.error("[DEBUG] FROM account MATCHED - captured='{}', result='{}'", captured, result);
-            if (log.isDebugEnabled()) {
-                log.debug("FROM account extracted: captured='{}', result='{}'", captured, result);
-            }
+            String result = maskAccount(matcher.group(1));
+            log.error("[DEBUG] FROM account MATCHED - result='{}'", result);
             return result;
         }
         log.error("[DEBUG] FROM account NOT MATCHED");
@@ -659,13 +642,12 @@ public class SMSParserService {
      */
     private String extractToAccount(String message) {
         log.error("[DEBUG] extractToAccount called with message: {}", message.substring(0, Math.min(100, message.length())));
-        Matcher matcher = TO_ACCOUNT_PATTERN.matcher(message);
+        Matcher matcher = p("PARSER_TO_ACCOUNT", TO_ACCOUNT_PATTERN).matcher(message);
         if (matcher.find()) {
-            String captured = matcher.group(1);
-            String result = "XXXX" + captured;
-            log.error("[DEBUG] TO account MATCHED - captured='{}', result='{}'", captured, result);
+            String result = maskAccount(matcher.group(1));
+            log.error("[DEBUG] TO account MATCHED - result='{}'", result);
             if (log.isDebugEnabled()) {
-                log.debug("TO account extracted: captured='{}', result='{}'", captured, result);
+                log.debug("TO account extracted: result='{}'", result);
             }
             return result;
         }
@@ -691,7 +673,7 @@ public class SMSParserService {
      * Extract balance
      */
     private BigDecimal extractBalance(String message) {
-        Matcher matcher = BALANCE_PATTERN.matcher(message);
+        Matcher matcher = p("PARSER_BALANCE", BALANCE_PATTERN).matcher(message);
         if (matcher.find()) {
             String balanceStr = matcher.group(1).replace(",", "");
             try {
@@ -707,7 +689,7 @@ public class SMSParserService {
      * Extract UPI ID
      */
     private String extractUpiId(String message) {
-        Matcher matcher = UPI_PATTERN.matcher(message);
+        Matcher matcher = p("PARSER_UPI", UPI_PATTERN).matcher(message);
         if (matcher.find()) {
             return matcher.group(1);
         }
@@ -718,7 +700,7 @@ public class SMSParserService {
      * Extract reference number
      */
     private String extractReferenceNumber(String message) {
-        Matcher matcher = REF_PATTERN.matcher(message);
+        Matcher matcher = p("PARSER_REFERENCE", REF_PATTERN).matcher(message);
         if (matcher.find()) {
             return matcher.group(1);
         }
@@ -733,7 +715,7 @@ public class SMSParserService {
      * OPTIMIZATION: Use compiled pattern instead of List iteration
      */
     private boolean detectRecurring(String lowerMessage) {
-        boolean isRecurring = RECURRING_PATTERN.matcher(lowerMessage).find();
+        boolean isRecurring = p("PARSER_RECURRING", RECURRING_PATTERN).matcher(lowerMessage).find();
         if (isRecurring && log.isDebugEnabled()) {
             log.debug("Recurring payment detected");
         }

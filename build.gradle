@@ -9,7 +9,7 @@ plugins {
 apply from: 'test-report-config.gradle'
 
 springBoot {
-	mainClass = 'com.main.Application'
+	mainClass = 'com.pisystem.PiSystemApplication'
 }
 
 group = 'com.stocks'
@@ -93,7 +93,7 @@ tasks.named('jar') {
 }
 
 tasks.named('bootJar') {
-    mainClass = 'com.main.Application'
+    mainClass = 'com.pisystem.PiSystemApplication'
 }
 
 // JaCoCo Configuration for Test Coverage
