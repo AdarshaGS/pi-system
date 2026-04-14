@@ -12,7 +12,10 @@ export const useFeatures = () => {
 };
 
 export const FeatureProvider = ({ children }) => {
+    // flags: { FEATURE_NAME: true }  — only truly-enabled flags appear here
     const [features, setFeatures] = useState({});
+    // modules: [{ module, displayName, enabled, category, subFeatures: [...] }]
+    const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -24,26 +27,28 @@ export const FeatureProvider = ({ children }) => {
                 return;
             }
 
-            const enabledFeatures = await featureApi.getEnabledFeatures(user.token);
-            
-            // Convert array of feature names/objects to object for quick lookup
+            // Load flat enabled list + module hierarchy in parallel
+            const [enabledFeatures, moduleHierarchy] = await Promise.all([
+                featureApi.getEnabledFeatures(user.token),
+                featureApi.getModuleHierarchy(user.token).catch(() => []),
+            ]);
+
             const featureMap = {};
             if (Array.isArray(enabledFeatures)) {
                 enabledFeatures.forEach(feature => {
                     const featureName = typeof feature === 'string' ? feature : feature.name;
-                    if (featureName) {
-                        featureMap[featureName] = true;
-                    }
+                    if (featureName) featureMap[featureName] = true;
                 });
             }
-            
+
             setFeatures(featureMap);
+            setModules(Array.isArray(moduleHierarchy) ? moduleHierarchy : []);
             setError(null);
         } catch (err) {
             console.error('Failed to load features:', err);
             setError(err.message);
-            // Set empty features on error - all features disabled by default
             setFeatures({});
+            setModules([]);
         } finally {
             setLoading(false);
         }
@@ -51,15 +56,29 @@ export const FeatureProvider = ({ children }) => {
 
     useEffect(() => {
         loadFeatures();
-        
-        // Reload features every 5 minutes
         const interval = setInterval(loadFeatures, 5 * 60 * 1000);
         return () => clearInterval(interval);
     }, []);
 
-    const isFeatureEnabled = (featureName) => {
-        return features[featureName] === true;
+    /** True only if the named flag is in the enabled set (backend already resolves parent). */
+    const isFeatureEnabled = (featureName) => features[featureName] === true;
+
+    /**
+     * Returns the sub-features array for a given module name.
+     * Each item: { name, displayName, description, enabled }
+     */
+    const getSubFeatures = (moduleName) => {
+        const mod = modules.find(m => m.module === moduleName);
+        return mod ? mod.subFeatures : [];
     };
+
+    /**
+     * True if the module is enabled AND the specific sub-feature is enabled.
+     * Equivalent to isFeatureEnabled(subFeatureName) since the backend already
+     * accounts for the parent, but provided as a documented helper.
+     */
+    const isSubFeatureEnabled = (moduleName, subFeatureName) =>
+        isFeatureEnabled(moduleName) && isFeatureEnabled(subFeatureName);
 
     const refreshFeatures = async () => {
         setLoading(true);
@@ -67,12 +86,15 @@ export const FeatureProvider = ({ children }) => {
     };
 
     return (
-        <FeatureContext.Provider value={{ 
-            features, 
-            loading, 
-            error, 
+        <FeatureContext.Provider value={{
+            features,
+            modules,
+            loading,
+            error,
             isFeatureEnabled,
-            refreshFeatures 
+            isSubFeatureEnabled,
+            getSubFeatures,
+            refreshFeatures,
         }}>
             {children}
         </FeatureContext.Provider>

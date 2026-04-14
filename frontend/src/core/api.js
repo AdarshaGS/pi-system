@@ -166,6 +166,7 @@ export const externalServicesApi = {
 export const featureApi = {
     getAllFeatures: (token) => apiCall('/v1/features', 'GET', null, token),
     getEnabledFeatures: (token) => apiCall('/v1/features/enabled', 'GET', null, token),
+    getModuleHierarchy: (token) => apiCall('/v1/features/modules', 'GET', null, token),
     isFeatureEnabled: (featureName, token) => apiCall(`/v1/features/${featureName}/enabled`, 'GET', null, token),
     enableFeature: (featureName, token) => apiCall(`/v1/features/${featureName}/enable`, 'POST', null, token),
     disableFeature: (featureName, token) => apiCall(`/v1/features/${featureName}/disable`, 'POST', null, token),

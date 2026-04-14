@@ -18,7 +18,11 @@ public class FeatureConfig {
     @Enumerated(EnumType.STRING)
     @Column(name = "feature_flag", nullable = false, unique = true, length = 100)
     private FeatureFlag featureFlag;
-    
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "parent_feature_flag", length = 100)
+    private FeatureFlag parentFeatureFlag;
+
     @Column(name = "enabled", nullable = false)
     private Boolean enabled = true;
     
@@ -79,11 +83,19 @@ public class FeatureConfig {
     public FeatureFlag getFeatureFlag() {
         return featureFlag;
     }
-    
+
     public void setFeatureFlag(FeatureFlag featureFlag) {
         this.featureFlag = featureFlag;
     }
-    
+
+    public FeatureFlag getParentFeatureFlag() {
+        return parentFeatureFlag;
+    }
+
+    public void setParentFeatureFlag(FeatureFlag parentFeatureFlag) {
+        this.parentFeatureFlag = parentFeatureFlag;
+    }
+
     public Boolean getEnabled() {
         return enabled;
     }

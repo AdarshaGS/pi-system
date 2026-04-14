@@ -51,16 +51,18 @@ public class LendingServiceImpl implements LendingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<LendingDTO> getUserLendings(Long userId) {
         authenticationHelper.validateUserAccess(userId);
-        return lendingRepository.findByUserId(userId).stream()
+        return lendingRepository.findByUserIdWithRepayments(userId).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public LendingDTO getLendingById(Long id) {
-        LendingRecord record = lendingRepository.findById(id)
+        LendingRecord record = lendingRepository.findByIdWithRepayments(id)
                 .orElseThrow(() -> new RuntimeException("Lending record not found with id: " + id));
         authenticationHelper.validateUserAccess(record.getUserId());
         return mapToDTO(record);

@@ -121,3 +121,37 @@ logging:
     com.investments.stocks: INFO
     com.investments.stocks.scheduler: DEBUG
     org.springframework.scheduling: INFO
+
+# ============================================================================
+# MIGRATION SYSTEM CONFIGURATION
+# ============================================================================
+migration:
+  # Baseline generation
+  baseline-enabled: false
+  baseline-file-name: V1__baseline.sql
+  
+  # Validation
+  validation-enabled: true
+  fail-on-validation-error: false  # Set to true after first successful migration
+  
+  # Schema drift detection
+  drift-detection-enabled: true
+  fail-on-drift: false
+  
+  # Modular migrations
+  modular-enabled: false
+  modules: []
+  
+  # Execution mode
+  async-execution: false
+  long-running-threshold-seconds: 30
+  
+  # Safety checks
+  backward-compatibility-checks: true
+  allow-destructive-operations: false
+  
+  # Archival
+  archival-enabled: false
+  archive-after-days: 365
+  archive-directory: archive
+  repeatable-directory: repeatable

@@ -158,6 +158,37 @@ public class FeatureController {
         return ResponseEntity.ok(config);
     }
 
+    /**
+     * Get module hierarchy — each module with its sub-features and their enabled status
+     */
+    @GetMapping("/modules")
+    @Operation(summary = "Get module hierarchy", description = "Returns each module flag with its sub-features and enabled status")
+    public ResponseEntity<List<Map<String, Object>>> getModuleHierarchy() {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        featureConfigService.getModuleFeatures().forEach((module, subFeatures) -> {
+            Map<String, Object> moduleEntry = new LinkedHashMap<>();
+            moduleEntry.put("module", module.name());
+            moduleEntry.put("displayName", module.getDisplayName());
+            moduleEntry.put("enabled", featureConfigService.isFeatureEnabled(module));
+            moduleEntry.put("category", module.getCategory());
+
+            List<Map<String, Object>> subList = subFeatures.stream().map(sub -> {
+                Map<String, Object> subEntry = new LinkedHashMap<>();
+                subEntry.put("name", sub.name());
+                subEntry.put("displayName", sub.getDisplayName());
+                subEntry.put("description", sub.getDescription());
+                subEntry.put("enabled", featureConfigService.isFeatureEnabled(sub));
+                return subEntry;
+            }).collect(Collectors.toList());
+
+            moduleEntry.put("subFeatures", subList);
+            result.add(moduleEntry);
+        });
+
+        return ResponseEntity.ok(result);
+    }
+
     // ============ ADMIN ENDPOINTS ============
 
     /**

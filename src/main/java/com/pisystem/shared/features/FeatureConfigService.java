@@ -3,6 +3,8 @@ package com.pisystem.shared.features;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ public class FeatureConfigService {
     
     @Autowired
     private FeatureConfigRepository featureConfigRepository;
+
+    @Autowired
+    private CacheManager cacheManager;
     
     /**
      * Initialize feature configs on startup
@@ -35,12 +40,22 @@ public class FeatureConfigService {
             if (!featureConfigRepository.existsByFeatureFlag(flag)) {
                 FeatureConfig config = new FeatureConfig();
                 config.setFeatureFlag(flag);
+                config.setParentFeatureFlag(flag.getParentFlag());
                 config.setDescription(flag.getDescription());
                 config.setCategory(flag.getCategory());
-                config.setEnabled(true); // All features enabled by default
-                
+                config.setEnabled(true);
+
                 featureConfigRepository.save(config);
-                logger.info("Initialized feature: {} (enabled: {})", flag.name(), true);
+                logger.info("Initialized feature: {} (parent: {})", flag.name(),
+                        flag.getParentFlag() != null ? flag.getParentFlag().name() : "none");
+            } else {
+                // Backfill parent link for rows that existed before the hierarchy was introduced
+                featureConfigRepository.findByFeatureFlag(flag).ifPresent(existing -> {
+                    if (existing.getParentFeatureFlag() == null && flag.getParentFlag() != null) {
+                        existing.setParentFeatureFlag(flag.getParentFlag());
+                        featureConfigRepository.save(existing);
+                    }
+                });
             }
         }
         
@@ -48,14 +63,26 @@ public class FeatureConfigService {
     }
     
     /**
-     * Check if a feature is enabled
-     * Only checks database configuration
+     * Check if a feature is enabled.
+     *
+     * <p>For sub-features, the parent module must also be enabled.
+     * The result is cached per flag name.
      */
     @Cacheable(value = "featureFlags", key = "#flag != null ? #flag.name() : 'null'", unless = "#flag == null")
     public boolean isFeatureEnabled(FeatureFlag flag) {
         if (flag == null) {
             return false;
         }
+
+        // Parent module must be enabled for any sub-feature to be active
+        FeatureFlag parent = flag.getParentFlag();
+        if (parent != null) {
+            Optional<FeatureConfig> parentConfig = featureConfigRepository.findByFeatureFlag(parent);
+            if (parentConfig.isPresent() && Boolean.FALSE.equals(parentConfig.get().getEnabled())) {
+                return false;
+            }
+        }
+
         Optional<FeatureConfig> config = featureConfigRepository.findByFeatureFlag(flag);
         return config.map(FeatureConfig::getEnabled).orElse(true);
     }
@@ -218,11 +245,29 @@ public class FeatureConfigService {
     }
     
     /**
-     * Clear feature cache (when config changes)
+     * Returns a map of each module flag to its list of sub-features.
+     * Only module-level flags are keys.
+     */
+    public Map<FeatureFlag, List<FeatureFlag>> getModuleFeatures() {
+        Map<FeatureFlag, List<FeatureFlag>> result = new LinkedHashMap<>();
+        Arrays.stream(FeatureFlag.values())
+                .filter(FeatureFlag::isModuleFlag)
+                .forEach(module -> result.put(module, module.getSubFeatures()));
+        return result;
+    }
+
+    /**
+     * Evicts the flag from cache.
+     * For module-level flags, also evicts all child sub-feature entries so
+     * they re-evaluate against the updated parent state on next access.
      */
     private void clearFeatureCache(FeatureFlag flag) {
-        // Cache eviction would go here if using @CacheEvict
-        logger.debug("Cleared cache for feature: {}", flag.name());
+        Cache cache = cacheManager.getCache("featureFlags");
+        if (cache != null) {
+            cache.evict(flag.name());
+            flag.getSubFeatures().forEach(sub -> cache.evict(sub.name()));
+        }
+        logger.debug("Evicted cache for: {} (+{} sub-features)", flag.name(), flag.getSubFeatures().size());
     }
     
     /**

@@ -237,6 +237,7 @@ public class BudgetService {
         List<Income> incomes = incomeRepository.findByUserIdAndDateBetween(userId, start, end);
 
         Map<ExpenseCategory, BigDecimal> spentPerCategory = expenses.stream()
+                .filter(e -> e.getCategory() != null)
                 .collect(Collectors.groupingBy(
                         Expense::getCategory,
                         Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));

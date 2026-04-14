@@ -1,9 +1,5 @@
 package com.pisystem.shared.features;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * DTO for feature information exposed to UI
  */
@@ -17,6 +13,8 @@ public class FeatureDTO {
     private Boolean betaFeature;
     private Boolean requiresSubscription;
     private String minSubscriptionTier;
+    private String parentFlag;
+    private boolean moduleFlag;
     
     public FeatureDTO() {
     }
@@ -29,6 +27,8 @@ public class FeatureDTO {
         this.enabled = enabled;
         this.betaFeature = false;
         this.requiresSubscription = false;
+        this.parentFlag = flag.getParentFlag() != null ? flag.getParentFlag().name() : null;
+        this.moduleFlag = flag.isModuleFlag();
     }
     
     public FeatureDTO(FeatureFlag flag, FeatureConfig config) {
@@ -40,6 +40,8 @@ public class FeatureDTO {
         this.betaFeature = config.getBetaFeature();
         this.requiresSubscription = config.getRequiresSubscription();
         this.minSubscriptionTier = config.getMinSubscriptionTier();
+        this.parentFlag = flag.getParentFlag() != null ? flag.getParentFlag().name() : null;
+        this.moduleFlag = flag.isModuleFlag();
     }
     
     // Getters and Setters
@@ -106,5 +108,21 @@ public class FeatureDTO {
     
     public void setMinSubscriptionTier(String minSubscriptionTier) {
         this.minSubscriptionTier = minSubscriptionTier;
+    }
+
+    public String getParentFlag() {
+        return parentFlag;
+    }
+
+    public void setParentFlag(String parentFlag) {
+        this.parentFlag = parentFlag;
+    }
+
+    public boolean isModuleFlag() {
+        return moduleFlag;
+    }
+
+    public void setModuleFlag(boolean moduleFlag) {
+        this.moduleFlag = moduleFlag;
     }
 }
